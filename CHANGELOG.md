@@ -1,4 +1,30 @@
 **CHANGELOG**
+# [2.5.0] - 14/8/2026
+
+## Added
+
+- **Mechanical Roost** — an RF-powered four-row roost that automates chicken production, with dedicated progress, energy, output, and upgrade slots.
+- **Mechanical Nest** — place a Robot Rooster inside to power an RF aura that boosts nearby Roosts and Mechanical Roosts. Jade now reports its range, boost strength, active roosts, conflicts, and energy use.
+- **Robot Chicken and Robot Rooster progression**
+  - Feed eligible machine upgrades to a Smart Chicken to convert it into a Robot Chicken. Each conversion requires a random 8–48 upgrades.
+  - Pair a Robot Chicken with a Rooster in the Overworld to begin a two-minute conversion. Completed Robot Roosters can power a Mechanical Nest.
+  - Added dedicated Robot Chicken and Robot Rooster items, spawn eggs, catcher support, JEI recipes, and progress feedback.
+- **Lava Chicken** — Vanilla and Smart Chickens killed by lava can drop this rare food. Eating it grants 15 seconds of Regeneration III, Absorption IV, healing, movement speed, fire/lava immunity, and a short-lived harmless fire trail. It has a 30-second cooldown and a JEI entry.
+- **Machine upgrades** — craftable Speed, Stack, Storage Capacity, Range, and RF Capacity upgrades are now supported across the relevant chicken machines.
+- **Machine Configurator** — configure item, fluid, chemical, and energy automation per face using Disabled, Input, Output, or Input/Output modes.
+- **Mega Chicken customization and loot** — rare end-game drops now provide 13 themed skin crates for owned Mega Chickens, including Zombie, Valentine's, Toxic, Reptar, Rambo, Pink, Fox, Duck, Dodo, Deep Dark, Creeper, Big Brain, and Aviator skins. Robot Chicken and Robot Rooster items can apply robotic appearances, while Nether Stars and Dragon's Breath adjust Mega Chicken size.
+- **KubeJS extensions** — the registry event now supports teaching and modifying breeds, fluid and chemical lineage overrides, per-breed spawn weights, fluid/chemical/gas egg metadata and hazard overrides, and custom items through the `chickens:nest_seeds` tag.
+
+## Changed
+
+- Supported machines now expose their RF operation cost, progress, capacity, and automation state through their in-game tooltips and integration overlays.
+- Nest and Mechanical Nest aura data is available through the regular Jade HUD path, including duration, multiplier, range, and conflicting active nests.
+
+## Fixed
+
+- Dynamic Mekanism chemical chickens now use readable localized names instead of leaking unresolved translation keys.
+- Roosters can now correctly breed with custom chicken hens, preserving the hen's lineage and stats for the offspring.
+
 # [2.4.0] - 11/8/2026
 
 ## Added
@@ -19,7 +45,6 @@
     ```
 
     Supports `displayName`, `layItem`, `dropItem`, `parent1`/`parent2`/`parents`, `tier`, `spawnType`, `allowNaturalSpawn`, `primaryColor`, `secondaryColor`, `layCoefficient`, `generatedTexture`, `texturePath`, `itemTexture`, `allowDousing`, `liquidDousingCost`, `enabled` and `id`. Registry ids are derived from the chicken name (6,000,000+ span) so they stay stable across script edits and load order changes.
-  - The same startup event now supports `teach`, `modify`, fluid/chemical lineage overrides, per-breed `spawnWeight`, and fluid/chemical/gas egg metadata and hazard overrides. Rooster nest inputs use the extensible `chickens:nest_seeds` item tag.
   - **Recipe schema for `chickens:avian_dousing`** — `event.recipes.chickens.avian_dousing(result, input, reagent).energy(rf)`. The raw `event.custom({ type: 'chickens:avian_dousing', ... })` form keeps working and produces identical JSON.
   - Full reference and runnable examples in `wiki.md` and `Examples/KubeJS/`.
 - **Avian Dousing recipes now accept item and block IDs** in `input` and `result`, not just chicken names, so the machine can convert items as well as chickens. Fields resolve as a chicken name first and an item ID second, which keeps every existing recipe working unchanged.

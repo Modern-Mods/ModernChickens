@@ -47,7 +47,7 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         generatedItem("storagecapacity", "storagecapacity");
         generatedItem("rangeupgrade", "rangeupgrade");
         generatedItem("rfupgrade", "rfupgrade");
-        generatedItem("configurator", "placementwand");
+        generatedItem("configurator", "configurator");
         generatedItem("gas_egg", "gas_egg");
         generatedItem("chemical_egg", "chemical_egg");
         generatedItem("mega_chicken", "mega_chicken");
