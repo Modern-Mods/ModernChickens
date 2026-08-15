@@ -52,10 +52,10 @@
         "west": {
           "texture": "#side",
           "uv": [
-            0.0,
-            0.0,
-            16.0,
-            16.0
+            1.0,
+            1.0,
+            15.0,
+            15.0
           ]
         }
       },
@@ -66,7 +66,7 @@
       ],
       "to": [
         1,
-        16,
+        15,
         15
       ]
     },
@@ -84,14 +84,20 @@
         "east": {
           "texture": "#side",
           "uv": [
-            0.0,
+            1.0,
+            1.0,
+            15.0,
+            15.0
+          ]
+        },
+        "south": {
+          "texture": "#side",
+          "uv": [
+            15.0,
             0.0,
             16.0,
             16.0
           ]
-        },
-        "south": {
-          "texture": "#side"
         },
         "up": {
           "texture": "#side",
@@ -119,7 +125,7 @@
       ],
       "to": [
         16,
-        16,
+        15,
         15
       ]
     },
@@ -129,22 +135,10 @@
           "texture": "#bottom"
         },
         "east": {
-          "texture": "#bottom",
-          "uv": [
-            0.0,
-            0.0,
-            16.0,
-            1.0
-          ]
+          "texture": "#bottom"
         },
         "north": {
-          "texture": "#front_idle",
-          "uv": [
-            0.0,
-            15.0,
-            16.0,
-            16.0
-          ]
+          "texture": "#front"
         },
         "south": {
           "texture": "#side",
@@ -170,12 +164,12 @@
       },
       "from": [
         0,
-        16,
+        15,
         0
       ],
       "to": [
         16,
-        17,
+        16,
         16
       ]
     },
@@ -262,10 +256,22 @@
           ]
         },
         "north": {
-          "texture": "#front"
+          "texture": "#front",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            15.0
+          ]
         },
         "south": {
-          "texture": "#front"
+          "texture": "#front_active",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
         },
         "up": {
           "texture": "#bottom",
@@ -293,7 +299,7 @@
       ],
       "to": [
         16,
-        16,
+        15,
         1
       ]
     },
@@ -309,10 +315,22 @@
           ]
         },
         "east": {
-          "texture": "#side"
+          "texture": "#side",
+          "uv": [
+            0.0,
+            0.0,
+            1.0,
+            16.0
+          ]
         },
         "north": {
-          "texture": "#side"
+          "texture": "#side",
+          "uv": [
+            0.0,
+            0.0,
+            16.0,
+            16.0
+          ]
         },
         "south": {
           "texture": "#side"
@@ -327,7 +345,13 @@
           ]
         },
         "west": {
-          "texture": "#side"
+          "texture": "#side",
+          "uv": [
+            15.0,
+            0.0,
+            16.0,
+            16.0
+          ]
         }
       },
       "from": [
@@ -337,7 +361,7 @@
       ],
       "to": [
         16,
-        16,
+        15,
         16
       ]
     }
@@ -346,7 +370,7 @@
   "textures": {
     "bottom": "chickens:block/machines/mechanical_nest_bottom",
     "front": "chickens:block/machines/mechanical_nest_front_active",
-    "front_idle": "chickens:block/machines/mechanical_nest_front",
+    "front_active": "chickens:block/machines/mechanical_nest_front_active",
     "side": "chickens:block/machines/mechanical_nest_side",
     "top": "chickens:block/machines/mechanical_nest_top_active"
   }
