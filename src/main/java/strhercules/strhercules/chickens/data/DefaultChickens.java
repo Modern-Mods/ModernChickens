@@ -5,7 +5,9 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.LiquidEggRegistry;
 import strhercules.chickens.LiquidEggRegistryItem;
 import strhercules.chickens.SpawnType;
+import strhercules.chickens.item.ChemicalEggItem;
 import strhercules.chickens.item.FluxEggItem;
+import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.item.LiquidEggItem;
 import strhercules.chickens.registry.ModRegistry;
 import net.minecraft.resources.ResourceLocation;
@@ -412,9 +414,25 @@ public final class DefaultChickens {
         DynamicChemicalChickens.register(chickens, byName);
         DynamicGasChickens.register(chickens, byName);
 
-
+        markLayeredResourceChickens(chickens, smartChicken, vanillaChicken);
 
         return chickens;
+    }
+
+    private static void markLayeredResourceChickens(List<ChickensRegistryItem> chickens,
+            ChickensRegistryItem smartChicken, ChickensRegistryItem vanillaChicken) {
+        for (ChickensRegistryItem chicken : chickens) {
+            if (chicken == smartChicken || chicken == vanillaChicken || chicken.isCustom()) {
+                continue;
+            }
+            ItemStack layItem = chicken.createLayItem();
+            if (layItem.getItem() instanceof LiquidEggItem
+                    || layItem.getItem() instanceof ChemicalEggItem
+                    || layItem.getItem() instanceof GasEggItem) {
+                continue;
+            }
+            chicken.setLayeredResourceTexture(true);
+        }
     }
 
     private static ChickensRegistryItem createDyeChicken(DyeColor color, String name) {

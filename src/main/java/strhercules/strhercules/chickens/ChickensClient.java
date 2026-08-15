@@ -174,7 +174,7 @@ public final class ChickensClient {
         event.register((stack, tint) -> getLiquidEggColor(stack), ModRegistry.LIQUID_EGG.get());
         event.register((stack, tint) -> getChemicalEggColor(stack), ModRegistry.CHEMICAL_EGG.get());
         event.register((stack, tint) -> getGasEggColor(stack), ModRegistry.GAS_EGG.get());
-        event.register((stack, tint) -> getChickenItemColor(stack, tint == 0), ModRegistry.CHICKEN_ITEM.get());
+        event.register((stack, tint) -> getChickenItemColor(stack, tint), ModRegistry.CHICKEN_ITEM.get());
     }
 
     @SubscribeEvent
@@ -231,7 +231,7 @@ public final class ChickensClient {
         return encodeChickenColor(chicken, primary);
     }
 
-    private static int getChickenItemColor(ItemStack stack, boolean primaryLayer) {
+    private static int getChickenItemColor(ItemStack stack, int tintIndex) {
         ChickensRegistryItem chicken = ChickenItemHelper.resolve(stack);
         if (chicken == null) {
             return 0xFFFFFFFF;
@@ -241,7 +241,17 @@ public final class ChickensClient {
             // a bespoke item texture.
             return 0xFFFFFFFF;
         }
-        return encodeChickenColor(chicken, primaryLayer);
+        if (ChickenItemSpriteModels.usesBoneOverlay(chicken)) {
+            return tintIndex == 1 ? 0xFF000000 | LiquidChickenOverlayLayer.itemOverlayTint(chicken) : 0xFFFFFFFF;
+        }
+        if (chicken.hasLayeredResourceTexture()) {
+            return switch (tintIndex) {
+                case 0, 1 -> encodeChickenColor(chicken, true);
+                case 2 -> encodeChickenColor(chicken, false);
+                default -> 0xFFFFFFFF;
+            };
+        }
+        return encodeChickenColor(chicken, tintIndex == 0);
     }
 
     private static int encodeChickenColor(ChickensRegistryItem chicken, boolean primaryLayer) {

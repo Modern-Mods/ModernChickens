@@ -6,6 +6,8 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.LiquidEggRegistry;
 import strhercules.chickens.LiquidEggRegistryItem;
 import strhercules.chickens.SpawnType;
+import strhercules.chickens.item.ChemicalEggItem;
+import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.item.LiquidEggItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -136,6 +138,7 @@ final class ModdedChickens {
                     def.fgColor(),
                     parent1,
                     parent2);
+            chicken.setLayeredResourceTexture(isResourceLayItem(layStack));
             chicken.setSpawnType(def.spawnType());
             if (def.dropItemSupplier() != null) {
                 def.dropItemSupplier().get().ifPresent(chicken::setDropItem);
@@ -159,6 +162,12 @@ final class ModdedChickens {
             }
             PENDING.remove(def.id());
         }
+    }
+
+    private static boolean isResourceLayItem(ItemStack layStack) {
+        return !(layStack.getItem() instanceof LiquidEggItem)
+                && !(layStack.getItem() instanceof ChemicalEggItem)
+                && !(layStack.getItem() instanceof GasEggItem);
     }
 
     private static List<Definition> buildDefinitions() {

@@ -24,8 +24,22 @@ public final class DynamicChickenTextures {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensDynamicTextures");
     private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             "minecraft", "textures/entity/chicken.png");
+    private static final ResourceLocation LAYERED_BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/entity/chicken_base_two.png");
+    private static final ResourceLocation LAYERED_PRIMARY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/entity/chicken_resource.png");
+    private static final ResourceLocation LAYERED_FOREGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/entity/chicken_resource_two.png");
+    private static final ResourceLocation LAYERED_PARTS_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/entity/chicken_parts.png");
+    private static final int LAYERED_TEXTURE_WIDTH = 64;
+    private static final int LAYERED_TEXTURE_HEIGHT = 32;
     private static final Map<Integer, ResourceLocation> CACHE = new HashMap<>();
     private static NativeImage baseImageCache;
+    private static NativeImage layeredBaseImageCache;
+    private static NativeImage layeredPrimaryImageCache;
+    private static NativeImage layeredForegroundImageCache;
+    private static NativeImage layeredPartsImageCache;
 
     private DynamicChickenTextures() {
     }
@@ -35,6 +49,21 @@ public final class DynamicChickenTextures {
     }
 
     private static ResourceLocation generateTexture(ChickensRegistryItem chicken) {
+        if (chicken.hasLayeredResourceTexture()) {
+            NativeImage layered = generateLayeredImage(chicken);
+            if (layered != null) {
+                DynamicTexture texture = new DynamicTexture(layered);
+                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+                        ChickensMod.MOD_ID, "dynamic/chicken_" + chicken.getId());
+                Minecraft.getInstance().getTextureManager().register(id, texture);
+                return id;
+            }
+        }
+
+        return generateLegacyTexture(chicken);
+    }
+
+    private static ResourceLocation generateLegacyTexture(ChickensRegistryItem chicken) {
         NativeImage base = getBaseImage();
         if (base == null) {
             return BASE_TEXTURE;
@@ -77,6 +106,66 @@ public final class DynamicChickenTextures {
         return id;
     }
 
+    private static NativeImage generateLayeredImage(ChickensRegistryItem chicken) {
+        NativeImage base = getLayeredBaseImage();
+        NativeImage primary = getLayeredPrimaryImage();
+        NativeImage foreground = getLayeredForegroundImage();
+        NativeImage parts = getLayeredPartsImage();
+        if (!hasDimensions(base, LAYERED_TEXTURE_WIDTH, LAYERED_TEXTURE_HEIGHT)
+                || !hasDimensions(primary, LAYERED_TEXTURE_WIDTH, LAYERED_TEXTURE_HEIGHT)
+                || !hasDimensions(parts, LAYERED_TEXTURE_WIDTH, LAYERED_TEXTURE_HEIGHT)
+                || !hasDimensions(foreground, LAYERED_TEXTURE_WIDTH, LAYERED_TEXTURE_HEIGHT)) {
+            LOGGER.warn("Unable to build layered resource texture for chicken {} because one or more layer dimensions are invalid",
+                    chicken.getEntityName());
+            return null;
+        }
+
+        NativeImage image = new NativeImage(LAYERED_TEXTURE_WIDTH, LAYERED_TEXTURE_HEIGHT, false);
+        int primaryColor = chicken.getBgColor();
+        int foregroundColor = chicken.getFgColor();
+        tintLayer(image, base, 0, 0, primaryColor);
+        tintLayer(image, primary, 0, 0, primaryColor);
+        tintLayer(image, foreground, 0, 0, foregroundColor);
+        copyLayer(image, parts, 0, 0);
+        return image;
+    }
+
+    private static boolean hasDimensions(NativeImage image, int width, int height) {
+        return image != null && image.getWidth() == width && image.getHeight() == height;
+    }
+
+    private static void tintLayer(NativeImage target, NativeImage source, int offsetX, int offsetY, int color) {
+        int red = (color >> 16) & 0xFF;
+        int green = (color >> 8) & 0xFF;
+        int blue = color & 0xFF;
+        for (int y = 0; y < source.getHeight(); y++) {
+            for (int x = 0; x < source.getWidth(); x++) {
+                int sourcePixel = source.getPixelRGBA(x, y);
+                int alpha = (sourcePixel >>> 24) & 0xFF;
+                if (alpha == 0) {
+                    continue;
+                }
+                int shade = sourcePixel & 0xFF;
+                int tintedRed = red * shade / 255;
+                int tintedGreen = green * shade / 255;
+                int tintedBlue = blue * shade / 255;
+                target.setPixelRGBA(offsetX + x, offsetY + y,
+                        toAbgr(alpha, (tintedRed << 16) | (tintedGreen << 8) | tintedBlue));
+            }
+        }
+    }
+
+    private static void copyLayer(NativeImage target, NativeImage source, int offsetX, int offsetY) {
+        for (int y = 0; y < source.getHeight(); y++) {
+            for (int x = 0; x < source.getWidth(); x++) {
+                int pixel = source.getPixelRGBA(x, y);
+                if (((pixel >>> 24) & 0xFF) != 0) {
+                    target.setPixelRGBA(offsetX + x, offsetY + y, pixel);
+                }
+            }
+        }
+    }
+
     private static int lerpColor(int start, int end, float amount) {
         float clamped = Math.max(0.0f, Math.min(1.0f, amount));
         int sr = (start >> 16) & 0xFF;
@@ -104,26 +193,70 @@ public final class DynamicChickenTextures {
         if (baseImageCache != null) {
             return baseImageCache;
         }
-        Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(BASE_TEXTURE);
+        baseImageCache = loadImage(BASE_TEXTURE);
+        return baseImageCache;
+    }
+
+    private static NativeImage getLayeredBaseImage() {
+        if (layeredBaseImageCache == null) {
+            layeredBaseImageCache = loadImage(LAYERED_BASE_TEXTURE);
+        }
+        return layeredBaseImageCache;
+    }
+
+    private static NativeImage getLayeredPrimaryImage() {
+        if (layeredPrimaryImageCache == null) {
+            layeredPrimaryImageCache = loadImage(LAYERED_PRIMARY_TEXTURE);
+        }
+        return layeredPrimaryImageCache;
+    }
+
+    private static NativeImage getLayeredForegroundImage() {
+        if (layeredForegroundImageCache == null) {
+            layeredForegroundImageCache = loadImage(LAYERED_FOREGROUND_TEXTURE);
+        }
+        return layeredForegroundImageCache;
+    }
+
+    private static NativeImage getLayeredPartsImage() {
+        if (layeredPartsImageCache == null) {
+            layeredPartsImageCache = loadImage(LAYERED_PARTS_TEXTURE);
+        }
+        return layeredPartsImageCache;
+    }
+
+    private static NativeImage loadImage(ResourceLocation location) {
+        Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(location);
         if (resource.isEmpty()) {
-            LOGGER.warn("Unable to load vanilla chicken texture {}", BASE_TEXTURE);
+            LOGGER.warn("Unable to load chicken texture {}", location);
             return null;
         }
         try (InputStream stream = resource.get().open()) {
-            baseImageCache = NativeImage.read(stream);
-            return baseImageCache;
+            return NativeImage.read(stream);
         } catch (IOException e) {
-            LOGGER.warn("Failed to read vanilla chicken texture {}", BASE_TEXTURE, e);
+            LOGGER.warn("Failed to read chicken texture {}", location, e);
             return null;
+        }
+    }
+
+    private static void closeImage(NativeImage image) {
+        if (image != null) {
+            image.close();
         }
     }
 
     public static void clear() {
         CACHE.clear();
-        if (baseImageCache != null) {
-            baseImageCache.close();
-            baseImageCache = null;
-        }
+        closeImage(baseImageCache);
+        closeImage(layeredBaseImageCache);
+        closeImage(layeredPrimaryImageCache);
+        closeImage(layeredForegroundImageCache);
+        closeImage(layeredPartsImageCache);
+        baseImageCache = null;
+        layeredBaseImageCache = null;
+        layeredPrimaryImageCache = null;
+        layeredForegroundImageCache = null;
+        layeredPartsImageCache = null;
     }
 
     public static SimplePreparableReloadListener<Void> reloadListener() {

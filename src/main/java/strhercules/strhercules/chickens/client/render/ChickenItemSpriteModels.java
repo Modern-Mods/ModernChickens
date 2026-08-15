@@ -4,6 +4,9 @@ import com.mojang.datafixers.util.Either;
 import com.mojang.math.Transformation;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChickensRegistryItem;
+import strhercules.chickens.item.ChemicalEggItem;
+import strhercules.chickens.item.GasEggItem;
+import strhercules.chickens.item.LiquidEggItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.block.model.BlockModel;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
@@ -46,6 +49,16 @@ public final class ChickenItemSpriteModels {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensCustomItemSprites");
     private static final ResourceLocation DEFAULT_ITEM_TEXTURE = ResourceLocation.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/item/chicken/whitechicken.png");
+    private static final ResourceLocation LAYERED_ITEM_BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/item/chicken_item_base.png");
+    private static final ResourceLocation LAYERED_ITEM_RESOURCE_ONE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/item/chicken_item_resource_one.png");
+    private static final ResourceLocation LAYERED_ITEM_RESOURCE_TWO_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/item/chicken_item_resource_two.png");
+    private static final ResourceLocation LAYERED_ITEM_PARTS_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/item/chicken_item_resource_parts.png");
+    private static final ResourceLocation BONE_OVERLAY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+            ChickensMod.MOD_ID, "textures/item/boneoverlay.png");
     private static final ModelState IDENTITY = new ModelState() {
         @Override
         public Transformation getRotation() {
@@ -78,14 +91,21 @@ public final class ChickenItemSpriteModels {
 
     @Nullable
     private static BakedModel bakeInternal(ChickensRegistryItem chicken, ModelBakery bakery) {
-        ResourceLocation texture = selectTexture(chicken);
-        ResourceLocation requestedTexture = texture;
+        ResourceLocation selectedTexture = selectTexture(chicken);
         boolean hasExplicitTexture = chicken.getItemTexture() != null;
+        boolean selectedTextureAvailable = hasTexture(selectedTexture);
+        boolean boneOverlay = usesBoneOverlay(chicken) && hasTexture(BONE_OVERLAY_TEXTURE);
+        boolean layeredResource = chicken.hasLayeredResourceTexture()
+                && !hasExplicitTexture
+                && !selectedTextureAvailable
+                && hasLayeredItemTextures();
+        ResourceLocation texture = layeredResource ? LAYERED_ITEM_BASE_TEXTURE : selectedTexture;
+        ResourceLocation requestedTexture = texture;
         boolean customDefinition = chicken.isCustom();
         boolean authoritativeTexture = customDefinition && hasExplicitTexture;
 
         ResourceLocation spriteLocation = toSpriteLocation(texture);
-        if (hasExplicitTexture) {
+        if (!boneOverlay && (hasExplicitTexture || selectedTextureAvailable)) {
             BakedModel prebaked = tryFetchExistingModel(spriteLocation);
             if (prebaked != null) {
                 chicken.setTintItem(false);
@@ -112,8 +132,11 @@ public final class ChickenItemSpriteModels {
                 texture = DEFAULT_ITEM_TEXTURE;
                 spriteLocation = toSpriteLocation(texture);
             }
-        } else if (hasExplicitTexture) {
+        } else if (!boneOverlay && (hasExplicitTexture || selectedTextureAvailable)) {
             disableTint = true;
+        }
+        if (boneOverlay) {
+            chicken.setTintItem(true);
         }
 
         Material material = materialFor(spriteLocation);
@@ -121,7 +144,20 @@ public final class ChickenItemSpriteModels {
         Function<Material, TextureAtlasSprite> sprites = key -> Minecraft.getInstance().getModelManager()
                 .getAtlas(key.atlasLocation()).getSprite(key.texture());
 
-        Map<String, Either<Material, String>> textures = Map.of("layer0", Either.left(material));
+        Map<String, Either<Material, String>> textures;
+        if (layeredResource) {
+            textures = Map.of(
+                    "layer0", Either.left(material),
+                    "layer1", Either.left(materialFor(toSpriteLocation(LAYERED_ITEM_RESOURCE_ONE_TEXTURE))),
+                    "layer2", Either.left(materialFor(toSpriteLocation(LAYERED_ITEM_RESOURCE_TWO_TEXTURE))),
+                    "layer3", Either.left(materialFor(toSpriteLocation(LAYERED_ITEM_PARTS_TEXTURE))));
+        } else if (boneOverlay) {
+            textures = Map.of(
+                    "layer0", Either.left(material),
+                    "layer1", Either.left(materialFor(toSpriteLocation(BONE_OVERLAY_TEXTURE))));
+        } else {
+            textures = Map.of("layer0", Either.left(material));
+        }
         BlockModel model = new BlockModel(GENERATED_PARENT, List.of(), textures, true, null, ItemTransforms.NO_TRANSFORMS,
                 List.of());
         try {
@@ -185,6 +221,16 @@ public final class ChickenItemSpriteModels {
         return ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/item/chicken/" + name + ".png");
     }
 
+    public static boolean usesBoneOverlay(ChickensRegistryItem chicken) {
+        if (chicken.isCustom()) {
+            return false;
+        }
+        Object layItem = chicken.createLayItem().getItem();
+        return layItem instanceof LiquidEggItem
+                || layItem instanceof ChemicalEggItem
+                || layItem instanceof GasEggItem;
+    }
+
     static ResourceLocation toSpriteLocation(ResourceLocation texture) {
         String path = texture.getPath();
         if (path.startsWith("textures/")) {
@@ -210,6 +256,24 @@ public final class ChickenItemSpriteModels {
 
     private static boolean hasTexture(ResourceLocation texture) {
         return Minecraft.getInstance().getResourceManager().getResource(texture).isPresent();
+    }
+
+    private static boolean hasLayeredItemTextures() {
+        ResourceLocation[] textures = {
+                LAYERED_ITEM_BASE_TEXTURE,
+                LAYERED_ITEM_RESOURCE_ONE_TEXTURE,
+                LAYERED_ITEM_RESOURCE_TWO_TEXTURE,
+                LAYERED_ITEM_PARTS_TEXTURE
+        };
+        for (ResourceLocation texture : textures) {
+            if (!hasTexture(texture)) {
+                if (LOGGED_MISSING_TEXTURES.add(texture)) {
+                    LOGGER.warn("Unable to locate layered chicken item texture {}", texture);
+                }
+                return false;
+            }
+        }
+        return true;
     }
 
     @Nullable

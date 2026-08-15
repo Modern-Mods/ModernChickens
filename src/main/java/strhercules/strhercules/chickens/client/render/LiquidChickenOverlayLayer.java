@@ -170,6 +170,34 @@ public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, Chicke
         return (red << 16) | (green << 8) | blue;
     }
 
+    public static int itemOverlayTint(ChickensRegistryItem description) {
+        ItemStack layStack = description.createLayItem();
+        if (layStack.getItem() instanceof LiquidEggItem) {
+            LiquidEggRegistryItem liquid = resolveLiquid(description);
+            if (liquid != null) {
+                FluidStack fluidStack = liquid.createFluidStack();
+                if (!fluidStack.isEmpty()) {
+                    int tint = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
+                    return brightenTint(tint);
+                }
+            }
+        } else {
+            int id = ChickenItemHelper.getChickenType(layStack);
+            if (layStack.getItem() instanceof ChemicalEggItem) {
+                ChemicalEggRegistryItem chemical = ChemicalEggRegistry.findById(id);
+                if (chemical != null) {
+                    return brightenTint(chemical.getEggColor());
+                }
+            } else if (layStack.getItem() instanceof GasEggItem) {
+                ChemicalEggRegistryItem gas = GasEggRegistry.findById(id);
+                if (gas != null) {
+                    return brightenTint(gas.getEggColor());
+                }
+            }
+        }
+        return brightenTint(description.getBgColor());
+    }
+
     public static void clearCaches() {
         LIQUID_CACHE.clear();
     }

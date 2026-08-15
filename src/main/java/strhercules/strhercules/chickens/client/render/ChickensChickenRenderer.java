@@ -55,6 +55,10 @@ public class ChickensChickenRenderer extends ChickenRenderer {
                     return texture;
                 }
 
+                if (description.hasLayeredResourceTexture()) {
+                    return DynamicChickenTextures.textureFor(description);
+                }
+
                 if (LOGGED_MISSING_TEXTURES.add(texture)) {
                     LOGGER.warn(
                             "Falling back to generated texture for chicken {} because {} was unavailable", description.getEntityName(),

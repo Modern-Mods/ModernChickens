@@ -4,50 +4,9 @@ This document is for cataloguing and detailing potential ideas for features.
 
 
 ## Specialty Chicken Features
-- Ender Chicken will teleport around, like enderman
-- Creeper/gunpowder chicken visually explodes but causes no damage to entities or blocks
-
-
-
-## Balance
-
-- Instead of charging a flat amount every 60 seconds, i think it would be make more sense for the mechanical nest to use FE/t based on how many roosts it is boosting. 
-
-- my rough suggestion would be:
-    - 500 FE/t base usage
-    - +1,000 FE/t per active boosed roost
-    - speed upgrades increase the base usage AND per active boosted usage
-    - only count the roosts that are actually active/being boosted
-    - remove range upgrades from the mechanical nest entirely and just give it a fixed range, like between 5 or 10
-
-- for example, with 5 speed upgrades, the energy multiplier would be essentially +175% so:
-    - 1 roost: 4,125 FE/t
-    - 5 roosts: 15,125 FE/t
-    - 10 roosts: 28,875 FE/t
-    - 20 roosts: 56,375 FE/t
-
-
-- this now brings my attention to the mechanical roost.. it uses 2k per operation (from testing it with energy meter) and it takes 5-6 seconds with 16 fully maxed out chicken but it doesn't change what tier the chicken is, lets put this into perspective, a coal chicken and a nether star chicken can produce 64 coal and 64 nether star respectively and cost the same amount of FE/t
-    - here's my proposal.. what if per operation, dependent on the chickens tier, it took much more FE per operation and how many chickens are in that slot
-    - so for example a tier 1 (with 16 in the slot) chicken takes 12,500FE per operation, a roost full of them would take 50,000FE per operation, a tier 10 chicken would take 650,000FE per operation or 2,600,000FE per operation with a roost full of tier 10 chickens
-
-
-
-
-
-
-
-
-
-
-
-
-## New runtime chicken skin generation idea
-- Use `newTextures\chicken_base.png` for all chickens (bottom layer)
-- Use `newTextures\chicken_resource.png` and tint it in runtime based on the respective material (middle layer)
-- Use `newTextures\chicken_parts.png` for face/beak, etc. (top layer)
-- Apply already tinted resource and then the features to the base chicken skin, creating a spotted chicken tinted in runtime based on the respective material used to create/tint the chicken
-- Continue to use the bone white/skeleton chicken for fluid/chemical chickens with their existing fluid/chemical representation on their bodies
+- Ender Chicken will teleport around when wandering the overworld, like enderman
+- Creeper/gunpowder chicken visually explode when killed but causes no damage to entities or blocks
+    - Gunpowder eggs explode when thrown 
 
 ## Potential
 * Mob Farming/Grinding - Develop a 'Toxic Hen House' where players can house toxic (Radioactive, toxic chemical) chickens and have their toxicity radiate outwards from the Toxic Hen House - killing anything nearby.

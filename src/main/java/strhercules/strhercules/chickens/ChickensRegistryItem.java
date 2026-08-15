@@ -32,6 +32,7 @@ public class ChickensRegistryItem {
     @Nullable
     private Component displayName;
     private boolean generatedTexture;
+    private boolean layeredResourceTexture;
     private boolean tintItem = true;
     private boolean custom;
     private boolean naturalSpawnOverride;
@@ -110,6 +111,11 @@ public class ChickensRegistryItem {
 
     public ChickensRegistryItem setGeneratedTexture(boolean value) {
         generatedTexture = value;
+        return this;
+    }
+
+    public ChickensRegistryItem setLayeredResourceTexture(boolean value) {
+        layeredResourceTexture = value;
         return this;
     }
 
@@ -304,6 +310,10 @@ public class ChickensRegistryItem {
 
     public boolean hasGeneratedTexture() {
         return generatedTexture;
+    }
+
+    public boolean hasLayeredResourceTexture() {
+        return layeredResourceTexture;
     }
 
     public boolean shouldTintItem() {
