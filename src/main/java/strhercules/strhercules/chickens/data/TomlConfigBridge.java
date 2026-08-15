@@ -38,6 +38,7 @@ public final class TomlConfigBridge {
             "nestMaxRoosters", "nestSeedDurationTicks", "collectorScanRange", "avianFluxCapacity",
             "mechanicalNestBaseEnergyPerTick", "mechanicalNestEnergyPerRoostPerTick", "mechanicalNestRange",
             "mechanicalRoostTier1EnergyCost", "mechanicalRoostTier10EnergyCost",
+            "roostGeneratorBaseGeneration", "roostGeneratorCapacity", "roostGeneratorFluctuationIntervalTicks",
             "avianFluxMaxReceive", "avianFluxMaxExtract", "avianFluidConverterCapacity",
             "avianFluidConverterTransferRate", "avianChemicalConverterCapacity",
             "avianChemicalConverterTransferRate", "incubatorEnergyCost", "incubatorCapacity",
@@ -47,7 +48,12 @@ public final class TomlConfigBridge {
             "netherSpawnChanceMultiplier", "overworldSpawnChance", "netherSpawnChance",
             "endSpawnChance", "roostSpeed", "breederSpeed", "roosterAuraMultiplier",
             "fluxEggCapacityMultiplier", "mechanicalNestEnergyCostSpeedIncrease",
-            "mechanicalRoostEnergyCostSpeedIncrease", "layCoefficient");
+            "mechanicalRoostEnergyCostSpeedIncrease", "roostGeneratorBaseOutputRatio",
+            "roostGeneratorExciterGenerationBonus", "roostGeneratorExciterFluctuation",
+            "roostGeneratorEfficiencyBonus", "roostGeneratorOutputBonus",
+            "roostGeneratorStabilizerReduction", "roostGeneratorGovernorReduction",
+            "roostGeneratorSurgeBonus",
+            "roostGeneratorGovernorConversion", "layCoefficient");
 
     private TomlConfigBridge() {
     }

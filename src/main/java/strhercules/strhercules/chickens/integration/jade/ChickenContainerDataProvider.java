@@ -3,6 +3,7 @@ package strhercules.chickens.integration.jade;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.blockentity.AbstractChickenContainerBlockEntity;
 import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
+import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -41,7 +42,13 @@ enum ChickenContainerDataProvider implements IServerDataProvider<BlockAccessor> 
         container.appendTooltip(lines, tag);
         lines.forEach(builder::addText);
 
-        if (container instanceof MechanicalRoostBlockEntity roost) {
+        if (container instanceof RoostGeneratorBlockEntity generator) {
+            builder.addEnergy(generator.getEnergyStored(), generator.getEnergyCapacity());
+            builder.addText(Component.translatable("tooltip.chickens.roost_generator.generation",
+                    generator.getGenerationPerTick()));
+            builder.addText(Component.translatable("tooltip.chickens.roost_generator.max_output",
+                    generator.getMaxOutputPerTick()));
+        } else if (container instanceof MechanicalRoostBlockEntity roost) {
             builder.addEnergy(roost.getEnergyStored(), roost.getEnergyCapacity());
             builder.addText(Component.translatable("tooltip.chickens.mechanical_roost.operation_cost",
                     roost.getEnergyCostPerOperation()));

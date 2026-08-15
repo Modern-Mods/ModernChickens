@@ -31,6 +31,23 @@ mechanicalRoostTier1EnergyCost = 12500
 mechanicalRoostTier10EnergyCost = 650000
 # Preserves the existing 15% compounded Mechanical Roost Speed Upgrade cost increase.
 mechanicalRoostEnergyCostSpeedIncrease = 0.15
+# Roost Generator balance. Generation is baseGeneration * chickenCount * average(stats).
+roostGeneratorBaseGeneration = 50
+roostGeneratorCapacity = 1000000
+# Base Output is a ratio: 0.5 means 50% of current generation can leave per tick.
+roostGeneratorBaseOutputRatio = 0.5
+roostGeneratorExciterGenerationBonus = 0.25
+roostGeneratorExciterFluctuation = 0.2
+# 100 ticks = five seconds in a normal server tick rate.
+roostGeneratorFluctuationIntervalTicks = 100
+roostGeneratorEfficiencyBonus = 0.1
+roostGeneratorOutputBonus = 0.125
+roostGeneratorStabilizerReduction = 0.1
+# Positive fluctuation removed by each Governor, capped at 40% total.
+roostGeneratorGovernorReduction = 0.1
+roostGeneratorSurgeBonus = 0.15
+# Governor converts this fraction of removed positive fluctuation into guaranteed generation.
+roostGeneratorGovernorConversion = 0.5
 disableEggLaying = false
 collectorScanRange = 4
 avianFluxEffectsEnabled = true

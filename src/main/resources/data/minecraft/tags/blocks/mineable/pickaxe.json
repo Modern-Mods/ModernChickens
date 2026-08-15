@@ -2,6 +2,7 @@
   "replace": false,
   "values": [
     "chickens:incubator",
-    "chickens:mechanical_roost"
+    "chickens:mechanical_roost",
+    "chickens:roost_generator"
   ]
 }

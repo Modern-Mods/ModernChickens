@@ -34,6 +34,18 @@ public final class ChickensConfigValues {
     private final int mechanicalRoostTier1EnergyCost;
     private final int mechanicalRoostTier10EnergyCost;
     private final double mechanicalRoostEnergyCostSpeedIncrease;
+    private final int roostGeneratorBaseGeneration;
+    private final int roostGeneratorCapacity;
+    private final double roostGeneratorBaseOutputRatio;
+    private final double roostGeneratorExciterGenerationBonus;
+    private final double roostGeneratorExciterFluctuation;
+    private final int roostGeneratorFluctuationIntervalTicks;
+    private final double roostGeneratorEfficiencyBonus;
+    private final double roostGeneratorOutputBonus;
+    private final double roostGeneratorStabilizerReduction;
+    private final double roostGeneratorGovernorReduction;
+    private final double roostGeneratorSurgeBonus;
+    private final double roostGeneratorGovernorConversion;
     private final boolean disableVanillaEggLaying;
     private final int collectorScanRange;
     private final boolean avianFluxEffectsEnabled;
@@ -70,6 +82,13 @@ public final class ChickensConfigValues {
             double mechanicalNestEnergyCostSpeedIncrease, int mechanicalNestRange,
             int mechanicalRoostTier1EnergyCost, int mechanicalRoostTier10EnergyCost,
             double mechanicalRoostEnergyCostSpeedIncrease,
+            int roostGeneratorBaseGeneration, int roostGeneratorCapacity,
+            double roostGeneratorBaseOutputRatio, double roostGeneratorExciterGenerationBonus,
+            double roostGeneratorExciterFluctuation, int roostGeneratorFluctuationIntervalTicks,
+            double roostGeneratorEfficiencyBonus, double roostGeneratorOutputBonus,
+            double roostGeneratorStabilizerReduction, double roostGeneratorGovernorReduction,
+            double roostGeneratorSurgeBonus,
+            double roostGeneratorGovernorConversion,
             boolean disableVanillaEggLaying, int collectorScanRange,
             boolean avianFluxEffectsEnabled, double fluxEggCapacityMultiplier,
             int avianFluxCapacity, int avianFluxMaxReceive, int avianFluxMaxExtract,
@@ -102,6 +121,18 @@ public final class ChickensConfigValues {
         this.mechanicalRoostTier1EnergyCost = mechanicalRoostTier1EnergyCost;
         this.mechanicalRoostTier10EnergyCost = mechanicalRoostTier10EnergyCost;
         this.mechanicalRoostEnergyCostSpeedIncrease = mechanicalRoostEnergyCostSpeedIncrease;
+        this.roostGeneratorBaseGeneration = roostGeneratorBaseGeneration;
+        this.roostGeneratorCapacity = roostGeneratorCapacity;
+        this.roostGeneratorBaseOutputRatio = roostGeneratorBaseOutputRatio;
+        this.roostGeneratorExciterGenerationBonus = roostGeneratorExciterGenerationBonus;
+        this.roostGeneratorExciterFluctuation = roostGeneratorExciterFluctuation;
+        this.roostGeneratorFluctuationIntervalTicks = roostGeneratorFluctuationIntervalTicks;
+        this.roostGeneratorEfficiencyBonus = roostGeneratorEfficiencyBonus;
+        this.roostGeneratorOutputBonus = roostGeneratorOutputBonus;
+        this.roostGeneratorStabilizerReduction = roostGeneratorStabilizerReduction;
+        this.roostGeneratorGovernorReduction = roostGeneratorGovernorReduction;
+        this.roostGeneratorSurgeBonus = roostGeneratorSurgeBonus;
+        this.roostGeneratorGovernorConversion = roostGeneratorGovernorConversion;
         this.disableVanillaEggLaying = disableVanillaEggLaying;
         this.collectorScanRange = collectorScanRange;
         this.avianFluxEffectsEnabled = avianFluxEffectsEnabled;
@@ -231,6 +262,54 @@ public final class ChickensConfigValues {
 
     public double getMechanicalRoostEnergyCostSpeedIncrease() {
         return mechanicalRoostEnergyCostSpeedIncrease;
+    }
+
+    public int getRoostGeneratorBaseGeneration() {
+        return roostGeneratorBaseGeneration;
+    }
+
+    public int getRoostGeneratorCapacity() {
+        return roostGeneratorCapacity;
+    }
+
+    public double getRoostGeneratorBaseOutputRatio() {
+        return roostGeneratorBaseOutputRatio;
+    }
+
+    public double getRoostGeneratorExciterGenerationBonus() {
+        return roostGeneratorExciterGenerationBonus;
+    }
+
+    public double getRoostGeneratorExciterFluctuation() {
+        return roostGeneratorExciterFluctuation;
+    }
+
+    public int getRoostGeneratorFluctuationIntervalTicks() {
+        return roostGeneratorFluctuationIntervalTicks;
+    }
+
+    public double getRoostGeneratorEfficiencyBonus() {
+        return roostGeneratorEfficiencyBonus;
+    }
+
+    public double getRoostGeneratorOutputBonus() {
+        return roostGeneratorOutputBonus;
+    }
+
+    public double getRoostGeneratorStabilizerReduction() {
+        return roostGeneratorStabilizerReduction;
+    }
+
+    public double getRoostGeneratorGovernorReduction() {
+        return roostGeneratorGovernorReduction;
+    }
+
+    public double getRoostGeneratorSurgeBonus() {
+        return roostGeneratorSurgeBonus;
+    }
+
+    public double getRoostGeneratorGovernorConversion() {
+        return roostGeneratorGovernorConversion;
     }
 
     public boolean isVanillaEggLayingDisabled() {

@@ -147,6 +147,17 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_roost", has(item("chickens:roost")))
                 .save(output, id("mechanical_roost"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:roost_generator"))
+                .pattern("IFI")
+                .pattern("RMR")
+                .pattern("IFI")
+                .define('I', Items.IRON_INGOT)
+                .define('F', item("chickens:flux_egg"))
+                .define('R', Items.REDSTONE_BLOCK)
+                .define('M', item("chickens:mechanical_roost"))
+                .unlockedBy("has_mechanical_roost", has(item("chickens:mechanical_roost")))
+                .save(output, id("roost_generator"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:mechanical_nest"))
                 .pattern("IFI")
                 .pattern("FRF")
@@ -263,6 +274,21 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(output, id("rfupgrade"));
 
+        rfGeneratorUpgrade(output, "rf_capacity_upgrade", item("chickens:rf_capacity_upgrade"),
+                Items.IRON_BLOCK);
+        rfGeneratorUpgrade(output, "rf_efficiency_upgrade", item("chickens:rf_efficiency_upgrade"),
+                Items.GLOWSTONE_DUST);
+        rfGeneratorUpgrade(output, "rf_output_upgrade", item("chickens:rf_output_upgrade"),
+                Items.REDSTONE_BLOCK);
+        rfGeneratorUpgrade(output, "rf_exciter_upgrade", item("chickens:rf_exciter_upgrade"),
+                Items.BLAZE_ROD);
+        rfGeneratorUpgrade(output, "rf_stabilizer_upgrade", item("chickens:rf_stabilizer_upgrade"),
+                Items.QUARTZ_BLOCK);
+        rfGeneratorUpgrade(output, "rf_surge_upgrade", item("chickens:rf_surge_upgrade"),
+                Items.GOLD_BLOCK);
+        rfGeneratorUpgrade(output, "rf_governor_upgrade", item("chickens:rf_governor_upgrade"),
+                Items.AMETHYST_BLOCK);
+
         dousingRecipe(output, "avian_dousing_dragon", "obsidianChicken", "dragonChicken",
                 "minecraft:dragon_breath", 10);
         dousingRecipe(output, "avian_dousing_wither", "soulSandChicken", "witherChicken",
@@ -278,6 +304,18 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .define('H', Items.HOPPER)
                 .define('Y', Items.HAY_BLOCK)
                 .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
+                .save(output, id(recipeName));
+    }
+
+    private static void rfGeneratorUpgrade(RecipeOutput output, String recipeName, Item result, Item component) {
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result)
+                .pattern("NIN")
+                .pattern("ICI")
+                .pattern("NIN")
+                .define('N', Items.NETHERITE_INGOT)
+                .define('I', component)
+                .define('C', item("chickens:rfupgrade"))
+                .unlockedBy("has_rfupgrade", has(item("chickens:rfupgrade")))
                 .save(output, id(recipeName));
     }
 

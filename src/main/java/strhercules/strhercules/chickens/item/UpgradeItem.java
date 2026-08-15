@@ -15,7 +15,14 @@ public final class UpgradeItem extends Item {
         STACK("stackupgrade"),
         STORAGE("storagecapacity"),
         RANGE("rangeupgrade"),
-        RF("rfupgrade");
+        RF("rfupgrade"),
+        RF_CAPACITY("rf_capacity_upgrade"),
+        RF_EFFICIENCY("rf_efficiency_upgrade"),
+        RF_OUTPUT("rf_output_upgrade"),
+        RF_EXCITER("rf_exciter_upgrade"),
+        RF_STABILIZER("rf_stabilizer_upgrade"),
+        RF_SURGE("rf_surge_upgrade"),
+        RF_GOVERNOR("rf_governor_upgrade");
 
         private final String id;
 
@@ -25,10 +32,20 @@ public final class UpgradeItem extends Item {
     }
 
     private final Kind kind;
+    private final boolean robotCompatible;
 
     public UpgradeItem(Properties properties, Kind kind) {
+        this(properties, kind, true);
+    }
+
+    public UpgradeItem(Properties properties, Kind kind, boolean robotCompatible) {
         super(properties);
         this.kind = kind;
+        this.robotCompatible = robotCompatible;
+    }
+
+    public boolean isRobotCompatible() {
+        return robotCompatible;
     }
 
     @Override

@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "C": {
+      "item": "chickens:rfupgrade"
+    },
+    "I": {
+      "item": "minecraft:blaze_rod"
+    },
+    "N": {
+      "item": "minecraft:netherite_ingot"
+    }
+  },
+  "pattern": [
+    "NIN",
+    "ICI",
+    "NIN"
+  ],
+  "result": {
+    "count": 1,
+    "id": "chickens:rf_exciter_upgrade"
+  }
+}

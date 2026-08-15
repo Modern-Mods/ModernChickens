@@ -716,6 +716,45 @@ public final class ChickensDataLoader {
         double mechanicalRoostEnergyCostSpeedIncrease = ensureNonNegative(props,
                 "general.mechanicalRoostEnergyCostSpeedIncrease",
                 readDouble(props, "general.mechanicalRoostEnergyCostSpeedIncrease", 0.15D));
+        int roostGeneratorBaseGeneration = ensurePositive(props, "general.roostGeneratorBaseGeneration",
+                readInt(props, "general.roostGeneratorBaseGeneration", 50), 1);
+        int roostGeneratorCapacity = ensurePositive(props, "general.roostGeneratorCapacity",
+                readInt(props, "general.roostGeneratorCapacity", 1_000_000), 1);
+        double roostGeneratorBaseOutputRatio = readDouble(props, "general.roostGeneratorBaseOutputRatio", 0.50D);
+        if (roostGeneratorBaseOutputRatio < 0.0D || roostGeneratorBaseOutputRatio > 1.0D) {
+            roostGeneratorBaseOutputRatio = Math.max(0.0D, Math.min(1.0D, roostGeneratorBaseOutputRatio));
+            props.setProperty("general.roostGeneratorBaseOutputRatio", Double.toString(roostGeneratorBaseOutputRatio));
+        }
+        double roostGeneratorExciterGenerationBonus = ensureNonNegative(props,
+                "general.roostGeneratorExciterGenerationBonus",
+                readDouble(props, "general.roostGeneratorExciterGenerationBonus", 0.25D));
+        double roostGeneratorExciterFluctuation = ensureNonNegative(props,
+                "general.roostGeneratorExciterFluctuation",
+                readDouble(props, "general.roostGeneratorExciterFluctuation", 0.20D));
+        int roostGeneratorFluctuationIntervalTicks = ensurePositive(props,
+                "general.roostGeneratorFluctuationIntervalTicks",
+                readInt(props, "general.roostGeneratorFluctuationIntervalTicks", 100), 1);
+        double roostGeneratorEfficiencyBonus = ensureNonNegative(props,
+                "general.roostGeneratorEfficiencyBonus",
+                readDouble(props, "general.roostGeneratorEfficiencyBonus", 0.10D));
+        double roostGeneratorOutputBonus = ensureNonNegative(props,
+                "general.roostGeneratorOutputBonus",
+                readDouble(props, "general.roostGeneratorOutputBonus", 0.125D));
+        double roostGeneratorStabilizerReduction = ensureNonNegative(props,
+                "general.roostGeneratorStabilizerReduction",
+                readDouble(props, "general.roostGeneratorStabilizerReduction", 0.10D));
+        double roostGeneratorGovernorReduction = ensureNonNegative(props,
+                "general.roostGeneratorGovernorReduction",
+                readDouble(props, "general.roostGeneratorGovernorReduction", 0.10D));
+        double roostGeneratorSurgeBonus = ensureNonNegative(props,
+                "general.roostGeneratorSurgeBonus",
+                readDouble(props, "general.roostGeneratorSurgeBonus", 0.15D));
+        double roostGeneratorGovernorConversion = readDouble(props, "general.roostGeneratorGovernorConversion", 0.50D);
+        if (roostGeneratorGovernorConversion < 0.0D || roostGeneratorGovernorConversion > 1.0D) {
+            roostGeneratorGovernorConversion = Math.max(0.0D, Math.min(1.0D, roostGeneratorGovernorConversion));
+            props.setProperty("general.roostGeneratorGovernorConversion",
+                    Double.toString(roostGeneratorGovernorConversion));
+        }
         boolean disableEggLaying = readBoolean(props, "general.disableVanillaEggLaying", false);
         int collectorRange = readInt(props, "general.collectorScanRange", 4);
         boolean avianFluxEffects = readBoolean(props, "general.avianFluxEffectsEnabled", true);
@@ -760,6 +799,13 @@ public final class ChickensDataLoader {
                 mechanicalNestEnergyCostSpeedIncrease, mechanicalNestRange,
                 mechanicalRoostTier1EnergyCost, mechanicalRoostTier10EnergyCost,
                 mechanicalRoostEnergyCostSpeedIncrease,
+                roostGeneratorBaseGeneration, roostGeneratorCapacity,
+                roostGeneratorBaseOutputRatio, roostGeneratorExciterGenerationBonus,
+                roostGeneratorExciterFluctuation, roostGeneratorFluctuationIntervalTicks,
+                roostGeneratorEfficiencyBonus, roostGeneratorOutputBonus,
+                roostGeneratorStabilizerReduction, roostGeneratorGovernorReduction,
+                roostGeneratorSurgeBonus,
+                roostGeneratorGovernorConversion,
                 disableEggLaying, collectorRange, avianFluxEffects,
                 Math.max(0.0D, fluxEggMultiplier), avianCapacity, avianReceive, avianExtract,
                 avianFluidCapacity, avianFluidTransfer, avianFluidEffects,

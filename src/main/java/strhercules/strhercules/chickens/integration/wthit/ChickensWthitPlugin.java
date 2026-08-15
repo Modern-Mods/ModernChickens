@@ -6,6 +6,7 @@ import strhercules.chickens.blockentity.AvianFluidConverterBlockEntity;
 import strhercules.chickens.blockentity.BreederBlockEntity;
 import strhercules.chickens.blockentity.IncubatorBlockEntity;
 import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
+import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import strhercules.chickens.blockentity.HenhouseBlockEntity;
 import strhercules.chickens.blockentity.RoostBlockEntity;
 import strhercules.chickens.integration.wthit.overlay.HudOverlayHelper;
@@ -78,5 +79,9 @@ public final class ChickensWthitPlugin implements IWailaPlugin {
         ChickenContainerProvider<MechanicalRoostBlockEntity> mechanicalRoostProvider = new ChickenContainerProvider<>();
         registrar.addBlockData(mechanicalRoostProvider, MechanicalRoostBlockEntity.class);
         registrar.addComponent(hudRenderer, TooltipPosition.BODY, MechanicalRoostBlockEntity.class);
+
+        ChickenContainerProvider<RoostGeneratorBlockEntity> roostGeneratorProvider = new ChickenContainerProvider<>();
+        registrar.addBlockData(roostGeneratorProvider, RoostGeneratorBlockEntity.class);
+        registrar.addComponent(hudRenderer, TooltipPosition.BODY, RoostGeneratorBlockEntity.class);
     }
 }

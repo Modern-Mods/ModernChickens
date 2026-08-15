@@ -10,6 +10,7 @@ import strhercules.chickens.block.HenhouseBlock;
 import strhercules.chickens.block.IncubatorBlock;
 import strhercules.chickens.block.MechanicalNestBlock;
 import strhercules.chickens.block.MechanicalRoostBlock;
+import strhercules.chickens.block.RoostGeneratorBlock;
 import strhercules.chickens.block.NestBlock;
 import strhercules.chickens.block.RoostBlock;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
@@ -21,6 +22,7 @@ import strhercules.chickens.blockentity.HenhouseBlockEntity;
 import strhercules.chickens.blockentity.IncubatorBlockEntity;
 import strhercules.chickens.blockentity.MechanicalNestBlockEntity;
 import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
+import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import strhercules.chickens.blockentity.NestBlockEntity;
 import strhercules.chickens.blockentity.RoostBlockEntity;
 import strhercules.chickens.entity.ChickensChicken;
@@ -56,6 +58,7 @@ public final class JadeIntegration implements IWailaPlugin {
         registration.registerBlockDataProvider(HenhouseDataProvider.INSTANCE, HenhouseBlockEntity.class);
         registration.registerBlockDataProvider(IncubatorDataProvider.INSTANCE, IncubatorBlockEntity.class);
         registration.registerBlockDataProvider(ChickenContainerDataProvider.INSTANCE, MechanicalRoostBlockEntity.class);
+        registration.registerBlockDataProvider(ChickenContainerDataProvider.INSTANCE, RoostGeneratorBlockEntity.class);
         registration.registerBlockDataProvider(NestDataProvider.INSTANCE, NestBlockEntity.class);
         registration.registerBlockDataProvider(NestDataProvider.INSTANCE, MechanicalNestBlockEntity.class);
     }
@@ -71,6 +74,7 @@ public final class JadeIntegration implements IWailaPlugin {
         registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, HenhouseBlock.class);
         registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, IncubatorBlock.class);
         registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, MechanicalRoostBlock.class);
+        registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, RoostGeneratorBlock.class);
         registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, NestBlock.class);
         registration.registerBlockComponent(ChickensHudComponentProvider.INSTANCE, MechanicalNestBlock.class);
 

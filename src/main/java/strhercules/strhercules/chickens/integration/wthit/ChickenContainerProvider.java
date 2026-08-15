@@ -2,6 +2,7 @@ package strhercules.chickens.integration.wthit;
 
 import strhercules.chickens.blockentity.AbstractChickenContainerBlockEntity;
 import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
+import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import strhercules.chickens.integration.wthit.overlay.HudOverlayHelper;
 import mcp.mobius.waila.api.IDataProvider;
 import mcp.mobius.waila.api.IDataWriter;
@@ -43,7 +44,13 @@ final class ChickenContainerProvider<T extends AbstractChickenContainerBlockEnti
         container.appendTooltip(lines, tag);
         lines.forEach(helper::addText);
 
-        if (container instanceof MechanicalRoostBlockEntity roost) {
+        if (container instanceof RoostGeneratorBlockEntity generator) {
+            helper.addEnergy(generator.getEnergyStored(), generator.getEnergyCapacity());
+            helper.addText(Component.translatable("tooltip.chickens.roost_generator.generation",
+                    generator.getGenerationPerTick()));
+            helper.addText(Component.translatable("tooltip.chickens.roost_generator.max_output",
+                    generator.getMaxOutputPerTick()));
+        } else if (container instanceof MechanicalRoostBlockEntity roost) {
             helper.addEnergy(roost.getEnergyStored(), roost.getEnergyCapacity());
             helper.addText(Component.translatable("tooltip.chickens.mechanical_roost.operation_cost",
                     roost.getEnergyCostPerOperation()));

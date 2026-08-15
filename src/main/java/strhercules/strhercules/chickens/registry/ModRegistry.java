@@ -10,6 +10,7 @@ import strhercules.chickens.block.BreederBlock;
 import strhercules.chickens.block.CollectorBlock;
 import strhercules.chickens.block.IncubatorBlock;
 import strhercules.chickens.block.MechanicalRoostBlock;
+import strhercules.chickens.block.RoostGeneratorBlock;
 import strhercules.chickens.block.MechanicalNestBlock;
 import strhercules.chickens.block.HenhouseBlock;
 import strhercules.chickens.block.LavaChickenFireBlock;
@@ -112,6 +113,20 @@ public final class ModRegistry {
             () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RANGE));
     public static final DeferredItem<UpgradeItem> RF_UPGRADE = ITEMS.register("rfupgrade",
             () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF));
+    public static final DeferredItem<UpgradeItem> RF_CAPACITY_UPGRADE = ITEMS.register("rf_capacity_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_CAPACITY, false));
+    public static final DeferredItem<UpgradeItem> RF_EFFICIENCY_UPGRADE = ITEMS.register("rf_efficiency_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_EFFICIENCY, false));
+    public static final DeferredItem<UpgradeItem> RF_OUTPUT_UPGRADE = ITEMS.register("rf_output_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_OUTPUT, false));
+    public static final DeferredItem<UpgradeItem> RF_EXCITER_UPGRADE = ITEMS.register("rf_exciter_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_EXCITER, false));
+    public static final DeferredItem<UpgradeItem> RF_STABILIZER_UPGRADE = ITEMS.register("rf_stabilizer_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_STABILIZER, false));
+    public static final DeferredItem<UpgradeItem> RF_SURGE_UPGRADE = ITEMS.register("rf_surge_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_SURGE, false));
+    public static final DeferredItem<UpgradeItem> RF_GOVERNOR_UPGRADE = ITEMS.register("rf_governor_upgrade",
+            () -> new UpgradeItem(new Item.Properties().stacksTo(64), UpgradeItem.Kind.RF_GOVERNOR, false));
     public static final DeferredItem<MachineConfiguratorItem> CONFIGURATOR = ITEMS.register("configurator",
             () -> new MachineConfiguratorItem(new Item.Properties()));
     public static final DeferredItem<AnalyzerItem> ANALYZER = ITEMS.register("analyzer",
@@ -130,6 +145,8 @@ public final class ModRegistry {
     public static final DeferredBlock<IncubatorBlock> INCUBATOR = BLOCKS.register("incubator", () -> new IncubatorBlock());
     public static final DeferredBlock<MechanicalRoostBlock> MECHANICAL_ROOST = BLOCKS.register("mechanical_roost",
             () -> new MechanicalRoostBlock());
+    public static final DeferredBlock<RoostGeneratorBlock> ROOST_GENERATOR = BLOCKS.register("roost_generator",
+            () -> new RoostGeneratorBlock());
     public static final DeferredBlock<MechanicalNestBlock> MECHANICAL_NEST = BLOCKS.register("mechanical_nest",
             () -> new MechanicalNestBlock());
     public static final DeferredBlock<HenhouseBlock> HENHOUSE = registerHenhouse("henhouse", MapColor.COLOR_BROWN);
@@ -168,6 +185,8 @@ public final class ModRegistry {
             () -> new BlockItem(INCUBATOR.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> MECHANICAL_ROOST_ITEM = ITEMS.register("mechanical_roost",
             () -> new BlockItem(MECHANICAL_ROOST.get(), new Item.Properties()));
+    public static final DeferredItem<BlockItem> ROOST_GENERATOR_ITEM = ITEMS.register("roost_generator",
+            () -> new BlockItem(ROOST_GENERATOR.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> MECHANICAL_NEST_ITEM = ITEMS.register("mechanical_nest",
             () -> new BlockItem(MECHANICAL_NEST.get(), new Item.Properties()));
 

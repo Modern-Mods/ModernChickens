@@ -111,6 +111,18 @@ public final class LegacyConfigBridge {
                 getInt(props, "general.mechanicalRoostTier1EnergyCost", current.getMechanicalRoostFullSlotEnergyCost(1)),
                 getInt(props, "general.mechanicalRoostTier10EnergyCost", current.getMechanicalRoostFullSlotEnergyCost(10)),
                 getDouble(props, "general.mechanicalRoostEnergyCostSpeedIncrease", current.getMechanicalRoostEnergyCostSpeedIncrease()),
+                getInt(props, "general.roostGeneratorBaseGeneration", current.getRoostGeneratorBaseGeneration()),
+                getInt(props, "general.roostGeneratorCapacity", current.getRoostGeneratorCapacity()),
+                getDouble(props, "general.roostGeneratorBaseOutputRatio", current.getRoostGeneratorBaseOutputRatio()),
+                getDouble(props, "general.roostGeneratorExciterGenerationBonus", current.getRoostGeneratorExciterGenerationBonus()),
+                getDouble(props, "general.roostGeneratorExciterFluctuation", current.getRoostGeneratorExciterFluctuation()),
+                getInt(props, "general.roostGeneratorFluctuationIntervalTicks", current.getRoostGeneratorFluctuationIntervalTicks()),
+                getDouble(props, "general.roostGeneratorEfficiencyBonus", current.getRoostGeneratorEfficiencyBonus()),
+                getDouble(props, "general.roostGeneratorOutputBonus", current.getRoostGeneratorOutputBonus()),
+                getDouble(props, "general.roostGeneratorStabilizerReduction", current.getRoostGeneratorStabilizerReduction()),
+                getDouble(props, "general.roostGeneratorGovernorReduction", current.getRoostGeneratorGovernorReduction()),
+                getDouble(props, "general.roostGeneratorSurgeBonus", current.getRoostGeneratorSurgeBonus()),
+                getDouble(props, "general.roostGeneratorGovernorConversion", current.getRoostGeneratorGovernorConversion()),
                 getBool(props, "general.disableVanillaEggLaying",   current.isVanillaEggLayingDisabled()),
                 getInt(props, "general.collectorScanRange",         current.getCollectorScanRange()),
                 getBool(props, "general.avianFluxEffectsEnabled",   current.isAvianFluxEffectsEnabled()),
@@ -180,6 +192,18 @@ public final class LegacyConfigBridge {
             case "mechanicalRoostTier1EnergyCost" -> props.setProperty("general.mechanicalRoostTier1EnergyCost", value);
             case "mechanicalRoostTier10EnergyCost" -> props.setProperty("general.mechanicalRoostTier10EnergyCost", value);
             case "mechanicalRoostEnergyCostSpeedIncrease" -> props.setProperty("general.mechanicalRoostEnergyCostSpeedIncrease", value);
+            case "roostGeneratorBaseGeneration" -> props.setProperty("general.roostGeneratorBaseGeneration", value);
+            case "roostGeneratorCapacity" -> props.setProperty("general.roostGeneratorCapacity", value);
+            case "roostGeneratorBaseOutputRatio" -> props.setProperty("general.roostGeneratorBaseOutputRatio", value);
+            case "roostGeneratorExciterGenerationBonus" -> props.setProperty("general.roostGeneratorExciterGenerationBonus", value);
+            case "roostGeneratorExciterFluctuation" -> props.setProperty("general.roostGeneratorExciterFluctuation", value);
+            case "roostGeneratorFluctuationIntervalTicks" -> props.setProperty("general.roostGeneratorFluctuationIntervalTicks", value);
+            case "roostGeneratorEfficiencyBonus" -> props.setProperty("general.roostGeneratorEfficiencyBonus", value);
+            case "roostGeneratorOutputBonus" -> props.setProperty("general.roostGeneratorOutputBonus", value);
+            case "roostGeneratorStabilizerReduction" -> props.setProperty("general.roostGeneratorStabilizerReduction", value);
+            case "roostGeneratorGovernorReduction" -> props.setProperty("general.roostGeneratorGovernorReduction", value);
+            case "roostGeneratorSurgeBonus" -> props.setProperty("general.roostGeneratorSurgeBonus", value);
+            case "roostGeneratorGovernorConversion" -> props.setProperty("general.roostGeneratorGovernorConversion", value);
             case "disableEggLaying" -> props.setProperty("general.disableVanillaEggLaying", value);
             case "collectorScanRange" -> props.setProperty("general.collectorScanRange", value);
             case "avianFluxEffectsEnabled" -> props.setProperty("general.avianFluxEffectsEnabled", value);

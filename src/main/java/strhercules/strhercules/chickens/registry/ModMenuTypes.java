@@ -12,6 +12,7 @@ import strhercules.chickens.menu.HenhouseMenu;
 import strhercules.chickens.menu.MegaChickenMenu;
 import strhercules.chickens.menu.RoostMenu;
 import strhercules.chickens.menu.MechanicalRoostMenu;
+import strhercules.chickens.menu.RoostGeneratorMenu;
 import strhercules.chickens.menu.MechanicalNestMenu;
 import strhercules.chickens.menu.NestMenu;
 import strhercules.chickens.menu.RoosterMenu;
@@ -36,6 +37,8 @@ public final class ModMenuTypes {
             () -> IMenuTypeExtension.create(RoostMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<MechanicalRoostMenu>> MECHANICAL_ROOST = MENU_TYPES.register(
             "mechanical_roost", () -> IMenuTypeExtension.create(MechanicalRoostMenu::new));
+    public static final DeferredHolder<MenuType<?>, MenuType<RoostGeneratorMenu>> ROOST_GENERATOR = MENU_TYPES.register(
+            "roost_generator", () -> IMenuTypeExtension.create(RoostGeneratorMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<MechanicalNestMenu>> MECHANICAL_NEST = MENU_TYPES.register(
             "mechanical_nest", () -> IMenuTypeExtension.create(MechanicalNestMenu::new));
     public static final DeferredHolder<MenuType<?>, MenuType<NestMenu>> NEST = MENU_TYPES.register("nest",

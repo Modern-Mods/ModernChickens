@@ -25,6 +25,7 @@ import strhercules.chickens.client.render.blockentity.AvianFluidConverterBlockEn
 import strhercules.chickens.client.render.blockentity.RoostBlockEntityRenderer;
 import strhercules.chickens.client.render.blockentity.NestBlockEntityRenderer;
 import strhercules.chickens.client.render.blockentity.MechanicalNestBlockEntityRenderer;
+import strhercules.chickens.client.render.blockentity.RoostGeneratorBlockEntityRenderer;
 import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.network.MegaChickenFlightPayload;
 import strhercules.chickens.registry.ModBlockEntities;
@@ -42,6 +43,7 @@ import strhercules.chickens.screen.HenhouseScreen;
 import strhercules.chickens.screen.MegaChickenScreen;
 import strhercules.chickens.screen.RoostScreen;
 import strhercules.chickens.screen.MechanicalRoostScreen;
+import strhercules.chickens.screen.RoostGeneratorScreen;
 import strhercules.chickens.screen.NestScreen;
 import strhercules.chickens.screen.MechanicalNestScreen;
 import strhercules.chickens.screen.RoosterScreen;
@@ -99,6 +101,7 @@ public final class ChickensClient {
         event.registerBlockEntityRenderer(ModBlockEntities.ROOST.get(), RoostBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.NEST.get(), NestBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.MECHANICAL_NEST.get(), MechanicalNestBlockEntityRenderer::new);
+        event.registerBlockEntityRenderer(ModBlockEntities.ROOST_GENERATOR.get(), RoostGeneratorBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.BREEDER.get(), BreederBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.COLLECTOR.get(), CollectorBlockEntityRenderer::new);
         event.registerBlockEntityRenderer(ModBlockEntities.AVIAN_FLUX_CONVERTER.get(),
@@ -195,6 +198,7 @@ public final class ChickensClient {
         event.register(ModMenuTypes.HENHOUSE.get(), HenhouseScreen::new);
         event.register(ModMenuTypes.ROOST.get(), RoostScreen::new);
         event.register(ModMenuTypes.MECHANICAL_ROOST.get(), MechanicalRoostScreen::new);
+        event.register(ModMenuTypes.ROOST_GENERATOR.get(), RoostGeneratorScreen::new);
         event.register(ModMenuTypes.NEST.get(), NestScreen::new);
         event.register(ModMenuTypes.MECHANICAL_NEST.get(), MechanicalNestScreen::new);
         event.register(ModMenuTypes.ROOSTER.get(), RoosterScreen::new);

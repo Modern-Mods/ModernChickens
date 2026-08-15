@@ -60,6 +60,8 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         incubator();
         mechanicalRoost();
         mechanicalRoostActive();
+        roostGenerator();
+        roostGeneratorActive();
         mechanicalNest();
         mechanicalNestActive();
         manureBlock();
@@ -5203,6 +5205,97 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         );
     }
 
+    /** Generated from newTextures/roost_generator.bbmodel. */
+    private void roostGenerator() {
+        roostGeneratorModel("roost_generator", false).renderType(mcLoc("translucent"));
+    }
+
+    /** Generated from newTextures/roost_generator_active.bbmodel. */
+    private void roostGeneratorActive() {
+        roostGeneratorModel("roost_generator_active", true).renderType(mcLoc("translucent"));
+    }
+
+    private BlockModelBuilder roostGeneratorModel(String modelName, boolean active) {
+        BlockModelBuilder builder = getBuilder(modelName);
+        builder.parent(getExistingFile(mcLoc("block/block")));
+        builder.ao(false);
+        builder.texture("bottom", machineTexture("mechanical_nest_bottom"));
+        builder.texture("front", machineTexture("mechanical_nest_front"));
+        builder.texture("side", machineTexture("mechanical_nest_side"));
+        builder.texture("generator_side", machineTexture("roost_generator_side"));
+        String generatorFrontTexture = active ? "roost_generator_side_two_active" : "roost_generator_side_two";
+        builder.texture("generator_side_two", machineTexture(generatorFrontTexture));
+        builder.texture("particle", machineTexture(generatorFrontTexture));
+        builder.texture("generator_top", machineTexture("roost_generator_top"));
+        builder.texture("generator_back", machineTexture(active
+                ? "roost_generator_back_active" : "roost_generator_back"));
+
+        generatorElement(builder, 0, 0, 2, 1, 15, 16,
+                new String[]{"#side", "#generator_side", "#side", "#generator_side_two", "#side", "#side"},
+                new float[][]{{0, 0, 1, 16}, {0, 2, 16, 16}, {15, 0, 16, 16}, {1, 2, 15, 16},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 15, 0, 2, 16, 15, 16,
+                new String[]{"#side", "#generator_side_two", "#side", "#generator_side", "#side", "#side"},
+                new float[][]{{15, 0, 16, 16}, {1, 2, 15, 16}, {15, 0, 16, 16}, {0, 2, 16, 16},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 0, 15, 1, 16, 16, 16,
+                new String[]{"#front", "#bottom", "#side", "#bottom", "#generator_top", "#generator_top"},
+                new float[][]{{0, 0, 16, 1}, {0, 0, 16, 1}, {0, 15, 16, 16}, {0, 15, 16, 16},
+                        {0, 0, 16, 16}, {0, 0, 16, 16}});
+        generatorElement(builder, 1, 0, 2, 15, 1, 16,
+                new String[]{"#bottom", "#bottom", "#bottom", "#bottom", "#bottom", "#bottom"},
+                new float[][]{{0, 0, 16, 16}, {0, 0, 16, 16}, {0, 0, 16, 16}, {0, 0, 16, 16},
+                        {0, 0, 16, 16}, {0, 0, 16, 16}});
+        generatorElement(builder, 0, 0, 1, 16, 15, 2,
+                new String[]{"#generator_back", "#side", "#generator_side", "#side", "#side", "#side"},
+                new float[][]{{0, 1, 16, 16}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
+                        {0, 15, 16, 16}, {0, 15, 16, 16}});
+        generatorElement(builder, 1, 1, 3, 2, 7, 15,
+                allGeneratorFaces("#side"),
+                new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 1, 15, 15},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 14, 1, 3, 15, 7, 14,
+                allGeneratorFaces("#side"),
+                new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 1, 15, 15},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 1, 1, 2, 15, 7, 3,
+                allGeneratorFaces("#side"),
+                new float[][]{{3, 3, 13, 14}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 2, 1, 2, 3, 4, 14,
+                allGeneratorFaces("#side"),
+                new float[][]{{0, 0, 1, 16}, {1, 12, 15, 15}, {15, 0, 16, 16}, {1, 1, 15, 15},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 13, 1, 3, 14, 4, 14,
+                allGeneratorFaces("#side"),
+                new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 12, 15, 15},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 3, 1, 3, 13, 4, 4,
+                allGeneratorFaces("#side"),
+                new float[][]{{1, 10, 15, 15}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 1, 1, 15, 15, 15, 16,
+                new String[]{"#generator_top", "#side", "#generator_top", "#side", "#side", "#side"},
+                new float[][]{{1, 1, 15, 15}, {0, 0, 1, 16}, {1, 1, 15, 15}, {15, 0, 16, 16},
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        return builder;
+    }
+
+    private static String[] allGeneratorFaces(String texture) {
+        return new String[]{texture, texture, texture, texture, texture, texture};
+    }
+
+    private void generatorElement(BlockModelBuilder builder, float fromX, float fromY, float fromZ,
+            float toX, float toY, float toZ, String[] textures, float[][] uvs) {
+        addMechanicalNestElement(builder, fromX, fromY, fromZ, toX, toY, toZ,
+                face(textures[0], uvs[0][0], uvs[0][1], uvs[0][2], uvs[0][3]),
+                face(textures[1], uvs[1][0], uvs[1][1], uvs[1][2], uvs[1][3]),
+                face(textures[2], uvs[2][0], uvs[2][1], uvs[2][2], uvs[2][3]),
+                face(textures[3], uvs[3][0], uvs[3][1], uvs[3][2], uvs[3][3]),
+                face(textures[4], uvs[4][0], uvs[4][1], uvs[4][2], uvs[4][3]),
+                face(textures[5], uvs[5][0], uvs[5][1], uvs[5][2], uvs[5][3]));
+    }
+
     private void mechanicalNest() {
         mechanicalNestModel(
                 "mechanical_nest",
@@ -5235,6 +5328,7 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         builder.texture("front_active", machineTexture(frontActiveTexture));
         builder.texture("side", machineTexture(sideTexture));
         builder.texture("top", machineTexture(topTexture));
+        builder.texture("particle", machineTexture(sideTexture));
 
         addMechanicalNestElement(builder, 0, 0, 1, 1, 15, 15,
                 face("#side", 0, 0, 1, 16), face("#side", 0, 0, 16, 16),

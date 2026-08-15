@@ -26,6 +26,7 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         blockItem("avian_dousing_machine");
         blockItem("incubator");
         blockItem("mechanical_roost");
+        blockItem("roost_generator");
         blockItem("mechanical_nest");
         blockItem("henhouse");
         blockItem("henhouse_spruce");
@@ -47,6 +48,13 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         generatedItem("storagecapacity", "storagecapacity");
         generatedItem("rangeupgrade", "rangeupgrade");
         generatedItem("rfupgrade", "rfupgrade");
+        generatedItem("rf_capacity_upgrade", "rfupgrade");
+        generatedItem("rf_efficiency_upgrade", "efficiency_upgrade");
+        generatedItem("rf_output_upgrade", "output_upgrade");
+        generatedItem("rf_exciter_upgrade", "exciter_upgrade");
+        generatedItem("rf_stabilizer_upgrade", "stabilizer_upgrade");
+        generatedItem("rf_surge_upgrade", "surge_upgrade");
+        generatedItem("rf_governor_upgrade", "governer_upgrade");
         generatedItem("configurator", "configurator");
         generatedItem("gas_egg", "gas_egg");
         generatedItem("chemical_egg", "chemical_egg");

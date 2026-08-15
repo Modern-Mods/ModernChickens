@@ -26,6 +26,18 @@ public final class ChickensConfigHolder {
             12_500,                  // mechanicalRoostTier1EnergyCost (full slot of 16)
             650_000,                 // mechanicalRoostTier10EnergyCost (full slot of 16)
             0.15D,                   // mechanicalRoostEnergyCostSpeedIncrease
+            50,                      // roostGeneratorBaseGeneration (FE/t per stat point and chicken)
+            1_000_000,               // roostGeneratorCapacity
+            0.50D,                   // roostGeneratorBaseOutputRatio
+            0.25D,                   // roostGeneratorExciterGenerationBonus
+            0.20D,                   // roostGeneratorExciterFluctuation
+            100,                     // roostGeneratorFluctuationIntervalTicks
+            0.10D,                   // roostGeneratorEfficiencyBonus
+            0.125D,                  // roostGeneratorOutputBonus
+            0.10D,                   // roostGeneratorStabilizerReduction
+            0.10D,                   // roostGeneratorGovernorReduction
+            0.15D,                   // roostGeneratorSurgeBonus
+            0.50D,                   // roostGeneratorGovernorConversion
             false,                   // disableVanillaEggLaying
             4,                       // collectorScanRange
             true,                    // avianFluxEffectsEnabled

@@ -185,9 +185,9 @@ public class ChickensChicken extends Chicken {
         return this.getChickenType() == ChickensRegistry.SMART_CHICKEN_ID;
     }
 
-    /** Consumes one eligible upgrade and converts the Smart Chicken at the rolled threshold. */
+    /** Consumes one legacy robot upgrade and converts the Smart Chicken at the rolled threshold. */
     public boolean feedRobotUpgrade(ItemStack upgrade, Player player) {
-        if (this.isRobotChicken() || !this.isSmartChicken() || !(upgrade.getItem() instanceof UpgradeItem)) {
+        if (this.isRobotChicken() || !this.isSmartChicken() || !isRobotUpgrade(upgrade)) {
             return false;
         }
         if (this.getRobotUpgradesRequired() == 0) {
@@ -457,7 +457,7 @@ public class ChickensChicken extends Chicken {
 
         // Upgrade items are the Robot Chicken's only food. The threshold is
         // rolled on the first feeding and then persisted with the entity.
-        if (!this.isRobotChicken() && this.isSmartChicken() && held.getItem() instanceof UpgradeItem) {
+        if (!this.isRobotChicken() && this.isSmartChicken() && isRobotUpgrade(held)) {
             if (!level.isClientSide) {
                 this.feedRobotUpgrade(held, player);
             }
@@ -516,6 +516,10 @@ public class ChickensChicken extends Chicken {
         }
 
         return super.mobInteract(player, hand);
+    }
+
+    private static boolean isRobotUpgrade(ItemStack stack) {
+        return stack.getItem() instanceof UpgradeItem upgrade && upgrade.isRobotCompatible();
     }
 
     /**

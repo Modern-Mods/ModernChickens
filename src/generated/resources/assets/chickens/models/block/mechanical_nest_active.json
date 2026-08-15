@@ -371,6 +371,7 @@
     "bottom": "chickens:block/machines/mechanical_nest_bottom",
     "front": "chickens:block/machines/mechanical_nest_front_active",
     "front_active": "chickens:block/machines/mechanical_nest_front_active",
+    "particle": "chickens:block/machines/mechanical_nest_side",
     "side": "chickens:block/machines/mechanical_nest_side",
     "top": "chickens:block/machines/mechanical_nest_top_active"
   }
