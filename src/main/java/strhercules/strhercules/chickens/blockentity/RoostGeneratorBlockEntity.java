@@ -26,6 +26,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.energy.EnergyStorage;
 import net.neoforged.neoforge.energy.IEnergyStorage;
 
@@ -136,6 +137,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
         rollFluctuationIfNeeded(level.random);
         int generation = getGenerationPerTick();
         applyGeneration(generation);
+        pushEnergyToNeighbors(level);
         if (generation != 0 && level instanceof ServerLevel serverLevel
                 && serverLevel.getGameTime() % 10L == 0L) {
             serverLevel.sendParticles(ParticleTypes.ELECTRIC_SPARK,
@@ -444,6 +446,31 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
             // Negative generation is an internal-buffer drain only. It never
             // calls an adjacent capability and can never create negative FE.
             energyStorage.removeEnergy(amount);
+        }
+    }
+
+    private void pushEnergyToNeighbors(Level level) {
+        for (Direction direction : Direction.values()) {
+            if (!sideConfig().allows(direction, MachineSideConfig.Channel.ENERGY, false)) {
+                continue;
+            }
+            IEnergyStorage target = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+                    worldPosition.relative(direction), direction.getOpposite());
+            if (target == null) {
+                continue;
+            }
+            int available = energyStorage.extractEnergy(Integer.MAX_VALUE, true);
+            if (available <= 0) {
+                return;
+            }
+            int accepted = target.receiveEnergy(available, true);
+            if (accepted <= 0) {
+                continue;
+            }
+            int extracted = energyStorage.extractEnergy(accepted, false);
+            if (extracted > 0) {
+                target.receiveEnergy(extracted, false);
+            }
         }
     }
 

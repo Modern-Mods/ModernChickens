@@ -386,6 +386,30 @@
       }
     },
     {
+      "model": "chickens:item/chicken/cobaltchicken",
+      "predicate": {
+        "custom_model_data": 633
+      }
+    },
+    {
+      "model": "chickens:item/chicken/pigironchicken",
+      "predicate": {
+        "custom_model_data": 634
+      }
+    },
+    {
+      "model": "chickens:item/chicken/manyullynchicken",
+      "predicate": {
+        "custom_model_data": 635
+      }
+    },
+    {
+      "model": "chickens:item/chicken/knightslimechicken",
+      "predicate": {
+        "custom_model_data": 636
+      }
+    },
+    {
       "model": "chickens:item/chicken/sulfurchicken",
       "predicate": {
         "custom_model_data": 521

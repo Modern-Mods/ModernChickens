@@ -2,6 +2,13 @@
 
 This document is for cataloguing and detailing potential ideas for features.
 
+- Remove RF Eggs, instead rely on the roost generator for pack power generation 
+
+- Add Configurator recipe
+    - JEI
+
+- Fix new nest item icon in inventory - make it match the rest
+
 
 ## Specialty Chicken Features
 - Ender Chicken will teleport around when wandering the overworld, like enderman
