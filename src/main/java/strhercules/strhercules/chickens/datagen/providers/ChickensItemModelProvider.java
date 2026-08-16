@@ -35,7 +35,6 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         blockItem("henhouse_acacia");
         blockItem("henhouse_dark_oak");
 
-        // Nest
         nest();
 
         // Simply Items
@@ -115,26 +114,11 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         ItemModelBuilder builder = withExistingParent("nest", modLoc("block/nest"));
         builder
             .transforms()
-                .transform(ItemDisplayContext.GROUND)
-                    .rotation(0.0f, 0.0f, 0.0f)
-                    .translation(0.0f, 2.0f, 0.0f)
-                    .scale(0.375f, 0.375f, 0.375f)
-                    .end()
-                .transform(ItemDisplayContext.THIRD_PERSON_RIGHT_HAND)
-                    .rotation(0.0f, 0.0f, 0.0f)
-                    .translation(0.0f, 4.0f, -2.75f)
-                    .scale(0.5f, 0.5f, 0.5f)
-                    .end()
-                .transform(ItemDisplayContext.FIRST_PERSON_RIGHT_HAND)
-                    .rotation(30.0f, -90.0f, 25.0f)
-                    .translation(0.0f, 4.0f, 2.0f)
-                    .scale(0.375f, 0.375f, 0.375f)
-                    .end()
                 .transform(ItemDisplayContext.GUI)
-                    .rotation(12.0f, 45.0f, 0.0f)
-                    .translation(0.5f, 1.0f, 0.0f)
-                    .scale(0.8f, 0.8f, 0.8f)
+                    .rotation(30.0f, 45.0f, 0.0f)
+                    .scale(0.625f, 0.625f, 0.625f)
                     .end()
                 .end();
     }
+
 }

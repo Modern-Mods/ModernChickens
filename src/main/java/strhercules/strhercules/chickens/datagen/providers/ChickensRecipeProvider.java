@@ -74,6 +74,16 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_compass", has(Items.COMPASS))
                 .save(output, id("analyzer"));
 
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:configurator"))
+                .pattern("II")
+                .pattern(" R")
+                .pattern(" S")
+                .define('I', Items.IRON_INGOT)
+                .define('R', Items.REDSTONE)
+                .define('S', Items.STICK)
+                .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
+                .save(output, id("configurator"));
+
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:catcher"))
                 .pattern("E")
                 .pattern("S")
