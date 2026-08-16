@@ -5230,47 +5230,47 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         builder.texture("generator_back", machineTexture(active
                 ? "roost_generator_back_active" : "roost_generator_back"));
 
-        generatorElement(builder, 0, 0, 2, 1, 15, 16,
+        generatorElement(builder, 0, 0, 1, 1, 15, 16,
                 new String[]{"#side", "#generator_side", "#side", "#generator_side_two", "#side", "#side"},
                 new float[][]{{0, 0, 1, 16}, {0, 2, 16, 16}, {15, 0, 16, 16}, {1, 2, 15, 16},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 15, 0, 2, 16, 15, 16,
+        generatorElement(builder, 15, 0, 1, 16, 15, 16,
                 new String[]{"#side", "#generator_side_two", "#side", "#generator_side", "#side", "#side"},
                 new float[][]{{15, 0, 16, 16}, {1, 2, 15, 16}, {15, 0, 16, 16}, {0, 2, 16, 16},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 0, 15, 1, 16, 16, 16,
+        generatorElement(builder, 0, 15, 0, 16, 16, 16,
                 new String[]{"#front", "#bottom", "#side", "#bottom", "#generator_top", "#generator_top"},
                 new float[][]{{0, 0, 16, 1}, {0, 0, 16, 1}, {0, 15, 16, 16}, {0, 15, 16, 16},
                         {0, 0, 16, 16}, {0, 0, 16, 16}});
         generatorElement(builder, 1, 0, 2, 15, 1, 16,
                 new String[]{"#bottom", "#bottom", "#bottom", "#bottom", "#bottom", "#bottom"},
-                new float[][]{{0, 0, 16, 16}, {0, 0, 16, 16}, {0, 0, 16, 16}, {0, 0, 16, 16},
+                new float[][]{{0, 15, 16, 16}, {0, 0, 16, 16}, {0, 15, 16, 16}, {0, 0, 16, 16},
                         {0, 0, 16, 16}, {0, 0, 16, 16}});
-        generatorElement(builder, 0, 0, 1, 16, 15, 2,
+        generatorElement(builder, 0, 0, 0, 16, 15, 1,
                 new String[]{"#generator_back", "#side", "#generator_side", "#side", "#side", "#side"},
                 new float[][]{{0, 1, 16, 16}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
-                        {0, 15, 16, 16}, {0, 15, 16, 16}});
-        generatorElement(builder, 1, 1, 3, 2, 7, 15,
+                        {0, 0, 16, 1}, {0, 15, 16, 16}});
+        generatorElement(builder, 1, 1, 2, 2, 7, 15,
                 allGeneratorFaces("#side"),
                 new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 1, 15, 15},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 14, 1, 3, 15, 7, 14,
+        generatorElement(builder, 14, 1, 2, 15, 7, 14,
                 allGeneratorFaces("#side"),
                 new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 1, 15, 15},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 1, 1, 2, 15, 7, 3,
+        generatorElement(builder, 1, 1, 1, 15, 7, 2,
                 allGeneratorFaces("#side"),
                 new float[][]{{3, 3, 13, 14}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 2, 1, 2, 3, 4, 14,
+        generatorElement(builder, 2, 1, 2, 3, 4, 15,
                 allGeneratorFaces("#side"),
                 new float[][]{{0, 0, 1, 16}, {1, 12, 15, 15}, {15, 0, 16, 16}, {1, 1, 15, 15},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 13, 1, 3, 14, 4, 14,
+        generatorElement(builder, 13, 1, 2, 14, 4, 14,
                 allGeneratorFaces("#side"),
                 new float[][]{{0, 0, 1, 16}, {0, 0, 16, 16}, {15, 0, 16, 16}, {1, 12, 15, 15},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
-        generatorElement(builder, 3, 1, 3, 13, 4, 4,
+        generatorElement(builder, 3, 1, 2, 13, 4, 3,
                 allGeneratorFaces("#side"),
                 new float[][]{{1, 10, 15, 15}, {0, 0, 1, 16}, {0, 1, 16, 16}, {15, 0, 16, 16},
                         {0, 0, 16, 1}, {0, 15, 16, 16}});
