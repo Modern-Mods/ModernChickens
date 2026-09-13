@@ -2,7 +2,7 @@
   "name": "Configurator",
   "icon": "chickens:configurator",
   "category": "chickens:upgrades",
-  "sortnum": 1,
+  "sortnum": 2,
   "pages": [
     {
       "type": "patchouli:spotlight",

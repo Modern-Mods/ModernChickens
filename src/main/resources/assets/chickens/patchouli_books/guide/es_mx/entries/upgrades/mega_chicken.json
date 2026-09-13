@@ -2,7 +2,7 @@
   "name": "Mega Gallina",
   "icon": "chickens:mega_chicken",
   "category": "chickens:upgrades",
-  "sortnum": 2,
+  "sortnum": 3,
   "pages": [
     {
       "type": "patchouli:spotlight",
