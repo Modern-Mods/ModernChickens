@@ -1,0 +1,23 @@
+{
+  "name": "Novelty Eggs",
+  "icon": "chickens:flying_egg",
+  "category": "chickens:conversion",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:flying_egg",
+      "text": "Throw it and ride the launch."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:colored_egg",
+      "text": "Dyed eggs, purely cosmetic."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:lava_chicken",
+      "text": "Handle with care. It sets the ground alight where it lands."
+    }
+  ]
+}

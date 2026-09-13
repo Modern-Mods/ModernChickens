@@ -1,0 +1,18 @@
+{
+  "name": "Nido",
+  "icon": "chickens:nest",
+  "category": "chickens:production",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:nest",
+      "text": "El Nido no produce nada por sí mismo. Existe para acelerar Gallineros."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "El Aura",
+      "text": "Pon un objeto $(l)gallo$() y algunas $(l)semillas$() en el Nido. Consume semillas para mantener un aura temporizada que potencia todos los Gallineros en rango.$(br2)Si se queda sin semillas el aura se corta, así que hay que mantenerlo alimentado si dependes del bono."
+    }
+  ]
+}

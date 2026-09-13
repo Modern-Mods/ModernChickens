@@ -1,0 +1,18 @@
+{
+  "name": "Gallinas Robot",
+  "icon": "chickens:robot_chicken",
+  "category": "chickens:breeding",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:robot_chicken",
+      "text": "Una gallina convertida que no envejece ni necesita alimento."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:robot_rooster",
+      "text": "La variante gallo. Combustible necesario para el $(l)Nido Mecánico$()."
+    }
+  ]
+}

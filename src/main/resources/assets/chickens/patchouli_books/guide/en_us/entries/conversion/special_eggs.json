@@ -1,0 +1,28 @@
+{
+  "name": "Special Eggs",
+  "icon": "chickens:liquid_egg",
+  "category": "chickens:conversion",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:liquid_egg",
+      "text": "Holds a fluid. Crack it in an $(l)Avian Fluid Converter$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:flux_egg",
+      "text": "Holds energy. Drain it in an $(l)Avian Flux Converter$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:chemical_egg",
+      "text": "Holds a Mekanism chemical. Needs an $(l)Avian Chemical Converter$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:gas_egg",
+      "text": "The gas counterpart to the Chemical Egg."
+    }
+  ]
+}

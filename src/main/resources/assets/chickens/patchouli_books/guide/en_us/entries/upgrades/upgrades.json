@@ -1,0 +1,33 @@
+{
+  "name": "Upgrade Modules",
+  "icon": "chickens:speedupgrade",
+  "category": "chickens:upgrades",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:speedupgrade",
+      "text": "$(l)Speed$(): shortens the production cycle."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:stackupgrade",
+      "text": "$(l)Stack$(): more output per cycle."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:storagecapacity",
+      "text": "$(l)Storage$(): larger internal buffer before the machine clogs."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rangeupgrade",
+      "text": "$(l)Range$(): widens the area a Collector or Nest services."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rfupgrade",
+      "text": "$(l)RF$(): raises energy capacity and throughput."
+    }
+  ]
+}

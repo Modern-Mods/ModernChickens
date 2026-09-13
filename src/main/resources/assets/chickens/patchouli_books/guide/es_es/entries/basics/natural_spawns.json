@@ -1,0 +1,18 @@
+{
+  "name": "Dónde Viven las Gallinas",
+  "icon": "chickens:spawn_egg",
+  "category": "chickens:basics",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Tipos de Aparición",
+      "text": "Las gallinas salvajes de Modern Chickens aparecen junto a las gallinas normales, en cuatro grupos:$(br)$(li)$(l)Normal$() biomas templados$(li)$(l)Nieve$() biomas nevados$(li)$(l)Infierno$() el Nether$(li)$(l)End$() el End$(br2)Solo las razas de nivel bajo aparecen de forma natural. Todo lo demás hay que criarlo."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Huevos de Aparición",
+      "text": "Modern Chickens trae sus propios huevos de aparición para gallinas, gallos, Mega Gallinas y variantes robot. Son la forma más rápida de probar una instalación en creativo, y varios se producen legítimamente en la $(l)Máquina de Rociado Aviar$()."
+    }
+  ]
+}

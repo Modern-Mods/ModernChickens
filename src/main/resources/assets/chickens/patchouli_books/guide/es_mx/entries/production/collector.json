@@ -1,0 +1,18 @@
+{
+  "name": "Recolector",
+  "icon": "chickens:collector",
+  "category": "chickens:production",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:collector",
+      "text": "Deja de vaciar Gallineros a mano."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Automatización",
+      "text": "El Recolector extrae automáticamente la producción terminada de Gallineros y Gallineros Mecánicos cercanos hacia su propio inventario.$(br2)Desde ahí, cualquier tolva o tubería puede continuar. Una $(l)Mejora de Rango$() amplía el área que cubre."
+    }
+  ]
+}

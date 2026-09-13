@@ -1,0 +1,18 @@
+{
+  "name": "Mechanical Nest",
+  "icon": "chickens:mechanical_nest",
+  "category": "chickens:production",
+  "sortnum": 5,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:mechanical_nest",
+      "text": "A Nest that never runs out of seeds."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Robot Powered",
+      "text": "Feed it a $(l)Robot Rooster$() and $(l)RF$() and it maintains an aura that boosts nearby active Roosts and Mechanical Roosts.$(br2)Unlike the wooden Nest it needs no seeds, so the aura holds as long as power holds."
+    }
+  ]
+}

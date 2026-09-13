@@ -1,0 +1,18 @@
+{
+  "name": "Incubadora",
+  "icon": "chickens:incubator",
+  "category": "chickens:breeding",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:incubator",
+      "text": "Convierte huevos de aparición en objetos gallina portátiles."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "200 Ticks",
+      "text": "Aliméntala con $(l)RF$() y un huevo de aparición de Modern Chickens. Tras una operación de 200 ticks obtienes el objeto gallina correspondiente, listo para un Gallinero.$(br2)Este es el puente habitual entre la $(l)Máquina de Rociado Aviar$() y tu línea de producción."
+    }
+  ]
+}

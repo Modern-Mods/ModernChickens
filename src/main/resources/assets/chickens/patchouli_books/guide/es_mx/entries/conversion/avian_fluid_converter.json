@@ -1,0 +1,18 @@
+{
+  "name": "Convertidor de Fluidos Aviar",
+  "icon": "chickens:avian_fluid_converter",
+  "category": "chickens:conversion",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:avian_fluid_converter",
+      "text": "Gallinas como fuente de fluidos."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Salida",
+      "text": "Rompe $(l)Huevos Líquidos$() hacia un tanque interno y empuja el fluido almacenado a tanques o tuberías adyacentes.$(br2)Qué fluido obtienes depende enteramente de la raza que puso el huevo."
+    }
+  ]
+}

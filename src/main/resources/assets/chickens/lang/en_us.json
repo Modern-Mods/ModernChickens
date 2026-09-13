@@ -541,5 +541,8 @@
   "entity.andesitealloychicken.name": "Andesite Alloy Chicken",
   "entity.chocolatchicken.name": "Chocolate Chicken",
   "entity.crystalmatrixChicken.name": "Crystal Matrix Chicken",
-  "entity.ethergasChicken.name": "Ether Gas Chicken"
+  "entity.ethergasChicken.name": "Ether Gas Chicken",
+  "book.chickens.guide.name": "Modern Chickens",
+  "book.chickens.guide.subtitle": "A Farmers Field Guide",
+  "book.chickens.guide.landing": "Chickens are not just chickens anymore.$(br2)This guide covers catching them, housing them, breeding them up the tier ladder, and wiring the whole farm into your power grid.$(br2)$(italic)Start with Getting Started.$()"
 }

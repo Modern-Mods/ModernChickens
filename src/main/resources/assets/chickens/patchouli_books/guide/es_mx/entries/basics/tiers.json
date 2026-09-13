@@ -1,0 +1,18 @@
+{
+  "name": "Niveles",
+  "icon": "chickens:chicken",
+  "category": "chickens:basics",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Subir de Nivel",
+      "text": "Cada raza tiene un $(l)nivel$(). Las de nivel 1 aparecen en el mundo. Los niveles superiores se producen criando dos padres específicos en una $(l)Criadora de Gallinas$().$(br2)Cuanto más alto el nivel, menor la probabilidad de éxito por intento, así que hay que esperar muchos ciclos para las razas raras."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Razas de Otros Mods",
+      "text": "Muchas razas solo aparecen si está instalado el mod que provee su objeto. Si el objeto de salida de una raza no se encuentra al cargar, esa raza se desactiva y sus descendientes quedan diferidos.$(br2)Por eso tu lista de razas disponibles crece a medida que agregás mods al pack."
+    }
+  ]
+}

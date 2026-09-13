@@ -1,0 +1,23 @@
+{
+  "name": "Huevos Curiosos",
+  "icon": "chickens:flying_egg",
+  "category": "chickens:conversion",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:flying_egg",
+      "text": "Tíralo y aprovecha el impulso."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:colored_egg",
+      "text": "Huevos teñidos, puramente cosméticos."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:lava_chicken",
+      "text": "Manejar con cuidado. Prende fuego el suelo donde cae."
+    }
+  ]
+}

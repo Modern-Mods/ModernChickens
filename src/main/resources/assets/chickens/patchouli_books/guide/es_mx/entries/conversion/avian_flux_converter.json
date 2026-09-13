@@ -1,0 +1,18 @@
+{
+  "name": "Convertidor de Flux Aviar",
+  "icon": "chickens:avian_flux_converter",
+  "category": "chickens:conversion",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:avian_flux_converter",
+      "text": "Gallinas como fuente de energía."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Salida",
+      "text": "Drena la energía de los $(l)Huevos de Flux$() hacia un búfer interno de FE/RF y luego exporta esa energía a máquinas adyacentes.$(br2)Combínalo con un Gallinero lleno de Gallinas de Flux de Redstone y un Recolector para un generador totalmente pasivo."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Criadora de Gallinas",
+  "icon": "chickens:breeder",
+  "category": "chickens:breeding",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:breeder",
+      "text": "De aquí salen las razas nuevas."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dos Padres",
+      "text": "Carga dos objetos gallina que $(l)no sean gallos$() más $(l)semillas$(). La Criadora consume las semillas e intenta producir descendencia según la tabla de cría.$(br2)Un intento exitoso puede dar la raza de cualquiera de los padres o, con suerte, el hijo de nivel superior que desbloquean juntos."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Paciencia",
+      "text": "La probabilidad de hijo baja a medida que sube el nivel. Para las razas más raras, automatiza la Criadora y déjala correr en lugar de mirarla.$(br2)La descendencia hereda estadísticas promediadas y algo aleatorias de los padres, así que criar también es como llevas crecimiento, ganancia y fuerza hacia 10."
+    }
+  ]
+}

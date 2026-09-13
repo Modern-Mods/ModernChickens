@@ -1,0 +1,18 @@
+{
+  "name": "Atrapador",
+  "icon": "chickens:catcher",
+  "category": "chickens:basics",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:catcher",
+      "text": "El Atrapador convierte una gallina viva en objeto con un solo clic derecho."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Desgaste",
+      "text": "Un Atrapador normal tiene usos limitados y se rompe al agotarse. El $(l)Atrapador Creativo$() nunca se gasta, pero solo está disponible en modo creativo.$(br2)Atrapar una gallina conserva sus estadísticas exactas, así que conviene atrapar tus mejores aves en vez de criar desde cero."
+    }
+  ]
+}

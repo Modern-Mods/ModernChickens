@@ -1,0 +1,18 @@
+{
+  "name": "Henhouse",
+  "icon": "chickens:henhouse",
+  "category": "chickens:production",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:henhouse",
+      "text": "The Henhouse catches drops from live chickens wandering nearby."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Fuel",
+      "text": "Nearby chicken drops land in a 3x3 output inventory. The Henhouse runs on $(l)FE$() or on $(l)hay$(); burning hay can also produce dirt as a byproduct.$(br2)Six wood variants exist so the block fits whatever barn you are building: oak, spruce, birch, jungle, acacia and dark oak."
+    }
+  ]
+}

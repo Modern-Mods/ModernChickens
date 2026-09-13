@@ -1,0 +1,28 @@
+{
+  "name": "Huevos Especiales",
+  "icon": "chickens:liquid_egg",
+  "category": "chickens:conversion",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:liquid_egg",
+      "text": "Contiene un fluido. Rómpelo en un $(l)Convertidor de Fluidos Aviar$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:flux_egg",
+      "text": "Contiene energía. Drénalo en un $(l)Convertidor de Flux Aviar$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:chemical_egg",
+      "text": "Contiene un químico de Mekanism. Necesita un $(l)Convertidor Químico Aviar$()."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:gas_egg",
+      "text": "La contraparte gaseosa del Huevo Químico."
+    }
+  ]
+}
