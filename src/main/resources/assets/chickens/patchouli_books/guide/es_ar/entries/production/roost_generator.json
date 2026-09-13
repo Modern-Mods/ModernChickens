@@ -1,0 +1,23 @@
+{
+  "name": "Generador de Gallinero",
+  "icon": "chickens:roost_generator",
+  "category": "chickens:production",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:roost_generator",
+      "text": "No quema nada. Funciona con gallinas."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Energía de Corral",
+      "text": "Cárgalo con $(l)Gallinas de Flux de Redstone$(). La salida en FE/t escala con cuántas aves tiene dentro y con sus estadísticas, y el generador exporta esa energía directo a las máquinas adyacentes.$(br2)Sin combustible, sin ceniza y sin paradas mientras las gallinas sigan adentro."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Ajustarlo",
+      "text": "El Generador de Gallinero es la única máquina con toda una familia de mejoras propia. Mira $(l)Mejoras de RF$() en la categoría Mejoras y Herramientas para llevar la capacidad, la tasa de generación y el ratio de salida mucho más allá de lo básico."
+    }
+  ]
+}

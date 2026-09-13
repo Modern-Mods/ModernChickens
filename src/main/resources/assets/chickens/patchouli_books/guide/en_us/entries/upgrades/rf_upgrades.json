@@ -1,0 +1,48 @@
+{
+  "name": "RF Upgrades",
+  "icon": "chickens:rf_capacity_upgrade",
+  "category": "chickens:upgrades",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Tuning the Generator",
+      "text": "Seven modules exist purely to reshape how the $(l)Roost Generator$() behaves. Most cap at four installed; the Exciter goes further.$(br2)They interact, so read the whole family before committing to a build."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_capacity_upgrade",
+      "text": "$(l)Capacity$(): doubles buffer size per upgrade, up to four."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_efficiency_upgrade",
+      "text": "$(l)Efficiency$(): plus 10 percent generation per upgrade, up to four."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_output_upgrade",
+      "text": "$(l)Output$(): plus 12.5 points of output ratio per upgrade, up to four."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_exciter_upgrade",
+      "text": "$(l)Exciter$(): plus 25 percent generation but adds 20 points of swing per upgrade. Eight of them unlock overdrive."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_stabilizer_upgrade",
+      "text": "$(l)Stabilizer$(): cancels 10 points of Exciter swing per upgrade, up to 40 percent."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_surge_upgrade",
+      "text": "$(l)Surge$(): above 75 percent buffer, multiplies output ratio by 1.15 per upgrade, up to 1.6x."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_governor_upgrade",
+      "text": "$(l)Governor$(): trims 10 points of positive Exciter swing per upgrade and converts half of it into guaranteed generation."
+    }
+  ]
+}

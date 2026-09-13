@@ -1,0 +1,48 @@
+{
+  "name": "Mejoras de RF",
+  "icon": "chickens:rf_capacity_upgrade",
+  "category": "chickens:upgrades",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Ajustar el Generador",
+      "text": "Siete módulos existen únicamente para modificar cómo se comporta el $(l)Generador de Gallinero$(). La mayoría llega al tope con cuatro instalados; el Excitador va más allá.$(br2)Interactúan entre sí, así que conviene leer toda la familia antes de decidir una configuración."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_capacity_upgrade",
+      "text": "$(l)Capacidad$(): duplica el búfer por mejora, hasta cuatro."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_efficiency_upgrade",
+      "text": "$(l)Eficiencia$(): más 10 por ciento de generación por mejora, hasta cuatro."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_output_upgrade",
+      "text": "$(l)Salida$(): más 12,5 puntos de ratio de salida por mejora, hasta cuatro."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_exciter_upgrade",
+      "text": "$(l)Excitador$(): más 25 por ciento de generación pero suma 20 puntos de fluctuación por mejora. Ocho habilitan el sobreimpulso."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_stabilizer_upgrade",
+      "text": "$(l)Estabilizador$(): cancela 10 puntos de fluctuación del Excitador por mejora, hasta 40 por ciento."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_surge_upgrade",
+      "text": "$(l)Sobrecarga$(): por encima del 75 por ciento de búfer, multiplica el ratio de salida por 1,15 por mejora, hasta 1,6x."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rf_governor_upgrade",
+      "text": "$(l)Regulador$(): recorta 10 puntos de fluctuación positiva del Excitador por mejora y convierte la mitad en generación garantizada."
+    }
+  ]
+}

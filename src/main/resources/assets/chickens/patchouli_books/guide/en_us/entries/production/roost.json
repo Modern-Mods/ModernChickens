@@ -1,0 +1,23 @@
+{
+  "name": "Roost",
+  "icon": "chickens:roost",
+  "category": "chickens:production",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:roost",
+      "text": "The Roost is the backbone of any chicken farm."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "How It Works",
+      "text": "Place chicken items inside and the Roost periodically produces their configured drops into its internal output slots. No food, no mob AI, no lag.$(br2)Output rate scales with the growth, gain and strength of the birds and with how many share the Roost."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Boosting Output",
+      "text": "Two things speed a Roost up:$(br)$(li)A $(l)Nest$() or $(l)Mechanical Nest$() aura nearby$(li)$(l)Speed$() and $(l)Stack$() upgrades installed in the Roost$(br2)Both stack with each other."
+    }
+  ]
+}

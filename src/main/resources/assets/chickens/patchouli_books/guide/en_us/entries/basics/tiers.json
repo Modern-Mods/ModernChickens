@@ -1,0 +1,18 @@
+{
+  "name": "Tiers",
+  "icon": "chickens:chicken",
+  "category": "chickens:basics",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Climbing the Ladder",
+      "text": "Every breed has a $(l)tier$(). Tier 1 breeds spawn in the world. Higher tiers are produced by breeding two specific parents together in a $(l)Chicken Breeder$().$(br2)The higher the tier, the lower the chance a breeding attempt succeeds, so expect to run many cycles for rare breeds."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Modded Breeds",
+      "text": "Many breeds only appear when the mod that provides their drop is installed. If a breed output item cannot be found at load time, that breed is disabled and its children are deferred.$(br2)This is why your available breed list grows as you add mods to the pack."
+    }
+  ]
+}

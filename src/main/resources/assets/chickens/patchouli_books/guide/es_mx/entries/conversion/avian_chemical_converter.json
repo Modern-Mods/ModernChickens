@@ -1,0 +1,18 @@
+{
+  "name": "Convertidor Químico Aviar",
+  "icon": "chickens:avian_chemical_converter",
+  "category": "chickens:conversion",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:avian_chemical_converter",
+      "text": "Requiere tener $(l)Mekanism$() instalado."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Salida",
+      "text": "Rompe $(l)Huevos Químicos$() y $(l)Huevos de Gas$() hacia un búfer químico compatible con Mekanism, listo para automatizar con cualquier tubería de Mekanism.$(br2)Sin Mekanism presente, las razas químicas quedan desactivadas y esta máquina no tiene nada que hacer."
+    }
+  ]
+}

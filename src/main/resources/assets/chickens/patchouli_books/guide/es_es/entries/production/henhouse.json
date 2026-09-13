@@ -1,0 +1,18 @@
+{
+  "name": "Corral",
+  "icon": "chickens:henhouse",
+  "category": "chickens:production",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:henhouse",
+      "text": "El Corral recoge lo que sueltan las gallinas vivas que deambulan cerca."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Combustible",
+      "text": "Lo que sueltan las gallinas cercanas cae en un inventario de salida de 3x3. El Corral funciona con $(l)FE$() o con $(l)heno$(); quemar heno también puede producir tierra como subproducto.$(br2)Existen seis variantes de madera para que el bloque combine con cualquier granero: roble, abeto, abedul, jungla, acacia y roble oscuro."
+    }
+  ]
+}

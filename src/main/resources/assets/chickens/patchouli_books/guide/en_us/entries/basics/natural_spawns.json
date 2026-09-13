@@ -1,0 +1,18 @@
+{
+  "name": "Where Chickens Live",
+  "icon": "chickens:spawn_egg",
+  "category": "chickens:basics",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Spawn Types",
+      "text": "Wild Modern Chickens appear alongside vanilla chickens, split into four groups:$(br)$(li)$(l)Normal$() temperate biomes$(li)$(l)Snow$() snowy biomes$(li)$(l)Hell$() the Nether$(li)$(l)End$() the End$(br2)Only low tier breeds spawn naturally. Everything above that must be bred."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Spawn Eggs",
+      "text": "Modern Chickens ships its own spawn eggs for chickens, roosters, Mega Chickens and robot variants. They are the fastest way to test a setup in creative, and several are produced legitimately by the $(l)Avian Dousing Machine$()."
+    }
+  ]
+}

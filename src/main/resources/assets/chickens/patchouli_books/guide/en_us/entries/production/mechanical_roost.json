@@ -1,0 +1,18 @@
+{
+  "name": "Mechanical Roost",
+  "icon": "chickens:mechanical_roost",
+  "category": "chickens:production",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:mechanical_roost",
+      "text": "The industrial answer to the wooden Roost."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Four Rows",
+      "text": "The Mechanical Roost is $(l)RF powered$() and holds four independent chicken rows, each with its own separate output storage.$(br2)That means four different breeds can run in one block without their drops mixing together."
+    }
+  ]
+}

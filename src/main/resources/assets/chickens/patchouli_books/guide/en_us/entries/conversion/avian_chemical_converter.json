@@ -1,0 +1,18 @@
+{
+  "name": "Avian Chemical Converter",
+  "icon": "chickens:avian_chemical_converter",
+  "category": "chickens:conversion",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:avian_chemical_converter",
+      "text": "Requires $(l)Mekanism$() to be installed."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Output",
+      "text": "It cracks $(l)Chemical Eggs$() and $(l)Gas Eggs$() into a Mekanism compatible chemical buffer, ready for automation through any Mekanism pipe.$(br2)Without Mekanism present the chemical breeds stay disabled and this machine has nothing to do."
+    }
+  ]
+}

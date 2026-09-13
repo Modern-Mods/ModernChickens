@@ -1,0 +1,6 @@
+{
+  "name": "Upgrades and Tools",
+  "description": "Upgrade modules, the configurator, and the Mega Chicken.",
+  "icon": "chickens:speedupgrade",
+  "sortnum": 4
+}

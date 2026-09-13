@@ -1,0 +1,18 @@
+{
+  "name": "Nest",
+  "icon": "chickens:nest",
+  "category": "chickens:production",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:nest",
+      "text": "The Nest produces nothing on its own. It exists to make Roosts faster."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "The Aura",
+      "text": "Put a $(l)rooster$() item and some $(l)seeds$() into the Nest. It consumes seeds to maintain a timed aura that boosts every Roost within range.$(br2)Run out of seeds and the aura lapses, so keep it fed if you rely on the bonus."
+    }
+  ]
+}

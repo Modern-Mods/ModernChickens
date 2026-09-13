@@ -406,5 +406,8 @@
   "entity.andesitealloychicken.name": "Pollo de Aleación de Andesita",
   "entity.chocolatchicken.name": "Pollo de Chocolate",
   "entity.crystalmatrixChicken.name": "Pollo de Matriz de Cristal",
-  "entity.ethergasChicken.name": "Pollo de Gas Éter"
+  "entity.ethergasChicken.name": "Pollo de Gas Éter",
+  "book.chickens.guide.name": "Modern Chickens",
+  "book.chickens.guide.subtitle": "Guía de Campo del Granjero",
+  "book.chickens.guide.landing": "Las gallinas ya no son solo gallinas.$(br2)Esta guía cubre cómo atraparlas, alojarlas, criarlas para subir de nivel y conectar toda la granja a tu red eléctrica.$(br2)$(italic)Empieza por Primeros Pasos.$()"
 }

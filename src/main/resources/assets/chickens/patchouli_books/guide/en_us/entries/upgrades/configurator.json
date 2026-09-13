@@ -1,0 +1,18 @@
+{
+  "name": "Configurator",
+  "icon": "chickens:configurator",
+  "category": "chickens:upgrades",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:configurator",
+      "text": "Sets which side of a machine does what."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Side Configuration",
+      "text": "Right click a machine face to cycle its I/O mode. This is how you keep input pipes and output pipes from fighting over the same side.$(br2)Sneak right click to step backwards through the modes."
+    }
+  ]
+}

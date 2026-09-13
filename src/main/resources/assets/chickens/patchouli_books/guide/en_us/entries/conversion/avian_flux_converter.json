@@ -1,0 +1,18 @@
+{
+  "name": "Avian Flux Converter",
+  "icon": "chickens:avian_flux_converter",
+  "category": "chickens:conversion",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:avian_flux_converter",
+      "text": "Chickens as a power source."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Output",
+      "text": "It drains energy out of $(l)Flux Eggs$() into an internal FE/RF buffer, then exports that power to adjacent energy machines.$(br2)Pair it with a Roost full of Redstone Flux Chickens and a Collector for a fully passive generator."
+    }
+  ]
+}

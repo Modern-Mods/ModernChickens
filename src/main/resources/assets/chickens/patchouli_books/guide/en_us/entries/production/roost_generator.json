@@ -1,0 +1,23 @@
+{
+  "name": "Roost Generator",
+  "icon": "chickens:roost_generator",
+  "category": "chickens:production",
+  "sortnum": 6,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:roost_generator",
+      "text": "Burns nothing. Runs on chickens."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Power From Poultry",
+      "text": "Load it with $(l)Redstone Flux Chickens$(). Output in FE/t scales with how many birds are inside and with their stats, and the generator exports that energy straight to adjacent machines.$(br2)No fuel, no ash, no downtime as long as the chickens stay put."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Tuning It",
+      "text": "The Roost Generator is the one machine with a whole upgrade family of its own. See $(l)RF Upgrades$() in the Upgrades and Tools category to push capacity, generation rate and output ratio well past the defaults."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Gallinas en Objeto",
+  "icon": "chickens:chicken",
+  "category": "chickens:basics",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "Una Gallina en el Bolsillo",
+      "text": "Cada raza de Modern Chickens puede existir como $(l)objeto$(), no solo como criatura. Un objeto gallina recuerda su $(l)raza$(), sus estadísticas de $(l)crecimiento$(), $(l)ganancia$() y $(l)fuerza$(), y si es un gallo.$(br2)Las máquinas de este libro solo aceptan gallinas en forma de objeto."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Estadísticas",
+      "text": "$(l)Crecimiento$() controla qué tan rápido madura un polluelo.$(br)$(l)Ganancia$() controla cuánto suelta por ciclo.$(br)$(l)Fuerza$() controla qué tan rápido pone huevos.$(br2)Las tres van de 1 a 10. Criar dos padres tiende a subir estos números, así que conviene conservar tus mejores aves."
+    }
+  ]
+}

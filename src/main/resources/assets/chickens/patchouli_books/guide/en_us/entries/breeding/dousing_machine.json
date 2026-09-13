@@ -1,0 +1,23 @@
+{
+  "name": "Avian Dousing Machine",
+  "icon": "chickens:avian_dousing_machine",
+  "category": "chickens:breeding",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:avian_dousing_machine",
+      "text": "Bathes a chicken in reagents to create something new."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Inputs",
+      "text": "The machine needs three things at once:$(br)$(li)An eligible $(l)chicken$()$(li)Stored $(l)item$(), $(l)fluid$() or $(l)chemical$() reagents$(li)$(l)RF$()$(br2)The result is a specialized chicken spawn egg."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dragon and Wither",
+      "text": "Two infusion paths stand apart from the rest: the $(l)Dragon$() and $(l)Wither$() recipes. Both demand endgame reagents and both unlock breeds you cannot obtain any other way."
+    }
+  ]
+}

@@ -1,0 +1,33 @@
+{
+  "name": "Módulos de Mejora",
+  "icon": "chickens:speedupgrade",
+  "category": "chickens:upgrades",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:speedupgrade",
+      "text": "$(l)Velocidad$(): acorta el ciclo de producción."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:stackupgrade",
+      "text": "$(l)Apilado$(): más producción por ciclo."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:storagecapacity",
+      "text": "$(l)Almacenamiento$(): búfer interno más grande antes de que la máquina se tape."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rangeupgrade",
+      "text": "$(l)Rango$(): amplía el área que cubre un Recolector o un Nido."
+    },
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:rfupgrade",
+      "text": "$(l)RF$(): sube la capacidad y el flujo de energía."
+    }
+  ]
+}

@@ -1,0 +1,18 @@
+{
+  "name": "Gallinero Mecánico",
+  "icon": "chickens:mechanical_roost",
+  "category": "chickens:production",
+  "sortnum": 4,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:mechanical_roost",
+      "text": "La respuesta industrial al Gallinero de madera."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cuatro Filas",
+      "text": "El Gallinero Mecánico funciona con $(l)RF$() y aloja cuatro filas independientes de gallinas, cada una con su propio almacenamiento de salida.$(br2)Eso permite correr cuatro razas distintas en un solo bloque sin que se mezclen sus productos."
+    }
+  ]
+}

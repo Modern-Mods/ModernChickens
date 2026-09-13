@@ -1,0 +1,18 @@
+{
+  "name": "book.chickens.guide.name",
+  "landing_text": "book.chickens.guide.landing",
+  "subtitle": "book.chickens.guide.subtitle",
+  "model": "patchouli:book_brown",
+  "index_icon": "chickens:roost",
+  "creative_tab": "chickens:main",
+  "text_color": "3A2A18",
+  "header_color": "5A3E1E",
+  "nameplate_color": "E0B44A",
+  "link_color": "2A6B2A",
+  "link_hover_color": "4FA04F",
+  "progress_bar_color": "C8A24A",
+  "progress_bar_background": "5A4630",
+  "use_resource_pack": true,
+  "show_progress": true,
+  "version": "1"
+}

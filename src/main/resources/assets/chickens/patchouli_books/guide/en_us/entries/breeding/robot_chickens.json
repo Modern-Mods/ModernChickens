@@ -1,0 +1,18 @@
+{
+  "name": "Robot Chickens",
+  "icon": "chickens:robot_chicken",
+  "category": "chickens:breeding",
+  "sortnum": 3,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:robot_chicken",
+      "text": "A converted chicken that never ages and never needs feeding."
+    },
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:robot_rooster",
+      "text": "The rooster variant. Required fuel for the $(l)Mechanical Nest$()."
+    }
+  ]
+}

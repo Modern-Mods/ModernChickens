@@ -1,0 +1,23 @@
+{
+  "name": "Gallinero",
+  "icon": "chickens:roost",
+  "category": "chickens:production",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:roost",
+      "text": "El Gallinero es la base de cualquier granja de gallinas."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Cómo Funciona",
+      "text": "Coloca objetos gallina adentro y el Gallinero produce periódicamente sus objetos configurados en sus ranuras internas de salida. Sin comida, sin IA de criaturas, sin lag.$(br2)La tasa de producción escala con el crecimiento, la ganancia y la fuerza de las aves y con cuántas comparten el Gallinero."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Aumentar la Producción",
+      "text": "Dos cosas aceleran un Gallinero:$(br)$(li)Un aura de $(l)Nido$() o $(l)Nido Mecánico$() cerca$(li)Mejoras de $(l)Velocidad$() y $(l)Apilado$() instaladas en el Gallinero$(br2)Ambas se acumulan entre sí."
+    }
+  ]
+}

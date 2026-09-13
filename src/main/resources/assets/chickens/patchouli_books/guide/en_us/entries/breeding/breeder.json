@@ -1,0 +1,23 @@
+{
+  "name": "Chicken Breeder",
+  "icon": "chickens:breeder",
+  "category": "chickens:breeding",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:breeder",
+      "text": "Where new breeds come from."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Two Parents",
+      "text": "Load two $(l)non rooster$() chicken items plus $(l)seeds$(). The Breeder consumes the seeds and attempts to produce offspring according to the breeding table.$(br2)A successful attempt can yield either parent breed or, with luck, the higher tier child they unlock together."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Patience",
+      "text": "Child chance falls as tier rises. For the rarest breeds, automate the Breeder and let it run rather than watching it.$(br2)Offspring inherit averaged and slightly randomised parent stats, so breeding is also how you push growth, gain and strength toward 10."
+    }
+  ]
+}

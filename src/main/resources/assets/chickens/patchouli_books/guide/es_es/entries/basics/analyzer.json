@@ -1,0 +1,18 @@
+{
+  "name": "Analizador",
+  "icon": "chickens:analyzer",
+  "category": "chickens:basics",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:analyzer",
+      "text": "Hace clic derecho sobre una gallina con el Analizador para revelar sus estadísticas ocultas."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Para Qué Sirve",
+      "text": "Hasta que una gallina es analizada, sus estadísticas permanecen ocultas en las descripciones. Analizar es permanente y no tiene efectos secundarios, así que conviene analizar toda ave que pienses criar."
+    }
+  ]
+}

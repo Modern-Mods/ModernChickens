@@ -1,0 +1,18 @@
+{
+  "name": "Incubator",
+  "icon": "chickens:incubator",
+  "category": "chickens:breeding",
+  "sortnum": 1,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:incubator",
+      "text": "Turns spawn eggs into portable chicken items."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "200 Ticks",
+      "text": "Feed it $(l)RF$() and a Modern Chickens spawn egg. After a 200 tick operation you get the matching chicken item, ready for a Roost.$(br2)This is the usual bridge between the $(l)Avian Dousing Machine$() and your production line."
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "name": "Máquina de Rociado Aviar",
+  "icon": "chickens:avian_dousing_machine",
+  "category": "chickens:breeding",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:crafting",
+      "recipe": "chickens:avian_dousing_machine",
+      "text": "Baña una gallina en reactivos para crear algo nuevo."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Entradas",
+      "text": "La máquina necesita tres cosas a la vez:$(br)$(li)Una $(l)gallina$() elegible$(li)Reactivos almacenados de $(l)objeto$(), $(l)fluido$() o $(l)químico$()$(li)$(l)RF$()$(br2)El resultado es un huevo de aparición de gallina especializada."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Dragón y Wither",
+      "text": "Dos rutas de infusión se destacan del resto: las recetas de $(l)Dragón$() y $(l)Wither$(). Ambas exigen reactivos de final de juego y ambas desbloquean razas que no se consiguen de ninguna otra forma."
+    }
+  ]
+}

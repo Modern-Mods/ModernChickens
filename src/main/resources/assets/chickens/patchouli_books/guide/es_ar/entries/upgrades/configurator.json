@@ -1,0 +1,18 @@
+{
+  "name": "Configurador",
+  "icon": "chickens:configurator",
+  "category": "chickens:upgrades",
+  "sortnum": 2,
+  "pages": [
+    {
+      "type": "patchouli:spotlight",
+      "item": "chickens:configurator",
+      "text": "Define qué hace cada cara de una máquina."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Configuración de Caras",
+      "text": "Haz clic derecho en una cara de la máquina para cambiar su modo de entrada o salida. Así evitas que las tuberías de entrada y salida peleen por la misma cara.$(br2)Clic derecho agachado para retroceder entre los modos."
+    }
+  ]
+}

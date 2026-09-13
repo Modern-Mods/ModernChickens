@@ -1,0 +1,18 @@
+{
+  "name": "Chicken Items",
+  "icon": "chickens:chicken",
+  "category": "chickens:basics",
+  "sortnum": 0,
+  "pages": [
+    {
+      "type": "patchouli:text",
+      "title": "A Chicken in Your Pocket",
+      "text": "Every Modern Chickens breed can exist as an $(l)item$(), not just as a mob. A chicken item remembers its $(l)breed$(), its $(l)growth$(), $(l)gain$() and $(l)strength$() stats, and whether it is a rooster.$(br2)Machines in this book only accept chickens in item form."
+    },
+    {
+      "type": "patchouli:text",
+      "title": "Stats",
+      "text": "$(l)Growth$() controls how fast a chick matures.$(br)$(l)Gain$() controls how much a chicken drops each cycle.$(br)$(l)Strength$() controls how fast it lays.$(br2)All three run from 1 to 10. Breeding two parents tends to push these numbers upward, so keeping your best birds pays off."
+    }
+  ]
+}
