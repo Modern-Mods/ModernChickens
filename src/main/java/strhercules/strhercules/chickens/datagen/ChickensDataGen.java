@@ -8,6 +8,7 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.datagen.providers.ChickenItemModelProvider;
+import strhercules.chickens.datagen.providers.ChickensBiomeModifierProvider;
 import strhercules.chickens.datagen.providers.ChickensBlockModelProvider;
 import strhercules.chickens.datagen.providers.ChickensItemModelProvider;
 import strhercules.chickens.datagen.providers.ChickensRecipeProvider;
@@ -37,6 +38,11 @@ public class ChickensDataGen {
         event.getGenerator().addProvider(
                 event.includeServer(),
                 new ChickensItemTagProvider(packOutput, lookupProvider)
+        );
+
+        event.getGenerator().addProvider(
+                event.includeServer(),
+                new ChickensBiomeModifierProvider(packOutput, lookupProvider)
         );
 
         event.getGenerator().getVanillaPack(true).addProvider(ChickenItemModelProvider::new);
