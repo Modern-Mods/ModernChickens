@@ -9,11 +9,6 @@ import net.minecraftforge.registries.RegisterEvent.RegisterHelper;
 import net.minecraftforge.registries.ForgeRegistries.Keys;
 import net.minecraft.resources.ResourceLocation;
 
-/**
- * Registers the biome modifier codec that handles natural chicken spawns. The modifier instance itself
- * lives in {@code data/chickens/forge/biome_modifier/chickens_spawns.json} because
- * {@code forge:biome_modifier} is a datapack registry and cannot be populated from code.
- */
 public final class ModBiomeModifiers {
     private static final ResourceLocation SPAWN_ID = new ResourceLocation(ChickensMod.MOD_ID, "chickens_spawns");
 

@@ -15,10 +15,6 @@ import strhercules.chickens.registry.ChickensSpawnBiomeModifier;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
-/**
- * Emits the {@code forge:biome_modifier} datapack entry that installs natural chicken spawns.
- * The modifier lives in a dynamic registry, so it can only reach the game through this JSON.
- */
 public class ChickensBiomeModifierProvider extends DatapackBuiltinEntriesProvider {
     private static final ResourceKey<BiomeModifier> CHICKENS_SPAWNS = ResourceKey.create(
             ForgeRegistries.Keys.BIOME_MODIFIERS,

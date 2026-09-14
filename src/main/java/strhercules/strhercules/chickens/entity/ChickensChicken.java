@@ -604,6 +604,7 @@ public class ChickensChicken extends Chicken {
     }
 
     @Nullable
+    @Override
     public SpawnGroupData finalizeSpawn(net.minecraft.world.level.ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType,
             @Nullable SpawnGroupData spawnData, @Nullable net.minecraft.nbt.CompoundTag dataTag) {
         spawnData = super.finalizeSpawn(level, difficulty, spawnType, spawnData, dataTag);
@@ -677,10 +678,11 @@ public class ChickensChicken extends Chicken {
                 && level.getBlockState(below).isFaceSturdy(level, below, Direction.UP);
     }
 
-    private static final class GroupData implements SpawnGroupData {
+    private static final class GroupData extends AgeableMob.AgeableMobGroupData {
         private final int type;
 
         private GroupData(int type) {
+            super(false);
             this.type = type;
         }
     }

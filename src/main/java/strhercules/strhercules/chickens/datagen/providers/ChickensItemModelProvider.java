@@ -52,6 +52,7 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         generatedItem("chemical_egg", "chemical_egg");
         generatedItem("mega_chicken", "mega_chicken");
         generatedItem("analyzer", "analyzer");
+        generatedItem("guide_book", "guide_book");
         generatedItem("colored_egg", "colored_egg");
         generatedItem("liquid_egg", "liquid_egg");
         generatedItem("robot_chicken", "chicken/robot_chicken");
