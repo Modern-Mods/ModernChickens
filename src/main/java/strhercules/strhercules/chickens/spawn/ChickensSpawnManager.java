@@ -31,7 +31,7 @@ public final class ChickensSpawnManager {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensSpawns");
     private static final float SNOW_WEIGHT_MODIFIER = 0.75F;
     private static final float END_WEIGHT_MODIFIER = 0.5F;
-    private static final float MODERN_CHICKEN_WEIGHT_MODIFIER = 0.10F;
+    private static final float MODERN_CHICKEN_WEIGHT_MODIFIER = 1.0F;
     private static final int MAX_NATURAL_BROOD_SIZE = 2;
     private static final double OVERWORLD_CHARGE = 0.12D;
     private static final double OVERWORLD_ENERGY = 0.32D;

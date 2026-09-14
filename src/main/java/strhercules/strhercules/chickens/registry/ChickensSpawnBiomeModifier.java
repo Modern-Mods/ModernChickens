@@ -1,6 +1,7 @@
 package strhercules.chickens.registry;
 
 import com.mojang.serialization.MapCodec;
+import strhercules.chickens.SpawnType;
 import strhercules.chickens.spawn.ChickensSpawnManager;
 import strhercules.chickens.spawn.ChickensSpawnManager.SpawnPlan;
 import net.minecraft.world.entity.EntityType;
@@ -11,11 +12,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.common.world.ModifiableBiomeInfo;
 
-/**
- * Adds the custom chicken entity to biomes that should naturally spawn modded birds.
- * The modifier inspects the runtime registry and configuration so changes to the
- * legacy properties file are honoured without needing data generation.
- */
+import java.util.Optional;
+
 public final class ChickensSpawnBiomeModifier implements BiomeModifier {
     public static final ChickensSpawnBiomeModifier INSTANCE = new ChickensSpawnBiomeModifier();
     public static final MapCodec<ChickensSpawnBiomeModifier> CODEC = MapCodec.unit(() -> INSTANCE);
@@ -28,19 +26,29 @@ public final class ChickensSpawnBiomeModifier implements BiomeModifier {
         if (phase != Phase.ADD) {
             return;
         }
-        if (!hasVanillaChickenSpawn(builder)) {
+        Optional<SpawnPlan> maybePlan = ChickensSpawnManager.planFor(biome);
+        if (maybePlan.isEmpty()) {
             return;
         }
-        builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
-                new MobSpawnSettings.SpawnerData(ModEntityTypes.MEGA_CHICKEN.get(), 1, 1, 1));
-        ChickensSpawnManager.planFor(biome).ifPresent(plan -> addSpawn(builder, plan));
-    }
+        SpawnPlan plan = maybePlan.get();
+        boolean vanillaChickenBiome = hasVanillaChickenSpawn(builder);
+        if (requiresVanillaChicken(plan.spawnType()) && !vanillaChickenBiome) {
+            return;
+        }
 
-    private static void addSpawn(ModifiableBiomeInfo.BiomeInfo.Builder builder, SpawnPlan plan) {
         builder.getMobSpawnSettings().addSpawn(plan.category(), plan.spawnerData());
         builder.getMobSpawnSettings().addMobCharge(plan.spawnerData().type, plan.spawnCharge(), plan.energyBudget());
-        builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
-                new MobSpawnSettings.SpawnerData(ModEntityTypes.ROOSTER.get(), 1, 1, 1));
+
+        if (vanillaChickenBiome) {
+            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
+                    new MobSpawnSettings.SpawnerData(ModEntityTypes.MEGA_CHICKEN.get(), 1, 1, 1));
+            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
+                    new MobSpawnSettings.SpawnerData(ModEntityTypes.ROOSTER.get(), 1, 1, 1));
+        }
+    }
+
+    private static boolean requiresVanillaChicken(SpawnType spawnType) {
+        return spawnType != SpawnType.HELL && spawnType != SpawnType.END;
     }
 
     private static boolean hasVanillaChickenSpawn(ModifiableBiomeInfo.BiomeInfo.Builder builder) {

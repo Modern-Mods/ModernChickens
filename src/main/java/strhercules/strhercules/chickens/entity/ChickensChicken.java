@@ -23,6 +23,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -617,7 +618,8 @@ public class ChickensChicken extends Chicken {
     }
 
     @Nullable
-    public SpawnGroupData finalizeSpawn(ServerLevel level, DifficultyInstance difficulty, MobSpawnType spawnType,
+    @Override
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType,
             @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, spawnType, spawnData);
         if (spawnData instanceof GroupData groupData) {
@@ -641,7 +643,7 @@ public class ChickensChicken extends Chicken {
         if (!level.isClientSide() && (spawnType == MobSpawnType.NATURAL || spawnType == MobSpawnType.CHUNK_GENERATION)) {
             ChickensRegistryItem descriptor = ChickensRegistry.getByType(this.getChickenType());
             if (descriptor != null) {
-                ChickensSpawnDebug.broadcastSpawn(level, this.blockPosition(), descriptor);
+                ChickensSpawnDebug.broadcastSpawn(level.getLevel(), this.blockPosition(), descriptor);
             }
         }
         return spawnData;
@@ -690,10 +692,11 @@ public class ChickensChicken extends Chicken {
                 && level.getBlockState(below).isFaceSturdy(level, below, Direction.UP);
     }
 
-    private static final class GroupData implements SpawnGroupData {
+    private static final class GroupData extends AgeableMob.AgeableMobGroupData {
         private final int type;
 
         private GroupData(int type) {
+            super(false);
             this.type = type;
         }
     }

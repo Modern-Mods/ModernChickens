@@ -582,5 +582,13 @@
   "entity.ethergasChicken.name": "Ether Gas Chicken",
   "book.chickens.guide.name": "Modern Chickens",
   "book.chickens.guide.subtitle": "A Farmers Field Guide",
-  "book.chickens.guide.landing": "Chickens are not just chickens anymore.$(br2)This guide covers catching them, housing them, breeding them up the tier ladder, and wiring the whole farm into your power grid.$(br2)$(italic)Start with Getting Started.$()"
+  "book.chickens.guide.landing": "Chickens are not just chickens anymore.$(br2)This guide covers catching them, housing them, breeding them up the tier ladder, and wiring the whole farm into your power grid.$(br2)$(italic)Start with Getting Started.$()",
+  "config.jade.plugin_chickens.avian_dousing_machine": "Avian Dousing Machine",
+  "config.jade.plugin_chickens.avian_fluid_converter": "Avian Fluid Converter",
+  "config.jade.plugin_chickens.avian_flux_converter": "Avian Flux Converter",
+  "config.jade.plugin_chickens.chicken_container": "Chicken Container",
+  "config.jade.plugin_chickens.henhouse": "Henhouse",
+  "config.jade.plugin_chickens.incubator": "Incubator",
+  "config.jade.plugin_chickens.nest_data": "Nest",
+  "config.jade.plugin_chickens.rooster": "Rooster"
 }

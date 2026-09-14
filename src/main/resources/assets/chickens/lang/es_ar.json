@@ -409,5 +409,13 @@
   "entity.ethergasChicken.name": "Pollo de Gas Éter",
   "book.chickens.guide.name": "Modern Chickens",
   "book.chickens.guide.subtitle": "Guía de Campo del Granjero",
-  "book.chickens.guide.landing": "Las gallinas ya no son solo gallinas.$(br2)Esta guía cubre cómo atraparlas, alojarlas, criarlas para subir de nivel y conectar toda la granja a tu red eléctrica.$(br2)$(italic)Arrancá por Primeros Pasos.$()"
+  "book.chickens.guide.landing": "Las gallinas ya no son solo gallinas.$(br2)Esta guía cubre cómo atraparlas, alojarlas, criarlas para subir de nivel y conectar toda la granja a tu red eléctrica.$(br2)$(italic)Arrancá por Primeros Pasos.$()",
+  "config.jade.plugin_chickens.avian_dousing_machine": "Máquina de Rociado Aviar",
+  "config.jade.plugin_chickens.avian_fluid_converter": "Convertidor de Fluidos Aviar",
+  "config.jade.plugin_chickens.avian_flux_converter": "Convertidor de Flux Aviar",
+  "config.jade.plugin_chickens.chicken_container": "Contenedor de Gallinas",
+  "config.jade.plugin_chickens.henhouse": "Corral",
+  "config.jade.plugin_chickens.incubator": "Incubadora",
+  "config.jade.plugin_chickens.nest_data": "Nido",
+  "config.jade.plugin_chickens.rooster": "Gallo"
 }
