@@ -372,7 +372,7 @@ final class ModdedChickens {
                 0xa99340, 0xffe377, SpawnType.NONE,
                 "copperchicken", "zincchicken", tagDrop("c:ingots/brass", "forge:ingots/brass")));
 
-        list.add(new Definition(630, "andesitealloychicken", "andesite_chicken",
+        list.add(new Definition(659, "andesitealloychicken", "andesite_chicken",
                 combine(oreTag("ingots", "andesite"),
                         item("create:andesite_alloy")),
                 0xa99340, 0xffe377, SpawnType.NONE,
@@ -914,95 +914,95 @@ final class ModdedChickens {
 
 
         // Thaumaturge
-        list.add(new Definition(633, "thaumiumChicken", "thaumium_chicken",
+        list.add(new Definition(637, "thaumiumChicken", "thaumium_chicken",
                 item("thaumaturge:ingot_thaumium"),
                 0x4a3a8a, 0x8f7fd6, SpawnType.NONE,
                 "IronChicken", "EnderChicken", null));
-        list.add(new Definition(634, "voidMetalChicken", "void_metal_chicken",
+        list.add(new Definition(638, "voidMetalChicken", "void_metal_chicken",
                 item("thaumaturge:ingot_void"),
                 0x1a0f2e, 0x5e3a8c, SpawnType.NONE,
                 "thaumiumChicken", "obsidianChicken", null));
-        list.add(new Definition(635, "alchemicalBrassChicken", "alchemical_brass_chicken",
+        list.add(new Definition(639, "alchemicalBrassChicken", "alchemical_brass_chicken",
                 item("thaumaturge:ingot_brass"),
                 0xc8a24a, 0xe8d27a, SpawnType.NONE,
                 "IronChicken", "GoldChicken", null));
-        list.add(new Definition(636, "quicksilverChicken", "quicksilver_chicken",
+        list.add(new Definition(640, "quicksilverChicken", "quicksilver_chicken",
                 item("thaumaturge:quicksilver"),
                 0xb9c4d1, 0xe9eef5, SpawnType.NONE,
                 "WaterChicken", "IronChicken", null));
-        list.add(new Definition(637, "thaumaturgeAmberChicken", "thaumaturge_amber_chicken",
+        list.add(new Definition(641, "thaumaturgeAmberChicken", "thaumaturge_amber_chicken",
                 item("thaumaturge:amber"),
                 0xd98a1d, 0xf2c14e, SpawnType.NONE,
                 "LogChicken", "YellowChicken", null));
-        list.add(new Definition(638, "alumentumChicken", "alumentum_chicken",
+        list.add(new Definition(642, "alumentumChicken", "alumentum_chicken",
                 item("thaumaturge:alumentum"),
                 0x7a2b1f, 0xe8742c, SpawnType.NONE,
                 "BlazeChicken", "GunpowderChicken", null));
-        list.add(new Definition(639, "salisMundusChicken", "salis_mundus_chicken",
+        list.add(new Definition(643, "salisMundusChicken", "salis_mundus_chicken",
                 item("thaumaturge:salis_mundus"),
                 0xe6e0d0, 0x8f8aa8, SpawnType.NONE,
                 "SandChicken", "EnderChicken", null));
-        list.add(new Definition(640, "thaumaturgeCinnabarChicken", "thaumaturge_cinnabar_chicken",
+        list.add(new Definition(644, "thaumaturgeCinnabarChicken", "thaumaturge_cinnabar_chicken",
                 item("thaumaturge:raw_cinnabar"),
                 0xa3231b, 0xd9534a, SpawnType.NONE,
                 "RedstoneChicken", "quicksilverChicken", null));
 
         // Thaumaturge primal crystals
-        list.add(new Definition(648, "airCrystalChicken", "air_crystal_chicken",
+        list.add(new Definition(645, "airCrystalChicken", "air_crystal_chicken",
                 item("thaumaturge:crystal_aer"),
                 0xf7e08a, 0xfff4b8, SpawnType.NONE,
                 "GlassChicken", "WhiteChicken", null));
-        list.add(new Definition(649, "waterCrystalChicken", "water_crystal_chicken",
+        list.add(new Definition(646, "waterCrystalChicken", "water_crystal_chicken",
                 item("thaumaturge:crystal_aqua"),
                 0x2f6fe0, 0x8fb8ff, SpawnType.NONE,
                 "WaterChicken", "LightBlueChicken", null));
-        list.add(new Definition(650, "fireCrystalChicken", "fire_crystal_chicken",
+        list.add(new Definition(647, "fireCrystalChicken", "fire_crystal_chicken",
                 item("thaumaturge:crystal_ignis"),
                 0xe0521b, 0xffa24a, SpawnType.NONE,
                 "BlazeChicken", "RedChicken", null));
-        list.add(new Definition(651, "earthCrystalChicken", "earth_crystal_chicken",
+        list.add(new Definition(648, "earthCrystalChicken", "earth_crystal_chicken",
                 item("thaumaturge:crystal_terra"),
                 0x2f8f3a, 0x7fd48a, SpawnType.NONE,
                 "ClayChicken", "BrownChicken", null));
-        list.add(new Definition(652, "orderCrystalChicken", "order_crystal_chicken",
+        list.add(new Definition(649, "orderCrystalChicken", "order_crystal_chicken",
                 item("thaumaturge:crystal_ordo"),
                 0xcfd6e6, 0xffffff, SpawnType.NONE,
                 "IronChicken", "SilverDyeChicken", null));
-        list.add(new Definition(653, "entropyCrystalChicken", "entropy_crystal_chicken",
+        list.add(new Definition(650, "entropyCrystalChicken", "entropy_crystal_chicken",
                 item("thaumaturge:crystal_perditio"),
                 0x2b2b3a, 0x6a6a88, SpawnType.NONE,
                 "BlackChicken", "GunpowderChicken", null));
-        list.add(new Definition(654, "fluxCrystalChicken", "flux_crystal_chicken",
+        list.add(new Definition(651, "fluxCrystalChicken", "flux_crystal_chicken",
                 item("thaumaturge:crystal_vitium"),
                 0x7a1fa2, 0xc86bf0, SpawnType.NONE,
                 "PurpleChicken", "SlimeChicken", null));
 
         // Astral Sorcery
-        list.add(new Definition(641, "stardustChicken", "stardust_chicken",
+        list.add(new Definition(652, "stardustChicken", "stardust_chicken",
                 item("astralsorcery:stardust"),
                 0xd9e6ff, 0x9bb8ff, SpawnType.NONE,
                 "GlowstoneChicken", "WhiteChicken", null));
-        list.add(new Definition(642, "starmetalChicken", "starmetal_chicken",
+        list.add(new Definition(653, "starmetalChicken", "starmetal_chicken",
                 item("astralsorcery:starmetal_ingot"),
                 0x2a3a6e, 0x7aa7ff, SpawnType.NONE,
                 "IronChicken", "stardustChicken", null));
-        list.add(new Definition(643, "rockCrystalChicken", "rock_crystal_chicken",
+        list.add(new Definition(654, "rockCrystalChicken", "rock_crystal_chicken",
                 item("astralsorcery:rock_crystal"),
                 0xd6ecf2, 0xa9cfe0, SpawnType.NONE,
                 "QuartzChicken", "GlassChicken", null));
-        list.add(new Definition(644, "celestialCrystalChicken", "celestial_crystal_chicken",
+        list.add(new Definition(655, "celestialCrystalChicken", "celestial_crystal_chicken",
                 item("astralsorcery:celestial_crystal"),
                 0x6a7dff, 0xc9d2ff, SpawnType.NONE,
                 "rockCrystalChicken", "stardustChicken", null));
-        list.add(new Definition(645, "aquamarineChicken", "aquamarine_chicken",
+        list.add(new Definition(656, "aquamarineChicken", "aquamarine_chicken",
                 item("astralsorcery:aquamarine"),
                 0x3cc6c0, 0x9ff2ea, SpawnType.NONE,
                 "LightBlueChicken", "DiamondChicken", null));
-        list.add(new Definition(646, "resonatingGemChicken", "resonating_gem_chicken",
+        list.add(new Definition(657, "resonatingGemChicken", "resonating_gem_chicken",
                 item("astralsorcery:resonating_gem"),
                 0xb06cf0, 0xe0b8ff, SpawnType.NONE,
                 "celestialCrystalChicken", "EmeraldChicken", null));
-        list.add(new Definition(647, "lumenCrystalChicken", "lumen_crystal_chicken",
+        list.add(new Definition(658, "lumenCrystalChicken", "lumen_crystal_chicken",
                 item("astralsorcery:lumen_crystal"),
                 0xf2e27a, 0xfff6b8, SpawnType.NONE,
                 "celestialCrystalChicken", "YellowChicken", null));

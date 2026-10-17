@@ -1,4 +1,11 @@
 **CHANGELOG**
+# [2.7.4] - 17/10/2026
+
+## Fixed
+
+- **Two chickens shared id 630.** `ethergasChicken` and `andesitealloychicken` were both registered with id 630, so whichever came second was silently skipped. When Industrial Foregoing and Create were installed together, the Andesite Alloy Chicken never existed. The Ether Gas Chicken keeps 630, because it was the one that actually registered whenever both mods were present; the Andesite Alloy Chicken now has id 659. Worlds that only had Create installed and already held Andesite Alloy Chickens will lose them.
+- **New Thaumaturge and Astral Sorcery chickens clashed with the Modern Foundry chickens.** Ids 633 to 636 belong to the Cobalt, Pig Iron, Manyullyn and Knightslime chickens, so the first four new chickens would have been skipped when Modern Foundry is installed. The 22 new chickens now use ids 637 to 658.
+
 # [2.7.3] - 17/10/2026
 
 ## Added
