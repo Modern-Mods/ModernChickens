@@ -4,6 +4,7 @@ import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
 import strhercules.chickens.entity.ChickensChicken;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.resources.ResourceLocation;
@@ -37,9 +38,14 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.IdentityHashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /** Optional Mekanism radiation integration. This class has no Mekanism imports. */
 public final class MekanismRadiationCompat {
@@ -52,6 +58,11 @@ public final class MekanismRadiationCompat {
     private static final double INVENTORY_MAGNITUDE = 0.00001D;
     private static final double MAX_INVENTORY_MAGNITUDE = 0.00008D;
     private static final int MAX_STACK_CONTRIBUTION = 8;
+    private static final long SOURCE_EXPIRY_TICKS = EMISSION_INTERVAL * 2L;
+    private static final double SOURCE_NEAR_DISTANCE_SQR = 16D * 16D;
+    private static final double LEVEL_EPSILON = 1.0E-9D;
+    private static final Map<GlobalPos, Long> ACTIVE_SOURCES = new HashMap<>();
+    private static final Set<UUID> EXPOSED_PLAYERS = new HashSet<>();
     private static final Set<BlockEntity> TRACKED_CONTAINERS =
             Collections.newSetFromMap(new IdentityHashMap<>());
     private static final Object TRACKED_CONTAINERS_LOCK = new Object();
@@ -71,6 +82,8 @@ public final class MekanismRadiationCompat {
     private static Method radiateLevelMethod;
     @Nullable
     private static Method radiateEntityMethod;
+    @Nullable
+    private static Method removeRadiationSourceMethod;
     @Nullable
     private static Method dumpRadiationMethod;
     @Nullable
@@ -137,6 +150,7 @@ public final class MekanismRadiationCompat {
             Method radiateLevel = managerClass.getMethod("radiate", Level.class, BlockPos.class, double.class);
             Method radiateEntity = managerClass.getMethod("radiate", net.minecraft.world.entity.LivingEntity.class,
                     double.class);
+            Method removeSource = managerClass.getMethod("removeRadiationSource", Level.class, BlockPos.class);
             Class<?> chemicalStackClass = Class.forName("mekanism.api.chemical.ChemicalStack", false,
                     MekanismRadiationCompat.class.getClassLoader());
             Method dumpRadiation = managerClass.getMethod("dumpRadiation", Level.class, BlockPos.class,
@@ -161,6 +175,7 @@ public final class MekanismRadiationCompat {
             getRadiationLevelMethod = getLevel;
             radiateLevelMethod = radiateLevel;
             radiateEntityMethod = radiateEntity;
+            removeRadiationSourceMethod = removeSource;
             dumpRadiationMethod = dumpRadiation;
             getEntityCapabilityMethod = getCapability;
             setRadiationEntityMethod = setRadiation;
@@ -215,6 +230,7 @@ public final class MekanismRadiationCompat {
             if (RadioactiveContentHelper.isRadioactive(ChickensRegistry.getByType(chicken.getChickenType()))) {
                 clearEntityRadiation(chicken);
                 if (Math.floorMod(level.getGameTime() + entity.getId(), (long) EMISSION_INTERVAL) == 0) {
+                    emitSource(level, chicken.blockPosition(), EGG_MAGNITUDE);
                     emitEntityParticles(level, chicken);
                 }
             }
@@ -251,7 +267,52 @@ public final class MekanismRadiationCompat {
         if (!isAvailable() || !isRadiationEnabled()) {
             return;
         }
-        emitInventoryRadiation(player);
+        boolean carrying = emitInventoryRadiation(player);
+        if (Math.floorMod(level.getGameTime() + player.getId(), (long) EMISSION_INTERVAL) == 0) {
+            updatePlayerExposure(level, player, carrying);
+        }
+    }
+
+    private static void updatePlayerExposure(ServerLevel level, Player player, boolean carrying) {
+        UUID id = player.getUUID();
+        if (carrying) {
+            EXPOSED_PLAYERS.add(id);
+            return;
+        }
+        boolean environmentClean = getRadiationLevel(level, player.blockPosition())
+                <= baselineRadiation() + LEVEL_EPSILON;
+        if (EXPOSED_PLAYERS.contains(id)) {
+            if (environmentClean) {
+                clearEntityRadiation(player);
+                EXPOSED_PLAYERS.remove(id);
+            } else if (!isNearActiveSource(level, player)) {
+                EXPOSED_PLAYERS.remove(id);
+            }
+        } else if (!environmentClean && isNearActiveSource(level, player)) {
+            EXPOSED_PLAYERS.add(id);
+        }
+    }
+
+    private static boolean isNearActiveSource(ServerLevel level, Player player) {
+        for (GlobalPos source : ACTIVE_SOURCES.keySet()) {
+            if (source.dimension() == level.dimension()
+                    && source.pos().distSqr(player.blockPosition()) <= SOURCE_NEAR_DISTANCE_SQR) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private static void expireSources(ServerLevel level) {
+        long now = level.getGameTime();
+        Iterator<Map.Entry<GlobalPos, Long>> iterator = ACTIVE_SOURCES.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Map.Entry<GlobalPos, Long> entry = iterator.next();
+            if (entry.getKey().dimension() == level.dimension() && now - entry.getValue() > SOURCE_EXPIRY_TICKS) {
+                invoke(removeRadiationSourceMethod, level, entry.getKey().pos());
+                iterator.remove();
+            }
+        }
     }
 
     private static void onLevelTick(LevelTickEvent.Post event) {
@@ -261,6 +322,7 @@ public final class MekanismRadiationCompat {
                 || !isRadiationEnabled()) {
             return;
         }
+        expireSources(level);
         // Work from a snapshot because checking a container can synchronously load or
         // unload chunks through another mod. Those chunk events update the tracked set
         // and would otherwise invalidate its IdentityHashMap iterator.
@@ -310,7 +372,7 @@ public final class MekanismRadiationCompat {
         }
     }
 
-    private static void emitInventoryRadiation(Player player) {
+    private static boolean emitInventoryRadiation(Player player) {
         int radioactiveCount = 0;
         for (ItemStack stack : player.getInventory().items) {
             radioactiveCount += radioactiveCount(stack);
@@ -322,6 +384,7 @@ public final class MekanismRadiationCompat {
         if (radioactiveCount > 0) {
             radiateEntity(player, Math.min(MAX_INVENTORY_MAGNITUDE, radioactiveCount * INVENTORY_MAGNITUDE));
         }
+        return radioactiveCount > 0;
     }
 
     private static int radioactiveCount(ItemStack stack) {
@@ -331,6 +394,7 @@ public final class MekanismRadiationCompat {
     }
 
     private static void emitSource(ServerLevel level, BlockPos pos, double targetMagnitude) {
+        ACTIVE_SOURCES.put(GlobalPos.of(level.dimension(), pos.immutable()), level.getGameTime());
         double current = getRadiationLevel(level, pos);
         if (current >= targetMagnitude) {
             return;

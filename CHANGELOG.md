@@ -1,4 +1,19 @@
 **CHANGELOG**
+# [2.7.1] - 17/10/2026
+
+## Fixed
+
+- **Radiation from ordinary uranium items.** Holding any uranium ingot or material irradiated the player, because every item a radioactive chicken lays or drops was treated as radioactive. Only the radioactive chicken items, their spawn eggs, their radioactive eggs and live radioactive chickens irradiate now.
+- **Radiation lingering after moving away.** The radiation sources left behind by chickens, dropped items and containers are removed a couple of seconds after the emitter is gone, and the dose a player picked up from them is cleared once they carry nothing radioactive and stand outside every radiation zone. Radiation from real Mekanism sources is left untouched.
+
+## Changed
+
+- Live radioactive chickens now emit radiation around them, with the same intensity as a radioactive egg. The chicken itself stays immune.
+
+## CI
+
+- The build workflow gained a "Publish to CurseForge" step. It runs only when the commit message contains `[curseforge` (optionally `[curseforge beta]` or `[curseforge alpha]`), reads this changelog for the current version, uploads the jar for NeoForge 1.21.1 with Patchouli as a required dependency, and tags the upload so it is never repeated. It needs the `CURSEFORGE_TOKEN` secret and the `CURSEFORGE_PROJECT_ID` variable.
+
 # [2.7.0] - 14/9/2026
 
 ## Added
