@@ -155,9 +155,15 @@ public final class ModRegistry {
     public static final DeferredBlock<HenhouseBlock> HENHOUSE_JUNGLE = registerHenhouse("henhouse_jungle", MapColor.COLOR_BROWN);
     public static final DeferredBlock<HenhouseBlock> HENHOUSE_ACACIA = registerHenhouse("henhouse_acacia", MapColor.COLOR_BROWN);
     public static final DeferredBlock<HenhouseBlock> HENHOUSE_DARK_OAK = registerHenhouse("henhouse_dark_oak", MapColor.COLOR_BROWN);
+    public static final DeferredBlock<HenhouseBlock> HENHOUSE_MANGROVE = registerHenhouse("henhouse_mangrove", MapColor.COLOR_BROWN);
+    public static final DeferredBlock<HenhouseBlock> HENHOUSE_CHERRY = registerHenhouse("henhouse_cherry", MapColor.COLOR_BROWN);
+    public static final DeferredBlock<HenhouseBlock> HENHOUSE_BAMBOO = registerHenhouse("henhouse_bamboo", MapColor.COLOR_BROWN);
+    public static final DeferredBlock<HenhouseBlock> HENHOUSE_CRIMSON = registerHenhouse("henhouse_crimson", MapColor.COLOR_BROWN);
+    public static final DeferredBlock<HenhouseBlock> HENHOUSE_WARPED = registerHenhouse("henhouse_warped", MapColor.COLOR_BROWN);
 
     public static final List<DeferredBlock<HenhouseBlock>> HENHOUSE_BLOCKS = List.of(
-            HENHOUSE, HENHOUSE_SPRUCE, HENHOUSE_BIRCH, HENHOUSE_JUNGLE, HENHOUSE_ACACIA, HENHOUSE_DARK_OAK
+            HENHOUSE, HENHOUSE_SPRUCE, HENHOUSE_BIRCH, HENHOUSE_JUNGLE, HENHOUSE_ACACIA, HENHOUSE_DARK_OAK,
+            HENHOUSE_MANGROVE, HENHOUSE_CHERRY, HENHOUSE_BAMBOO, HENHOUSE_CRIMSON, HENHOUSE_WARPED
     );
 
     public static final DeferredItem<BlockItem> HENHOUSE_ITEM = registerHenhouseItem("henhouse", HENHOUSE);
@@ -166,6 +172,11 @@ public final class ModRegistry {
     public static final DeferredItem<BlockItem> HENHOUSE_JUNGLE_ITEM = registerHenhouseItem("henhouse_jungle", HENHOUSE_JUNGLE);
     public static final DeferredItem<BlockItem> HENHOUSE_ACACIA_ITEM = registerHenhouseItem("henhouse_acacia", HENHOUSE_ACACIA);
     public static final DeferredItem<BlockItem> HENHOUSE_DARK_OAK_ITEM = registerHenhouseItem("henhouse_dark_oak", HENHOUSE_DARK_OAK);
+    public static final DeferredItem<BlockItem> HENHOUSE_MANGROVE_ITEM = registerHenhouseItem("henhouse_mangrove", HENHOUSE_MANGROVE);
+    public static final DeferredItem<BlockItem> HENHOUSE_CHERRY_ITEM = registerHenhouseItem("henhouse_cherry", HENHOUSE_CHERRY);
+    public static final DeferredItem<BlockItem> HENHOUSE_BAMBOO_ITEM = registerHenhouseItem("henhouse_bamboo", HENHOUSE_BAMBOO);
+    public static final DeferredItem<BlockItem> HENHOUSE_CRIMSON_ITEM = registerHenhouseItem("henhouse_crimson", HENHOUSE_CRIMSON);
+    public static final DeferredItem<BlockItem> HENHOUSE_WARPED_ITEM = registerHenhouseItem("henhouse_warped", HENHOUSE_WARPED);
     public static final DeferredItem<BlockItem> ROOST_ITEM = ITEMS.register("roost", () -> new BlockItem(ROOST.get(), new Item.Properties()));
     public static final DeferredItem<BlockItem> NEST_ITEM = ITEMS.register("nest",
             () -> new BlockItem(NEST.get(), new Item.Properties()));
@@ -192,7 +203,9 @@ public final class ModRegistry {
 
     private static final List<DeferredItem<BlockItem>> HENHOUSE_ITEMS = List.of(
             HENHOUSE_ITEM, HENHOUSE_SPRUCE_ITEM, HENHOUSE_BIRCH_ITEM,
-            HENHOUSE_JUNGLE_ITEM, HENHOUSE_ACACIA_ITEM, HENHOUSE_DARK_OAK_ITEM
+            HENHOUSE_JUNGLE_ITEM, HENHOUSE_ACACIA_ITEM, HENHOUSE_DARK_OAK_ITEM,
+            HENHOUSE_MANGROVE_ITEM, HENHOUSE_CHERRY_ITEM, HENHOUSE_BAMBOO_ITEM,
+            HENHOUSE_CRIMSON_ITEM, HENHOUSE_WARPED_ITEM
     );
     public static final DeferredItem<ChickenItem> CHICKEN_ITEM = ITEMS.register("chicken",
             () -> new ChickenItem(new Item.Properties().stacksTo(16)));

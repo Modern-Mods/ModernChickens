@@ -34,6 +34,11 @@ public class ChickensItemModelProvider extends ItemModelProvider {
         blockItem("henhouse_jungle");
         blockItem("henhouse_acacia");
         blockItem("henhouse_dark_oak");
+        blockItem("henhouse_mangrove");
+        blockItem("henhouse_cherry");
+        blockItem("henhouse_bamboo");
+        blockItem("henhouse_crimson");
+        blockItem("henhouse_warped");
 
         nest();
 

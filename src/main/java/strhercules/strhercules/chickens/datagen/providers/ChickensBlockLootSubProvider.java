@@ -40,7 +40,12 @@ public class ChickensBlockLootSubProvider extends BlockLootSubProvider {
             "chickens:henhouse_birch",
             "chickens:henhouse_dark_oak",
             "chickens:henhouse_jungle",
-            "chickens:henhouse_spruce"
+            "chickens:henhouse_spruce",
+            "chickens:henhouse_mangrove",
+            "chickens:henhouse_cherry",
+            "chickens:henhouse_bamboo",
+            "chickens:henhouse_crimson",
+            "chickens:henhouse_warped"
     };
 
     protected ChickensBlockLootSubProvider(HolderLookup.Provider registries) {

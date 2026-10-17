@@ -1,48 +1,27 @@
 **CHANGELOG**
-# [2.7.6] - 17/10/2026
+# [2.7.7] - 17/10/2026
 
-## Changed
+## New
 
-- **Metal chickens now use the Bronze Chicken style.** The generated metal and alloy chickens (Thaumium, Void Metal, Alchemical Brass, Quicksilver, Starmetal, Andesite Alloy, Black Iron, Steel, Eclipse Alloy, Quantum Alloy, Naquadah, Neutronium, Infinity, Crystal Matrix, Nadienite, Bedrockium, Demon and Prometheum) were plain recolours of the vanilla chicken. They are now drawn like the Bronze Chicken, with the stacked-ingot body, using each chicken's own colours.
-- **Their items match the placed chicken.** Each of those chickens has its own item sprite built from the Bronze Chicken item, so the item in the inventory looks like the chicken in the world instead of the generic speckled one.
+- **Thaumaturge chickens.** Thaumium, Void Metal, Alchemical Brass, Quicksilver, Amber, Alumentum, Salis Mundus and Cinnabar chickens, plus one chicken for each of the seven crystals you find in the mines: Air, Water, Fire, Earth, Order, Entropy and Flux. They only appear if Thaumaturge is installed.
+- **Astral Sorcery chickens.** Stardust, Starmetal, Rock Crystal, Celestial Crystal, Aquamarine, Resonating Gem and Lumen Crystal chickens. They only appear if Astral Sorcery is installed.
+- **Five new Henhouses:** Mangrove, Cherry, Bamboo, Crimson and Warped. Same recipe as the others, just with the matching planks.
 
-# [2.7.5] - 17/10/2026
+## Improved
+
+- **All metal chickens now look like the Bronze Chicken**, with the stacked-ingot body, each in its own colours. This covers Copper, Tin, Steel, Aluminium, Uranium, Iridium, Draconium, Manasteel, Elementium and the rest, and the new Thaumaturge and Astral Sorcery metals.
+- **The item looks like the chicken you place.** The chicken in your inventory now matches the chicken in the world for every metal.
+- Many modded chickens now have their own texture instead of a coloured copy of the vanilla chicken. If you want to repaint one, its PNG is in `textures/entity`.
+
+## Fixed
+
+- **Henhouse recipes.** Every wooden Henhouse recipe used to give you the plain oak Henhouse, so Spruce, Birch, Jungle, Acacia and Dark Oak could not be crafted. Each recipe now gives the Henhouse of its own wood.
+- **Andesite Alloy Chicken** never appeared when Create and Industrial Foregoing were installed together. They were fighting over the same chicken id, and the Andesite Alloy Chicken now has its own. Worlds that only had Create and already owned Andesite Alloy Chickens will lose them.
+- Texture file names are all lowercase now. This avoids missing textures on Linux servers.
 
 ## Removed
 
-- **Automatic chickens generated from the installed mods.** The mod no longer registers chickens on its own for what other mods add. Removed generators:
-  - the Modern Foundry chickens (Cobalt, Pig Iron, Manyullyn and Knightslime);
-  - one chicken per Mekanism chemical;
-  - one chicken per liquid egg, which was already off by default (`autoRegisterFluidChickens`).
-
-  Only chickens that are written out explicitly in the mod, or added through `custom_chickens.toml` or KubeJS, exist now. Chickens that were generated this way disappear from existing worlds, because their ids no longer exist. The `autoRegisterFluidChickens` option and the KubeJS `fluid()` and `chemical()` rules are still accepted but no longer do anything.
-
-# [2.7.4] - 17/10/2026
-
-## Fixed
-
-- **Two chickens shared id 630.** `ethergasChicken` and `andesitealloychicken` were both registered with id 630, so whichever came second was silently skipped. When Industrial Foregoing and Create were installed together, the Andesite Alloy Chicken never existed. The Ether Gas Chicken keeps 630, because it was the one that actually registered whenever both mods were present; the Andesite Alloy Chicken now has id 659. Worlds that only had Create installed and already held Andesite Alloy Chickens will lose them.
-- **New Thaumaturge and Astral Sorcery chickens clashed with the Modern Foundry chickens.** Ids 633 to 636 belong to the Cobalt, Pig Iron, Manyullyn and Knightslime chickens, so the first four new chickens would have been skipped when Modern Foundry is installed. The 22 new chickens now use ids 637 to 658.
-
-# [2.7.3] - 17/10/2026
-
-## Added
-
-- **Thaumaturge chickens** (15): Thaumium, Void Metal, Alchemical Brass, Quicksilver, Thaumaturge Amber, Alumentum, Salis Mundus and Cinnabar chickens, plus one chicken for each primal crystal (Air, Water, Fire, Earth, Order, Entropy and Flux). They only appear when Thaumaturge is installed.
-- **Astral Sorcery chickens** (7): Stardust, Starmetal, Rock Crystal, Celestial Crystal, Aquamarine, Resonating Gem and Lumen Crystal chickens. They only appear when Astral Sorcery is installed.
-- Names for all of them in `en_us`, `es_es`, `es_mx` and `es_ar`.
-
-## Fixed
-
-- **Modded chickens never used their texture file.** Every modded chicken definition pointed at a sub-folder (`alltheores/…`, `mekanism/…`, `vanilla/…`) that does not exist, so the game always fell back to a texture tinted at runtime. Each definition now points at its real PNG in `textures/entity`.
-- **Chickens without a texture file now have one.** 74 chickens had no PNG at all. Their textures were generated from the Modern Chickens vanilla chicken (`vanilla.png`) with the same tint the mod already applied at runtime, so they look the same as before but now exist as files that can be edited or overridden by resource packs.
-- The second Entro chicken shared `entro_chicken.png` with the first one; it now has its own `entro_dust_chicken.png`.
-
-# [2.7.2] - 17/10/2026
-
-## Fixed
-
-- Removed three texture files whose names had uppercase letters (`DraconiumChicken.png`, `DraconiumAwakenedChicken.png` and `roosterGui.png`). Each one was a byte-for-byte copy of a lowercase texture the mod already uses (`draconium_chicken.png`, `draconium_awakened_chicken.png` and `rooster.png`) and nothing referenced them. All texture names are lowercase now, which avoids case-sensitivity problems on Linux servers.
+- **Chickens created automatically from other mods.** The mod no longer invents chickens for the mods you have installed: the Cobalt, Pig Iron, Manyullyn and Knightslime chickens, one chicken per Mekanism chemical, and one chicken per liquid are gone. Only chickens that are written out in the mod, in `custom_chickens.toml` or in KubeJS exist now. Chickens of those kinds disappear from existing worlds.
 
 # [2.7.1] - 17/10/2026
 

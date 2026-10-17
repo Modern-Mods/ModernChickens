@@ -184,6 +184,11 @@ public class ChickensRecipeProvider extends RecipeProvider {
         henhouse(output, "henhouse_dark_oak", Items.DARK_OAK_PLANKS);
         henhouse(output, "henhouse_jungle", Items.JUNGLE_PLANKS);
         henhouse(output, "henhouse_spruce", Items.SPRUCE_PLANKS);
+        henhouse(output, "henhouse_mangrove", Items.MANGROVE_PLANKS);
+        henhouse(output, "henhouse_cherry", Items.CHERRY_PLANKS);
+        henhouse(output, "henhouse_bamboo", Items.BAMBOO_PLANKS);
+        henhouse(output, "henhouse_crimson", Items.CRIMSON_PLANKS);
+        henhouse(output, "henhouse_warped", Items.WARPED_PLANKS);
 
         ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:avian_fluid_converter"))
                 .pattern("GWG")
@@ -306,7 +311,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
     }
 
     private static void henhouse(RecipeOutput output, String recipeName, Item planks) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:henhouse"))
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:" + recipeName))
                 .pattern("WWW")
                 .pattern("WHW")
                 .pattern("YYY")
