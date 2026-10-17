@@ -1,4 +1,18 @@
 **CHANGELOG**
+# [2.7.3] - 17/10/2026
+
+## Added
+
+- **Thaumaturge chickens** (15): Thaumium, Void Metal, Alchemical Brass, Quicksilver, Thaumaturge Amber, Alumentum, Salis Mundus and Cinnabar chickens, plus one chicken for each primal crystal (Air, Water, Fire, Earth, Order, Entropy and Flux). They only appear when Thaumaturge is installed.
+- **Astral Sorcery chickens** (7): Stardust, Starmetal, Rock Crystal, Celestial Crystal, Aquamarine, Resonating Gem and Lumen Crystal chickens. They only appear when Astral Sorcery is installed.
+- Names for all of them in `en_us`, `es_es`, `es_mx` and `es_ar`.
+
+## Fixed
+
+- **Modded chickens never used their texture file.** Every modded chicken definition pointed at a sub-folder (`alltheores/…`, `mekanism/…`, `vanilla/…`) that does not exist, so the game always fell back to a texture tinted at runtime. Each definition now points at its real PNG in `textures/entity`.
+- **Chickens without a texture file now have one.** 74 chickens had no PNG at all. Their textures were generated from the Modern Chickens vanilla chicken (`vanilla.png`) with the same tint the mod already applied at runtime, so they look the same as before but now exist as files that can be edited or overridden by resource packs.
+- The second Entro chicken shared `entro_chicken.png` with the first one; it now has its own `entro_dust_chicken.png`.
+
 # [2.7.2] - 17/10/2026
 
 ## Fixed
