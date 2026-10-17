@@ -1,4 +1,10 @@
 **CHANGELOG**
+# [2.7.2] - 17/10/2026
+
+## Fixed
+
+- Removed three texture files whose names had uppercase letters (`DraconiumChicken.png`, `DraconiumAwakenedChicken.png` and `roosterGui.png`). Each one was a byte-for-byte copy of a lowercase texture the mod already uses (`draconium_chicken.png`, `draconium_awakened_chicken.png` and `rooster.png`) and nothing referenced them. All texture names are lowercase now, which avoids case-sensitivity problems on Linux servers.
+
 # [2.7.1] - 17/10/2026
 
 ## Fixed
