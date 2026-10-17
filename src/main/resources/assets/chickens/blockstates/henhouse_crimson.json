@@ -1,0 +1,8 @@
+{
+  "variants": {
+    "facing=north": { "model": "chickens:block/henhouse_crimson" },
+    "facing=south": { "model": "chickens:block/henhouse_crimson", "y": 180 },
+    "facing=west":  { "model": "chickens:block/henhouse_crimson", "y": 270 },
+    "facing=east":  { "model": "chickens:block/henhouse_crimson", "y": 90 }
+  }
+}

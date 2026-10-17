@@ -408,9 +408,6 @@ public final class DefaultChickens {
         byName.put(netheriteChicken.getEntityName().toLowerCase(Locale.ROOT), netheriteChicken);
 
 
-        DynamicMaterialChickens.register(chickens, byName);
-        DynamicChemicalChickens.register(chickens, byName);
-        DynamicGasChickens.register(chickens, byName);
 
 
 

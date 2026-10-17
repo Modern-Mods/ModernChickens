@@ -57,6 +57,11 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         henhouseDarkOak();
         henhouseJungle();
         henhouseSpruce();
+        henhouseMangrove();
+        henhouseCherry();
+        henhouseBamboo();
+        henhouseCrimson();
+        henhouseWarped();
         incubator();
         mechanicalRoost();
         mechanicalRoostActive();
@@ -5135,6 +5140,41 @@ public class ChickensBlockModelProvider extends BlockModelProvider {
         builder.texture("top", "chickens:block/henhouse_top_birch");
         builder.texture("front", "chickens:block/henhouse_front_birch");
         builder.texture("side", "chickens:block/henhouse_side_birch");
+    }
+
+    private void henhouseMangrove() {
+        BlockModelBuilder builder = withExistingParent("henhouse_mangrove", mcLoc("block/orientable"));
+        builder.texture("top", "chickens:block/henhouse_top_mangrove");
+        builder.texture("front", "chickens:block/henhouse_front_mangrove");
+        builder.texture("side", "chickens:block/henhouse_side_mangrove");
+    }
+
+    private void henhouseCherry() {
+        BlockModelBuilder builder = withExistingParent("henhouse_cherry", mcLoc("block/orientable"));
+        builder.texture("top", "chickens:block/henhouse_top_cherry");
+        builder.texture("front", "chickens:block/henhouse_front_cherry");
+        builder.texture("side", "chickens:block/henhouse_side_cherry");
+    }
+
+    private void henhouseBamboo() {
+        BlockModelBuilder builder = withExistingParent("henhouse_bamboo", mcLoc("block/orientable"));
+        builder.texture("top", "chickens:block/henhouse_top_bamboo");
+        builder.texture("front", "chickens:block/henhouse_front_bamboo");
+        builder.texture("side", "chickens:block/henhouse_side_bamboo");
+    }
+
+    private void henhouseCrimson() {
+        BlockModelBuilder builder = withExistingParent("henhouse_crimson", mcLoc("block/orientable"));
+        builder.texture("top", "chickens:block/henhouse_top_crimson");
+        builder.texture("front", "chickens:block/henhouse_front_crimson");
+        builder.texture("side", "chickens:block/henhouse_side_crimson");
+    }
+
+    private void henhouseWarped() {
+        BlockModelBuilder builder = withExistingParent("henhouse_warped", mcLoc("block/orientable"));
+        builder.texture("top", "chickens:block/henhouse_top_warped");
+        builder.texture("front", "chickens:block/henhouse_front_warped");
+        builder.texture("side", "chickens:block/henhouse_side_warped");
     }
 
     /** Generated from henhouse_dark_oak.json */

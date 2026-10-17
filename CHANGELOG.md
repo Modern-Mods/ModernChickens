@@ -1,9 +1,25 @@
 **CHANGELOG**
-# [2.7.2] - 17/10/2026
+# [2.7.3] - 17/10/2026
+
+## New
+
+- **Five new Henhouses:** Mangrove, Cherry, Bamboo, Crimson and Warped. Same recipe as the others, just with the matching planks.
+
+## Improved
+
+- **All metal chickens now look like the Bronze Chicken**, with the stacked-ingot body, each in its own colours. This covers Copper, Tin, Steel, Aluminium, Uranium, Iridium, Draconium, Manasteel, Elementium and the rest, plus the vanilla Iron, Gold and Netherite chickens. The Netherite Chicken finally has its own texture.
+- **The item looks like the chicken you place.** The chicken in your inventory now matches the chicken in the world for every metal.
+- Many modded chickens now have their own texture instead of a coloured copy of the vanilla chicken. If you want to repaint one, its PNG is in `textures/entity`.
 
 ## Fixed
 
-- Removed three texture files whose names had uppercase letters (`DraconiumChicken.png`, `DraconiumAwakenedChicken.png` and `roosterGui.png`). Each one was a byte-for-byte copy of a lowercase texture the mod already uses (`draconium_chicken.png`, `draconium_awakened_chicken.png` and `rooster.png`) and nothing referenced them. All texture names are lowercase now, which avoids case-sensitivity problems on Linux servers.
+- **Henhouse recipes.** Every wooden Henhouse recipe used to give you the plain oak Henhouse, so Spruce, Birch, Jungle, Acacia and Dark Oak could not be crafted. Each recipe now gives the Henhouse of its own wood.
+- **Andesite Alloy Chicken** never appeared when Create and Industrial Foregoing were installed together. They were fighting over the same chicken id, and the Andesite Alloy Chicken now has its own. Worlds that only had Create and already owned Andesite Alloy Chickens will lose them.
+- Texture file names are all lowercase now. This avoids missing textures on Linux servers.
+
+## Removed
+
+- **Chickens created automatically from other mods.** The mod no longer invents chickens for the mods you have installed: the Modern Foundry chickens, one chicken per Mekanism chemical, and one chicken per liquid are gone. Only chickens that are written out in the mod, in `custom_chickens.toml` or in KubeJS exist now. Chickens of those kinds disappear from existing worlds.
 
 # [2.7.1] - 17/10/2026
 
