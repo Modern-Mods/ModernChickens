@@ -134,8 +134,21 @@ dependencies {
     // AlmostUnified
     implementation "com.almostreliable.mods:almostunified-neoforge:${au_version}"
 
-    // ultimate foods
-    implementation "curse.maven:ultimate-foods-1455067:${ultimatefoods_version}"
+    // ultimate armoury: tools and weapons
+    implementation "curse.maven:ultimate-armoury-tools-and-weapons-1736634:${ultimatearmoury_version}"
+
+    // Thaumaturge and Astral Sorcery are loaded from a local mods folder and skipped when it is missing.
+    def devModsDir = new File(project.findProperty('dev_mods_dir') ?: "${System.getProperty('user.home')}/curseforge/minecraft/Instances/Endless World/mods")
+    ['curios-neoforge-9.5.1+1.21.1.jar',
+     'lithostitched-1.8.1-neoforge-21.1.jar',
+     'observerlib-1.10.3.jar',
+     'thaumaturge-1.21.1-NeoForge-1.0.2.jar',
+     'AstralSorcery-2.0.2.39.jar'].each { jarName ->
+        def devJar = new File(devModsDir, jarName)
+        if (devJar.exists()) {
+            runtimeOnly files(devJar)
+        }
+    }
 
     // KubeJS 
     compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"

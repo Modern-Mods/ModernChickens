@@ -818,16 +818,16 @@ final class ModdedChickens {
                 0x2c1f40, 0x7d62b8, SpawnType.NONE,
                 "entroChicken", "certusQuartzChicken", null));
         list.add(new Definition(614, "nadieniteChicken", "nadienite_ingot_chicken",
-                item("ultimatefoods:nadienite_ingot"),
-                0x1f402c, 0x62ff7d, SpawnType.NONE,
+                item("ultimatearmoury:nadienite_ingot"),
+                0x37645f, 0xedfb92, SpawnType.NONE,
                 "witherchicken", "NetheriteChicken", null));
         list.add(new Definition(615, "superpoopChicken", "superpoop_chicken",
                 item("ultimatefoods:superpoop"),
                 0x1f402c, 0x62ff7d, SpawnType.NONE,
                 "StringChicken", "BrownChicken", null));
         list.add(new Definition(616, "steelchckennChicken", "steelchckenn_chicken",
-                item("ultimatefoods:steel_ingot"),
-                0x1f402c, 0x62ff7d, SpawnType.NONE,
+                item("ultimatearmoury:steel_ingot"),
+                0x555a64, 0xe7edf6, SpawnType.NONE,
                 "CoalChicken", "LogChicken", null));
 
         // Excessive Utilities
@@ -1006,6 +1006,72 @@ final class ModdedChickens {
                 item("astralsorcery:lumen_crystal"),
                 0xf2e27a, 0xfff6b8, SpawnType.NONE,
                 "celestialCrystalChicken", "YellowChicken", null));
+
+        // Ultimate Armoury, Allthemodium and Ender IO Evolution
+        list.add(new Definition(660, "joanfoiteChicken", "joanfoite_chicken",
+                item("ultimatearmoury:joanfoite_ingot"),
+                0x4a2050, 0xfd8362, SpawnType.NONE,
+                "nadieniteChicken", "BlazeChicken", null));
+        list.add(new Definition(661, "mushashiteChicken", "mushashite_chicken",
+                item("ultimatearmoury:mushashite_ingot"),
+                0x40536a, 0xc9f9e6, SpawnType.NONE,
+                "nadieniteChicken", "DiamondChicken", null));
+        list.add(new Definition(662, "allthemodiumChicken", "allthemodium_chicken",
+                item("allthemodium:allthemodium_ingot"),
+                0xfa6d16, 0xffff55, SpawnType.NONE,
+                "GoldChicken", "EnderChicken", null));
+        list.add(new Definition(663, "vibraniumChicken", "vibranium_chicken",
+                item("allthemodium:vibranium_ingot"),
+                0x127092, 0x3af0a3, SpawnType.NONE,
+                "allthemodiumChicken", "EmeraldChicken", null));
+        list.add(new Definition(664, "unobtainiumChicken", "unobtainium_chicken",
+                item("allthemodium:unobtainium_ingot"),
+                0x5231b4, 0xe05bfe, SpawnType.NONE,
+                "allthemodiumChicken", "vibraniumChicken", null));
+        list.add(new Definition(665, "vibraniumAlloyChicken", "vibranium_alloy_chicken",
+                item("allthemodium:vibranium_allthemodium_alloy_ingot"),
+                0x307e89, 0xf4d93d, SpawnType.NONE,
+                "allthemodiumChicken", "vibraniumChicken", null));
+        list.add(new Definition(666, "unobtainiumAlloyChicken", "unobtainium_alloy_chicken",
+                item("allthemodium:unobtainium_allthemodium_alloy_ingot"),
+                0x902aaf, 0xffb94c, SpawnType.NONE,
+                "allthemodiumChicken", "unobtainiumChicken", null));
+        list.add(new Definition(667, "unobtainiumVibraniumChicken", "unobtainium_vibranium_chicken",
+                item("allthemodium:unobtainium_vibranium_alloy_ingot"),
+                0x225e9a, 0x6bc2bc, SpawnType.NONE,
+                "vibraniumChicken", "unobtainiumChicken", null));
+        list.add(new Definition(668, "constructionAlloyChicken", "construction_alloy_chicken",
+                item("enderio_evolution:construction_alloy_ingot"),
+                0x444646, 0x646464, SpawnType.NONE,
+                "IronChicken", "SandChicken", null));
+        list.add(new Definition(669, "crudeSteelChicken", "crude_steel_chicken",
+                item("enderio_evolution:crude_steel_ingot"),
+                0x8c8883, 0xdcd2ce, SpawnType.NONE,
+                "IronChicken", "CoalChicken", null));
+        list.add(new Definition(670, "crystallineAlloyChicken", "crystalline_alloy_chicken",
+                item("enderio_evolution:crystalline_alloy_ingot"),
+                0x167777, 0xe3ffff, SpawnType.NONE,
+                "QuartzChicken", "GoldChicken", null));
+        list.add(new Definition(671, "crystallinePinkSlimeChicken", "crystalline_pink_slime_chicken",
+                item("enderio_evolution:crystalline_pink_slime_ingot"),
+                0xa45090, 0xefc2e4, SpawnType.NONE,
+                "SlimeChicken", "PinkChicken", null));
+        list.add(new Definition(672, "energeticSilverChicken", "energetic_silver_chicken",
+                item("enderio_evolution:energetic_silver_ingot"),
+                0x497aa2, 0xfaffff, SpawnType.NONE,
+                "GoldChicken", "GlowstoneChicken", null));
+        list.add(new Definition(673, "melodicAlloyChicken", "melodic_alloy_chicken",
+                item("enderio_evolution:melodic_alloy_ingot"),
+                0x774977, 0xdbbfdb, SpawnType.NONE,
+                "PurpleChicken", "EnderChicken", null));
+        list.add(new Definition(674, "stellarAlloyChicken", "stellar_alloy_chicken",
+                item("enderio_evolution:stellar_alloy_ingot"),
+                0xa3c6c6, 0xffffcc, SpawnType.NONE,
+                "EnderChicken", "DiamondChicken", null));
+        list.add(new Definition(675, "vividAlloyChicken", "vivid_alloy_chicken",
+                item("enderio_evolution:vivid_alloy_ingot"),
+                0x147f95, 0xe4ffff, SpawnType.NONE,
+                "LightBlueChicken", "DiamondChicken", null));
 
         return list;
     }

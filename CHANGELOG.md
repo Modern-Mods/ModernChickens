@@ -1,17 +1,25 @@
 **CHANGELOG**
-# [2.7.7] - 17/10/2026
+# [2.7.8] - 17/10/2026
 
 ## New
 
 - **Thaumaturge chickens.** Thaumium, Void Metal, Alchemical Brass, Quicksilver, Amber, Alumentum, Salis Mundus and Cinnabar chickens, plus one chicken for each of the seven crystals you find in the mines: Air, Water, Fire, Earth, Order, Entropy and Flux. They only appear if Thaumaturge is installed.
 - **Astral Sorcery chickens.** Stardust, Starmetal, Rock Crystal, Celestial Crystal, Aquamarine, Resonating Gem and Lumen Crystal chickens. They only appear if Astral Sorcery is installed.
+- **Ultimate Armoury chickens.** JoanFoite and Mushashite chickens, with their own textures. They appear if Ultimate Armoury: Tools And Weapons is installed.
+- **Allthemodium chickens.** Allthemodium, Vibranium and Unobtainium, plus the three alloys that mix them.
+- **Ender IO Evolution chickens.** Construction Alloy, Crude Steel, Crystalline Alloy, Crystalline Pink Slime, Energetic Silver, Melodic Alloy, Stellar Alloy and Vivid Alloy.
 - **Five new Henhouses:** Mangrove, Cherry, Bamboo, Crimson and Warped. Same recipe as the others, just with the matching planks.
 
 ## Improved
 
 - **All metal chickens now look like the Bronze Chicken**, with the stacked-ingot body, each in its own colours. This covers Copper, Tin, Steel, Aluminium, Uranium, Iridium, Draconium, Manasteel, Elementium and the rest, and the new Thaumaturge and Astral Sorcery metals.
+- **The vanilla metal chickens too.** The Iron, Gold and Netherite chickens use the same Bronze Chicken style, coloured like their ingots. The Netherite Chicken finally has its own texture.
 - **The item looks like the chicken you place.** The chicken in your inventory now matches the chicken in the world for every metal.
 - Many modded chickens now have their own texture instead of a coloured copy of the vanilla chicken. If you want to repaint one, its PNG is in `textures/entity`.
+
+## Changed
+
+- **Nadienite and Steel chickens now use the Ultimate Armoury ingots.** Those ores moved from Ultimate Foods to Ultimate Armoury: Tools And Weapons, and the two chickens follow them, with colours taken from the new ingots.
 
 ## Fixed
 
