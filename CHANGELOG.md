@@ -1,4 +1,11 @@
 **CHANGELOG**
+# [2.7.6] - 17/10/2026
+
+## Changed
+
+- **Metal chickens now use the Bronze Chicken style.** The generated metal and alloy chickens (Thaumium, Void Metal, Alchemical Brass, Quicksilver, Starmetal, Andesite Alloy, Black Iron, Steel, Eclipse Alloy, Quantum Alloy, Naquadah, Neutronium, Infinity, Crystal Matrix, Nadienite, Bedrockium, Demon and Prometheum) were plain recolours of the vanilla chicken. They are now drawn like the Bronze Chicken, with the stacked-ingot body, using each chicken's own colours.
+- **Their items match the placed chicken.** Each of those chickens has its own item sprite built from the Bronze Chicken item, so the item in the inventory looks like the chicken in the world instead of the generic speckled one.
+
 # [2.7.5] - 17/10/2026
 
 ## Removed
