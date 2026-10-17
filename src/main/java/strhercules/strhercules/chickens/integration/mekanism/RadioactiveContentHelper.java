@@ -2,7 +2,6 @@ package strhercules.chickens.integration.mekanism;
 
 import strhercules.chickens.ChemicalEggRegistry;
 import strhercules.chickens.ChemicalEggRegistryItem;
-import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.GasEggRegistry;
 import strhercules.chickens.LiquidEggRegistry;
@@ -24,9 +23,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
@@ -42,8 +38,6 @@ public final class RadioactiveContentHelper {
             "plutoniumpelletchicken",
             "poloniumpelletchicken",
             "antimatterpelletchicken");
-    private static final List<ItemStack> RADIOACTIVE_OUTPUTS = new ArrayList<>();
-    private static int outputCacheRegistrySize = -1;
 
     private RadioactiveContentHelper() {
     }
@@ -62,16 +56,7 @@ public final class RadioactiveContentHelper {
         if (stack.isEmpty()) {
             return false;
         }
-        if (isRadioactiveEgg(stack) || isRadioactiveChickenStack(stack)) {
-            return true;
-        }
-        refreshRadioactiveOutputs();
-        for (ItemStack output : RADIOACTIVE_OUTPUTS) {
-            if (ItemStack.isSameItemSameTags(output, stack)) {
-                return true;
-            }
-        }
-        return false;
+        return isRadioactiveEgg(stack) || isRadioactiveChickenStack(stack);
     }
 
     private static boolean isRadioactiveEgg(ItemStack stack) {
@@ -95,28 +80,6 @@ public final class RadioactiveContentHelper {
             return isRadioactive(ChickenItemHelper.resolve(stack));
         }
         return false;
-    }
-
-    private static void refreshRadioactiveOutputs() {
-        Collection<ChickensRegistryItem> enabled = ChickensRegistry.getItems();
-        Collection<ChickensRegistryItem> disabled = ChickensRegistry.getDisabledItems();
-        int registrySize = enabled.size() + disabled.size();
-        if (registrySize == outputCacheRegistrySize) {
-            return;
-        }
-        RADIOACTIVE_OUTPUTS.clear();
-        addRadioactiveOutputs(enabled);
-        addRadioactiveOutputs(disabled);
-        outputCacheRegistrySize = registrySize;
-    }
-
-    private static void addRadioactiveOutputs(Collection<ChickensRegistryItem> chickens) {
-        for (ChickensRegistryItem chicken : chickens) {
-            if (isRadioactive(chicken)) {
-                RADIOACTIVE_OUTPUTS.add(chicken.createLayItem());
-                RADIOACTIVE_OUTPUTS.add(chicken.createDropItem());
-            }
-        }
     }
 
     public static boolean hasRadioactiveItems(Container container) {
