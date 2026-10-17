@@ -100,7 +100,6 @@ public final class ChickensDataLoader {
         KubeJSChickensHook.register(defaults);
         ChickensConfigValues values = applyConfiguration(props, defaults);
         ChickensConfigHolder.set(values);
-        DynamicFluidChickens.register(defaults, indexByName(defaults));
         KubeJSChickensHook.finalizeRegistry(defaults);
         defaults.forEach(ChickensRegistry::register);
 
@@ -932,10 +931,6 @@ public final class ChickensDataLoader {
         if (event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.SERVER_DATA_LOAD
                 || event.getUpdateCause() == TagsUpdatedEvent.UpdateCause.CLIENT_PACKET_RECEIVED) {
             ModdedChickens.retryPending();
-            DynamicMaterialChickens.refresh();
-            DynamicFluidChickens.refresh();
-            DynamicChemicalChickens.refresh();
-            DynamicGasChickens.refresh();
             List<ChickensRegistryItem> current = new ArrayList<>();
             current.addAll(ChickensRegistry.getItems());
             current.addAll(ChickensRegistry.getDisabledItems());

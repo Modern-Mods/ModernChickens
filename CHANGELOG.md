@@ -1,4 +1,15 @@
 **CHANGELOG**
+# [2.7.5] - 17/10/2026
+
+## Removed
+
+- **Automatic chickens generated from the installed mods.** The mod no longer registers chickens on its own for what other mods add. Removed generators:
+  - the Modern Foundry chickens (Cobalt, Pig Iron, Manyullyn and Knightslime);
+  - one chicken per Mekanism chemical;
+  - one chicken per liquid egg, which was already off by default (`autoRegisterFluidChickens`).
+
+  Only chickens that are written out explicitly in the mod, or added through `custom_chickens.toml` or KubeJS, exist now. Chickens that were generated this way disappear from existing worlds, because their ids no longer exist. The `autoRegisterFluidChickens` option and the KubeJS `fluid()` and `chemical()` rules are still accepted but no longer do anything.
+
 # [2.7.4] - 17/10/2026
 
 ## Fixed
