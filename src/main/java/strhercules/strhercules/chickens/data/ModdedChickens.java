@@ -219,6 +219,11 @@ final class ModdedChickens {
                 0x3dff1e, 0x3ff123, SpawnType.NONE,
                 "EmeraldChicken", "GreenChicken", null));
 
+        list.add(new Definition(846, "breezeChicken", "breeze_chicken",
+                () -> Optional.of(new ItemStack(Items.BREEZE_ROD)),
+                0xBFE3F5, 0x7EC8E3, SpawnType.NONE,
+                "SnowballChicken", "EnderChicken", null));
+
         // Immersive Engineering fluid chickens – unlocked when the matching fluids exist.
         list.add(new Definition(553, "creosoteChicken", "creosote_chicken",
                 liquidEgg(3),
@@ -924,7 +929,56 @@ final class ModdedChickens {
                 0x9a6c3a, 0xc89a5a, SpawnType.NONE,
                 "LogChicken", "IronChicken",
                 tagDrop("c:wooden_doors", "c:doors")));
-                
+
+        list.add(new Definition(711, "spruceDoorChicken", "spruce_door_chicken",
+                () -> Optional.of(new ItemStack(Items.SPRUCE_DOOR)),
+                0x7a5a34, 0x9c7a4c, SpawnType.NONE,
+                "doorChicken", "SpruceLogChicken", null));
+
+        list.add(new Definition(712, "birchDoorChicken", "birch_door_chicken",
+                () -> Optional.of(new ItemStack(Items.BIRCH_DOOR)),
+                0xc8b77a, 0xe3d7a3, SpawnType.NONE,
+                "doorChicken", "BirchLogChicken", null));
+
+        list.add(new Definition(713, "jungleDoorChicken", "jungle_door_chicken",
+                () -> Optional.of(new ItemStack(Items.JUNGLE_DOOR)),
+                0xa5774f, 0xc99a6e, SpawnType.NONE,
+                "doorChicken", "JungleLogChicken", null));
+
+        list.add(new Definition(714, "acaciaDoorChicken", "acacia_door_chicken",
+                () -> Optional.of(new ItemStack(Items.ACACIA_DOOR)),
+                0xba683b, 0xd88a5a, SpawnType.NONE,
+                "doorChicken", "AcaciaLogChicken", null));
+
+        list.add(new Definition(715, "darkOakDoorChicken", "dark_oak_door_chicken",
+                () -> Optional.of(new ItemStack(Items.DARK_OAK_DOOR)),
+                0x4b3218, 0x6b4a2a, SpawnType.NONE,
+                "doorChicken", "DarkOakLogChicken", null));
+
+        list.add(new Definition(716, "mangroveDoorChicken", "mangrove_door_chicken",
+                () -> Optional.of(new ItemStack(Items.MANGROVE_DOOR)),
+                0x763631, 0xa0524a, SpawnType.NONE,
+                "doorChicken", "MangroveLogChicken", null));
+
+        list.add(new Definition(717, "cherryDoorChicken", "cherry_door_chicken",
+                () -> Optional.of(new ItemStack(Items.CHERRY_DOOR)),
+                0xe3b3ad, 0xf3d0cb, SpawnType.NONE,
+                "doorChicken", "CherryLogChicken", null));
+
+        list.add(new Definition(718, "bambooDoorChicken", "bamboo_door_chicken",
+                () -> Optional.of(new ItemStack(Items.BAMBOO_DOOR)),
+                0xc1ad50, 0xdccb72, SpawnType.NONE,
+                "doorChicken", "BambooBlockChicken", null));
+
+        list.add(new Definition(719, "crimsonDoorChicken", "crimson_door_chicken",
+                () -> Optional.of(new ItemStack(Items.CRIMSON_DOOR)),
+                0x7e3a56, 0xa65778, SpawnType.NONE,
+                "doorChicken", "CrimsonStemChicken", null));
+
+        list.add(new Definition(720, "warpedDoorChicken", "warped_door_chicken",
+                () -> Optional.of(new ItemStack(Items.WARPED_DOOR)),
+                0x2b6b6b, 0x3f9a8f, SpawnType.NONE,
+                "doorChicken", "WarpedStemChicken", null));
 
         // Dirt chicken – teaching mechanic: right-click vanilla chicken with Dirt
         list.add(new Definition(629, "dirtChicken", "dirt_chicken",

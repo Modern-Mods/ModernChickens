@@ -1,4 +1,20 @@
 **CHANGELOG**
+# [2.0.13] - 1/11/2026
+
+## New
+
+- **Breeze Chicken.** It lays Breeze Rods. Breed it from a Snowball Chicken and an Ender Chicken.
+- **A Door Chicken for every wood.** Spruce, Birch, Jungle, Acacia, Dark Oak, Mangrove, Cherry, Bamboo, Crimson and Warped. Each one lays the door of its own wood. Breed it from the Door Chicken and the Log, Stem or Bamboo Block chicken of that wood.
+- **KubeJS can ask for one exact egg or chicken.** Use `variant.kind('liquid_egg').chickenid('minecraft:water')` anywhere a recipe takes an ingredient. For chickens you can also add `.minGrowth(5)`, `.minGain(3)` and `.minStrength(1)`. `kind` and `chickenid` are required. `ChickenVariant` does the same if a script already uses the name `variant`. There is a ready-to-copy script in `Examples/KubeJS`.
+
+## Fixed
+
+- **Snowball Chicken and Ice Chicken spawns.** The Snowball Chicken now only appears in frozen biomes with ice or snow. The Ice Chicken no longer spawns on its own: you get it by breeding.
+
+## Changed
+
+- **The `chickens:variant` ingredient calls its second field `chickenid`.** `{"type": "chickens:variant", "kind": "liquid_egg", "chickenid": "minecraft:water"}`. The old name `id` still works, so recipes you already wrote keep working. If `kind` or `chickenid` is missing, the recipe now says which one.
+
 # [2.0.12] - 1/11/2026
 
 ## New

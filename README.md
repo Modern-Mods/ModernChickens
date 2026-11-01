@@ -1,106 +1,504 @@
 # Modern Chickens
- 
-Modern Chickens is a NeoForge port of the classic Chickens and Roost mods for Minecraft 1.21.1 . It reintroduces the breeding-driven resource automation gameplay loop while embracing modern Forge-era tooling, datapacks, and mod integrations while also introducing new modernized features!
 
-### Mod Pages: 
+Modern Chickens is a NeoForge 1.21.1 port of the classic **Chickens** and **Roost** mods. Rebuild the original breeding-driven resource automation loop with a large chicken roster, configurable breeding trees, automated coops, dynamic fluid and chemical content, RF generation, and optional Mekanism radiation integration.
+
+### Mod Pages
 
 - [CurseForge](https://www.curseforge.com/minecraft/mc-mods/modern-chickens)
-
 - [Modrinth](https://modrinth.com/mod/modern-chickens)
+- [Wiki](https://github.com/Modern-Mods/ModernChickens/wiki)
 
-## Gameplay Overview
+## Requirements and optional integrations
 
-1. **Collect basic chickens.** Use spawn eggs or natural spawns to gather Tier 1 breeds, then throw coloured eggs to obtain dyed variants.
-2. **Analyse and breed.** Right-click chickens with the analyzer to view stats, use roosts for passive production, and combine chickens in the breeder to unlock higher tiers.
-3. **Automate collection.** Set up collectors next to roosts and henhouses to sweep drops into inventories or item pipes.
-4. **Scale production.** Tune [chickens.toml](https://github.com/STRHercules/ModernChickens/blob/main/Examples/Config/chickens.toml) for global options and [custom_chickens.toml](https://github.com/STRHercules/ModernChickens/blob/main/Examples/Custom%20Chickens/custom_chickens.toml) for stock/custom chicken tables.
-5. **Avian Domination!**
+- **Minecraft:** 1.21.1
+- **Loader:** NeoForge 21.1.x
+- **Mekanism:** Optional. Required for Mekanism chemical/gas chickens and the Mekanism radiation bridge.
+- **JEI:** Optional. Adds breeding, chicken-stat, converter, and dousing recipe categories.
+- **Jade/WTHIT:** Optional. Adds chicken, machine, tank, energy, and progress overlays.
 
-## Feature Highlights
-	
-- **Comprehensive and Customizable chicken roster** - Ports the entire legacy chicken catalogue with stats, drops, and breeding trees exposed through data-driven registries and persistent TOML files. Chickens can be customised, disabled, or reparented without recompiling the mod.
-- **Dynamic material coverage** - Generates placeholder chickens for any ingot item detected at runtime, using a shared fallback texture and Smart Chicken lineage to keep mod packs covered without manual config tweaks.
-- **Automation blocks** - Roosts, breeders, collectors, the Avian Flux Converter, the Avian Fluid Converter, the Avian Chemical Converter, and the Avian Dousing Machine ship with their original block entities, menus, and renderers so farms can incubate, store, transmute, and harvest chickens hands-free. 
-- **Dedicated items** - Spawn eggs, coloured eggs, liquid eggs, chemical and gas eggs, chicken catchers, and analyzer tools keep the legacy progression loop intact while adopting modern capability and tooltip systems.
-- **Fluid and chemical automation** - Liquid eggs can be cracked into configurable fluid stacks with the Avian Fluid Converter, and chemical or gas eggs feed the Avian Chemical Converter to build Mekanism-compatible buffers. Both machines ship tank overlays, JEI recipes, and Jade/WTHIT readouts. Modpack developers can opt into automatic fluid-chicken registration with `general.autoRegisterFluidChickens`; chemical chickens are generated for discovered Mekanism chemicals.
-- **JEI and Jade integrations** - Recipe categories, item subtypes, and Jade/WTHIT overlay tooltips surface roost, breeder, converter, dousing, and chicken stats directly in-game when the companion mods are installed.
-- **Modded Chicken Support** Modern Chickens will identify all 'ingot' resources in your minecraft instance and generate resource chickens for them.
-- **Specialty resource integrations** - Prebuilt chickens now cover high-value items across popular tech/magic mods. Each registers only when its parent mod is loaded, keeping packs dependency-safe.
+Mod-specific chickens and dynamic content are registered only when the relevant parent mod or resource exists. The core breeding and Roost gameplay does not require every integration listed on this page.
 
-## Integrated Mods & Unlockable Chickens
+## Gameplay overview
 
-- **Applied Energistics 2** — Certus Quartz, Charged Certus, Silicon, Fluix, Sky Stone.
-- **Extended AE / Advanced AE** — Entro Alloy, Quantum Alloy, and Entro Crystal.
-- **Applied Fluix / Applied Generators** — Applied Fluix Crystal, Ember Crystal.
-- **Mekanism** — Fluorite, HDPE Pellet, Plutonium Pellet, Polonium Pellet, Antimatter Pellet.
-- **Mekanism Extras** — Naquadah Ingot, Fluids, Chemicals
-- **EvilCraft** — Blood.
-- **Just Dire Things** — Celestigem, Eclipse Alloy, Time Crystal.
-- **Industrial Foregoing** — Plastic, Rubber.
-- **Draconic Evolution** — Chaos Fragment (small chaos frag).
-- **Avaritia** — Neutron Pile (Neutronium) and Infinity Ingot.
-- **RFTools Base** — Dimensional Shard.
-- **Beyond Dimensions** — Shattered Space-Time Crystallization.
-- **Applied Flux** — Redstone Crystal.
-- **SpectreThings / Irregular Implements** — Ectoplasm (single consolidated chicken when either mod is present).
-- **Mystical Agriculture** — Inferium, Prudentium, Tertium, Imperium, Supremium, Insanium essences.
-- **Powah** — Uraninite.
-- **Flux Networks** — Flux Dust.
-- **Actually Additions** — Black Quartz, Restonia, Diamatine, Emeradic, Enori, Palis, Void crystals.
-- **Vanilla** — Amethyst (Amethyst Shard), Nether Stars, Dragon Eggs
+- **Collect basic chickens.** Use natural spawns, spawn eggs, and the early Tier 1 roster to start your collection. Throw coloured eggs to obtain dyed variants.
+- **Analyse and breed.** Right-click chickens with the **Analyzer** to view Growth, Gain, and Strength. Combine chickens in the **Breeder** to unlock higher tiers.
+- **Automate production.** Put chickens in **Roosts** and use **Collectors**, hoppers, and item pipes to move their drops into storage.
+- **Scale the coop.** Use **Henhouses**, **Nests**, **Roosters**, the **Incubator**, and the Avian converters to build hands-free production lines.
+- **Tune the pack.** Edit `config/chickens.toml` for global options and `config/custom_chickens.toml` for stock/custom chicken tables, lay rates, drops, breeding, and spawn behavior.
+
+The roster, drops, parents, spawn types, textures, and lay coefficients are data-driven. Higher-tier chickens normally do not spawn naturally, so breeding remains the intended progression path.
+
+## Feature highlights
+
+- A large legacy-inspired chicken catalogue with stats, drops, breeding trees, spawn eggs, coloured eggs, Chicken Items, and Chicken Catchers.
+- Configurable Roosts, Breeders, Henhouses, Collectors, Nests, Roosters, and an RF-powered **Incubator**.
+- An **Avian Fluid Converter** for cracking liquid eggs into fluids and feeding adjacent tanks or pipes.
+- An **Avian Chemical Converter** for cracking Mekanism chemical and gas eggs into buffered chemical storage.
+- An **Avian Dousing Machine** for imprinting Smart Chickens with a fluid or Mekanism chemical and creating the matching chicken spawn egg.
+- An **Avian Flux Converter** and **Redstone Flux Chickens** for converting Flux Eggs into stored and exportable RF.
+- Dynamic liquid, chemical, and gas eggs for registered fluids, Mekanism chemicals, and Mekanism gases.
+- JEI recipe categories, item subtypes, and Jade/WTHIT overlays for chickens, stats, breeding, tanks, machines, and progress.
+- Custom chicken definitions through `config/custom_chickens.toml`, without recompiling the mod.
+- Datapack spawn-plan overrides and commands for inspecting or testing spawn behavior.
+
+## Progression and natural spawning
+
+Modern Chickens adds modded birds to biomes that already have a vanilla chicken spawn. It uses the shared `CREATURE` mob cap rather than a separate population system. The default natural-spawn broods are 1-2 birds; roosters spawn alone at low weight. Most parent-based chickens remain breeding-only unless their configuration allows natural spawning.
+
+Mega Chickens use their own rare spawn rule. See [Mega Chickens](#mega-chickens) below.
+
+### Where the basic chickens spawn
+
+Some basic chickens appear where they make sense, even in biomes without vanilla chickens:
+
+- **Sand Chicken:** beaches and deserts.
+- **Snowball Chicken:** frozen biomes with ice or snow.
+- **White, Log and Flint chickens:** any land biome except deserts, beaches, oceans and mushroom islands.
+- **Quartz Chicken:** every Nether biome, fortresses included.
+- **Soul Sand Chicken:** Soul Sand Valleys and Nether fortresses.
+- **Ender Chicken:** the End, End cities included.
+- **Ice Chicken:** it does not spawn naturally. You get it by breeding.
+
+### Spawn-plan datapacks
+
+Spawn overrides live under:
+
+```text
+data/<namespace>/chickens/spawn_plans/
+```
+
+Spawn plans can override these fields:
+
+- `spawn_type` - `normal`, `snow`, `end`, or `hell`.
+- `spawn_weight` - Absolute spawn weight. Use this or `weight_multiplier`, not both.
+- `weight_multiplier` - Multiplies the configured base weight.
+- `min_brood_size` and `max_brood_size` - Spawn group size bounds.
+- `spawn_charge` and `energy_budget` - Mob-charge values used by the biome spawn settings.
+
+### Useful commands
+
+```text
+/chickens spawn multiplier <value>
+/chickens spawn debug <true|false>
+/chickens spawn summon <chickenNameOrId>
+/chickens spawn summon_random [normal|snow|end|hell]
+/chickens custom list
+/chickens export breeding
+```
+
+## Integrated mods and unlockable chickens
+
+Prebuilt integrations register only when their parent mod is loaded.
+
+- **Applied Energistics 2:** Certus Quartz, Charged Certus, Silicon, Fluix, Sky Stone.
+- **Extended AE / Advanced AE:** Entro Alloy, Quantum Alloy, Entro Crystal.
+- **Applied Fluix / Applied Generators:** Applied Fluix Crystal, Ember Crystal.
+- **Mekanism:** Fluorite, HDPE Pellet, Plutonium Pellet, Polonium Pellet, Antimatter Pellet.
+- **Mekanism Extras:** Naquadah ingots, fluids, and chemicals.
+- **EvilCraft:** Blood.
+- **Just Dire Things:** Celestigem, Eclipse Alloy, Time Crystal.
+- **Industrial Foregoing:** Plastic, Rubber.
+- **Avaritia:** Neutron Pile, Infinity Ingot.
+- **RFTools Base:** Dimensional Shard.
+- **Beyond Dimensions:** Shattered Space-Time Crystal.
+- **Applied Flux:** Redstone Crystal.
+- **SpectreThings / Irregular Implements:** Ectoplasm, using one consolidated chicken when either mod is present.
+- **Draconic Evolution:** Small Chaos Fragment.
+- **Mystical Agriculture:** Inferium, Prudentium, Tertium, Imperium, Supremium, and Insanium essences.
+- **Powah:** Uraninite.
+- **Flux Networks:** Flux Dust.
+- **Actually Additions:** Black Quartz, Restonia, Diamatine, Emeradic, Enori, Palis, and Void Crystals.
+- **Extreme Reactors:** Yellorium, Graphite, Cyanite, and Blutonium through the normal material integration.
+- **Ender IO:** Electrical Steel, Energetic Alloy, Vibrant Alloy, Redstone Alloy, Conductive Iron, Pulsating Iron, Dark Steel, and Soularium.
+- **Immersive Engineering:** Registered ingot and fluid resources, including uranium-related content when present.
+- **Vanilla:** Amethyst Shards, Nether Stars, Dragon Eggs, Breeze Rods, and the Door Chicken with one variant for every wood type (Spruce, Birch, Jungle, Acacia, Dark Oak, Mangrove, Cherry, Bamboo, Crimson and Warped).
+- **Thaumaturge:** Thaumium, Void Metal, Alchemical Brass, Quicksilver, Amber, Alumentum, Salis Mundus, Cinnabar, the seven mine crystals and the native clusters (Iron, Copper, Gold, Tin, Lead, Silver, Cinnabar and Quartz).
+- **Astral Sorcery:** Stardust, Starmetal, Rock Crystal, Celestial Crystal, Aquamarine, Resonating Gem and Lumen Crystal.
+- **Ultimate Armoury: Tools And Weapons:** JoanFoite, Mushashite, Nadienite and Steel.
+- **Allthemodium:** Allthemodium, Vibranium, Unobtainium and the three alloys that mix them.
+- **Ender IO Evolution:** Construction Alloy, Crude Steel, Crystalline Alloy, Crystalline Pink Slime, Energetic Silver, Melodic Alloy, Stellar Alloy and Vivid Alloy.
+- **Mystical Agriculture addons:** one chicken for every tier essence of the addons you have (Soulium, Awakened Supremium, Awakened Draconium, Lightium, Ornium, Ouranium, Tornium) plus a Soulstone Cobble chicken.
+- **Applied Energistics 2 circuits:** Printed Silicon, the Logic, Calculation and Engineering Processors and their Printed Circuits, plus the processors of Advanced AE, ExtendedAE and MEGA Cells.
+- **Void Miners Remastered:** one Miner Chicken per tier (see [Void Miner Chickens](#void-miner-chickens)).
+- **More metals in the Bronze Chicken style:** Energized Power, Ad Astra, Oritech, Twilight Forest, Mystical Extended Tier, Extended Crafting, Create Encased, Masterful Botany and Extra Botany.
+
+The exact roster depends on the mods and registered resources in your instance. JEI and the Analyzer are the authoritative in-game references.
+
+![Chickens available in ATM10](https://i.imgur.com/YxIPuRC.gif)
+
+![Look at all these chickens](https://media1.tenor.com/m/hRVtp7V06GQAAAAd/look-at.gif)
+
+## Dynamic eggs, fluids, chemicals, and gases
+
+Modern Chickens generates a dedicated egg variant for supported registered fluids, Mekanism chemicals, and Mekanism gases during setup. Generated eggs inherit the resource's name and colour.
+
+The complete automation chain is:
+
+**Resource chicken -> liquid/chemical/gas egg -> converter buffer -> pipes, tanks, or machines**
+
+![Dynamic fluid eggs](https://i.imgur.com/37OGGEr.png)
+
+![Dynamic chemical eggs](https://i.imgur.com/jG71Xpp.png)
+
+### Avian Fluid and Chemical Converters
+
+Liquid and chemical eggs no longer need to be hand-placed to deploy their contents. Put a liquid egg into the **Avian Fluid Converter**, or a chemical/gas egg into the **Avian Chemical Converter**. The converter cracks the shell, stores the contents in an internal buffer, and feeds adjacent tanks, pipes, tubes, or machines each tick.
+
+- **JEI discovery:** JEI lists every supported egg and the fluid or chemical volume it produces. The converter block is registered as a JEI catalyst.
+- **Runtime coverage:** A new registered fluid or Mekanism chemical automatically gets a matching egg without a hardcoded page entry or manual JSON edit.
+- **Monitoring:** Jade and WTHIT show the resource name, stored amount, tank capacity, and machine state without opening the GUI.
+- **Automation:** Pair the converter with normal fluid or chemical transport to move experience, biofuel, radioactive waste, and other technology resources directly from the coop.
+
+Useful server configuration keys are:
+
+- `general.avianFluidConverterCapacity` - Fluid buffer capacity; default `8000` mB.
+- `general.avianFluidConverterTransferRate` - Fluid transfer rate; default `2000` mB/t.
+- `general.avianChemicalConverterCapacity` - Chemical buffer capacity; default `8000` units.
+- `general.avianChemicalConverterTransferRate` - Chemical transfer rate; default `2000` units/t.
+- `general.liquidEggHazardsEnabled` - Enables liquid-egg hazard tooltips and placement effects; default `true`.
+
+![Avian Fluid and Chemical Converters](https://i.imgur.com/kokLuyI.jpeg)
+
+## Avian Dousing Machine
+
+The **Avian Dousing Machine** connects the Smart Chicken lineage to the dynamic fluid and chemical chicken generators. It consumes a Smart Chicken, a stored reagent, and RF to create the matching chicken spawn egg, letting you unlock generated breeds in survival without commands or manual registry edits.
+
+- **Input:** Place a Smart Chicken spawn egg or captured Smart Chicken in the input slot. Only Smart Chickens are accepted as blank templates.
+- **Fluid reagent:** Pipe a fluid into the built-in tank, often from an Avian Fluid Converter.
+- **Chemical reagent:** Feed a Mekanism chemical or gas into the internal buffer directly or through an Avian Chemical Converter.
+- **Priority:** When both reagent types are available, the machine prefers the chemical buffer.
+- **Output:** One Smart Chicken and the required reagent are consumed to create the corresponding liquid or chemical chicken spawn egg. That chicken lays the matching liquid or chemical egg.
+- **Adjacent transport:** The machine can pull compatible fluids and Mekanism chemicals from adjacent tanks, pipes, tubes, or converters.
+- **JEI:** The Avian Dousing Machine category lists supported reagents, costs, RF requirements, and output spawn eggs.
+- **Monitoring:** Jade and WTHIT show stored reagent, energy, and infusion progress.
+
+![Converting chemicals](https://i.imgur.com/fwZnEtI.jpeg)
+
+![Converting liquids](https://i.imgur.com/Ge7zx4b.jpeg)
+
+![Avian Dousing Machine process](https://i.imgur.com/kSI861D.gif)
+
+The resulting progression is:
+
+**Liquid or Mekanism chemical -> egg -> buffered converter -> Avian Dousing Machine -> dedicated chicken**
 
 ## Henhouse
 
-The Henhouse collects nearby chicken drops into its internal inventory. It accepts hay bales or FE from any standard energy provider; each unit of charge collects one item, and spent hay becomes dirt. Outputs can be extracted from below by normal item automation.
+The **Henhouse** collects nearby chicken drops into its internal inventory. It accepts either hay bales or FE/RF from a standard energy provider.
 
-## Boss Chickens via Avian Dousing (Dragon / Wither)
-You cannot breed these; you must infuse them in the **Avian Dousing Machine**.
+- One charge collects one item.
+- A hay bale provides the internal charge and spent hay becomes dirt.
+- Outputs can be extracted from below by hoppers or item pipes.
+- It is useful for Dragon Eggs, Nether Stars, and other drops that should be collected without placing chickens in a Roost.
+- It comes in every wood type: Oak, Acacia, Birch, Dark Oak, Jungle, Spruce, Mangrove, Cherry, Bamboo, Crimson and Warped. The recipe is the same, with the matching planks.
 
-1. **Base chicken**
-   - Dragon: place an **Obsidian Chicken** in the input slot.
-   - Wither: place a **Soul Sand Chicken** in the input slot.
+## Boss Chickens via Avian Dousing
 
-2. **Fill the special buffer**
-   - Dragon: insert **Dragon’s Breath** bottles.
-   - Wither: insert **Nether Stars**.
-   - Each item adds **100 mB**; you need **1000 mB** total (10 items).
-   - Insert these by right-clicking the machine while holding the item; they do not go into the two visible inventory slots.
+Dragon and Wither Chickens cannot be bred. They must be infused in the **Avian Dousing Machine**.
 
-3. **Supply RF**
-   - Ensure the dousing machine is powered; it consumes the listed RF during infusion.
+### 1. Add the base chicken
 
-4. **Start infusion**
-   - When the special buffer is full and RF is available, start the process. The base chicken is consumed and replaced with the boss chicken spawn egg:
-     - **Dragon Chicken** → lays **Dragon Eggs**.
-     - **Wither Chicken** → lays **Nether Stars**.
+- **Dragon Chicken:** Place an **Obsidian Chicken** in the input slot.
+- **Wither Chicken:** Place a **Soul Sand Chicken** in the input slot.
 
-5. **Automate**
-   - Place the resulting chicken in a roost/henhouse to farm Dragon Eggs or Nether Stars hands‑free.
+### 2. Fill the special buffer
 
-_Chickens available in ATM10!_
+- **Dragon Chicken:** Insert Dragon's Breath Bottles.
+- **Wither Chicken:** Insert Nether Stars.
+- Each special item adds `100 mB`.
+- The special buffer requires `1000 mB` total, or `10` items.
 
-![Chickens Available in ATM10](https://i.imgur.com/YxIPuRC.gif)
+### 3. Supply power
 
-![Look at all these CHICKENTHS!](https://media1.tenor.com/m/hRVtp7V06GQAAAAd/look-at.gif)
+Ensure the Avian Dousing Machine is powered. It consumes the configured RF during infusion.
 
+### 4. Start the infusion
 
-> Modded Chickens will choose random assets for the item version, and use a texture that is generated on the fly for them in the overworld
+When the special buffer is full and enough RF is available, the base chicken is consumed and replaced by the appropriate boss chicken spawn egg.
 
+- **Dragon Chicken -> lays Dragon Eggs**
+- **Wither Chicken -> lays Nether Stars**
 
-> Global options live in `config/chickens.toml`; stock and custom chicken tables live in `config/custom_chickens.toml`. Both files are generated on first run and can be safely edited while the game is stopped. Restart the client or server to reload breeding graphs after making changes. 
+### 5. Automate production
 
+Place the resulting chicken in a Roost or Henhouse to farm Dragon Eggs or Nether Stars hands-free.
 
-> Need a quieter base? Flip `general.avianFluxEffectsEnabled=false` to disable the Avian Flux Converter's light and particle effects without touching code.
+## Void Miner Chickens
 
-> Want different RF pacing? Adjust `general.fluxEggCapacityMultiplier` for Flux Egg storage or tweak `general.avianFluxCapacity`, `general.avianFluxMaxReceive`, and `general.avianFluxMaxExtract` to rebalance the converter.
+Void Miners Remastered adds one chicken per tier: Amethystine, Aurantium, Azurine, Caerium, Citrinetine, Rosarium and Rubetine. They cannot be bred.
 
-> Prefer gentler handling? Set `general.liquidEggHazardsEnabled=false` to suppress the liquid egg status effects, and tune `general.avianFluidConverterCapacity` / `general.avianFluidConverterTransferRate` to balance fluid throughput.
+- Right-click a normal chicken with the Frame of the tier you want and it becomes that Miner Chicken.
+- A Miner Chicken always lays 24 crystals of its tier, whatever its stats are, even at 10/10/10.
+- They are very slow, so keep a few in Roosts and be patient.
 
-> Existing `chickens.properties` files are loaded once (for migration) but are no longer written—feel free to delete them after confirming the upgrade. (only if upgrading from an old version that used this file)
+## Roosters
 
-See [Explanation.md](Explanation.md) for the complete TOML option reference, migration behavior, and editing examples.
+![Rooster](https://i.imgur.com/d49iLC3.png)
 
-## New Egg Assets
+Roosters are utility birds inspired by Hatchery's rooster. They never lay eggs themselves; their job is to support breeding and Roost production.
+
+- **Normal chicken AI:** Roosters wander, follow chicken food, panic, and seek nearby adult hens.
+- **Seed charge:** Right-click a rooster with an empty hand or chicken food to open its small inventory. Items in `#minecraft:chicken_food` are accepted. Every pair of seeds becomes two points of internal seed charge.
+- **Fertilization:** A charged adult rooster seeks a nearby adult non-rooster chicken, spends two seed-charge points, and triggers breeding. The hen determines the offspring type and genetics.
+- **Item form:** The Chicken Catcher turns a mature rooster into a Chicken Item marked as a rooster. The item can be placed back into the world or inserted into a Nest.
+- **Roost synergy:** Roosts scan within the configured rooster-aura range for active Nests. Roosters in an active Nest add a production bonus on top of the base Roost speed.
+
+Default rooster-related settings:
+
+| Key | Default | Purpose |
+| --- | ---: | --- |
+| `general.roosterAuraMultiplier` | `1.25` | Roost production multiplier while a rooster aura applies. |
+| `general.roosterAuraRange` | `4` | Range used when Roosts look for active Nests. |
+| `general.roostSpeed` | `1.0` | Base Roost speed multiplier. |
+
+## Nest
+
+![Nest](https://i.imgur.com/0Pqh6ng.png)
+
+The **Nest** turns captured roosters and seeds into an aura that boosts nearby Roosts. It does not produce items by itself.
+
+- **Two slots:** The GUI has a seed slot on the left and a rooster slot on the right.
+- **Accepted seeds:** Wheat, beetroot, melon, and pumpkin seeds.
+- **Rooster slot:** Accepts only rooster-marked Chicken Items. Regular Chicken Items belong in Roosts or Breeders.
+- **Automation:** The Nest exposes sided inventory access for hoppers and item pipes.
+- **Aura fuel:** When at least one rooster is present, the Nest consumes one seed and turns it into aura time. It pauses seed consumption when no rooster is present.
+- **Rooster cap:** Only up to the configured number of roosters contributes to the aura. Extra roosters do not increase its strength.
+
+Default Nest settings:
+
+| Key | Default | Purpose |
+| --- | ---: | --- |
+| `general.nestMaxRoosters` | `1` | Maximum roosters counted by one Nest. |
+| `general.nestSeedDurationTicks` | `1200` ticks | Aura time provided by one seed; 60 seconds. Set to `0` to disable aura production. |
+
+## Incubator
+
+![Incubator](https://i.imgur.com/5pxcUQB.png)
+
+![Incubator GUI](https://i.imgur.com/a7w4Cdl.png)
+
+The **Incubator** is an RF-powered machine that turns mod chicken spawn eggs into portable Chicken Items with default `1/1/1` stats. These items can be inserted into Roosts or Breeders, or placed back into the world as entities.
+
+- **Input:** The left slot accepts Modern Chickens spawn eggs.
+- **Output:** The right slot produces the matching portable Chicken Item.
+- **Energy:** The Incubator pulls RF from adjacent blocks through the NeoForge energy capability and displays its stored energy in the GUI.
+- **Processing:** Each operation uses a 200-tick progress bar by default and reserves the configured RF cost as it advances.
+- **Automation:** Eggs can be inserted from the top or sides; Chicken Items can be extracted from the bottom.
+
+Default Incubator settings:
+
+| Key | Default | Purpose |
+| --- | ---: | --- |
+| `general.incubatorEnergyCost` | `10000` RF | Energy cost per Chicken Item. |
+| `general.incubatorCapacity` | `100000` RF | Internal energy capacity. |
+| `general.incubatorMaxReceive` | `4000` RF/t | Maximum energy received from adjacent blocks per tick. |
+
+## Mega Chickens
+
+![Mega Chicken](https://i.imgur.com/2lmsG6r.png)
+
+![Mega Chicken with equipment](https://i.imgur.com/iq5UhW9.png)
+
+The entity is named **Mega Chicken** in-game. It is a rare, oversized, rideable utility chicken with taming, saddles, two-chest cargo, breed-based appearances, and recoverable portable storage.
+
+### Finding and taming one
+
+- **Rare natural spawn:** Mega Chickens are added to biomes that already spawn vanilla chickens. A normal animal spawn must pass, followed by a `1-in-128` Mega Chicken roll.
+- **Spawn Egg:** The **Mega Chicken Spawn Egg** is available for controlled spawning and testing.
+- **No breeding:** Mega Chickens cannot breed and are not part of the normal resource-chicken breeding tree.
+- **Food-based taming:** Feed a wild Mega Chicken items in the `#minecraft:chicken_food` tag. The required amount is randomized between `16` and `64` items and is influenced by the individual chicken's health, movement speed, and jump strength. The remaining amount is shown to the player while taming.
+
+### Riding and cargo
+
+- A tamed Mega Chicken can be ridden with a normal saddle.
+- It accepts up to two vanilla chests, with `27` cargo slots per chest and `54` total cargo slots.
+- The inventory screen is a horse-style equipment and cargo screen.
+- A chest cannot be removed while that chest's cargo is still occupied. Empty the relevant cargo section first.
+- The owner can open the inventory and manage the saddle, chests, and cargo.
+
+### Breed-based appearances
+
+Mega Chickens can be skinned using a captured breed:
+
+1. Capture a non-rooster chicken into a **Chicken Item**. The item must have exactly `10/10/10` Growth, Gain, and Strength.
+2. The Mega Chicken's owner right-clicks the tamed Mega Chicken with that item.
+3. The Chicken Item is consumed and the Mega Chicken stores that breed as its appearance.
+4. If `textures/entity/megachicken/<breed>.png` exists, that texture is used. If it does not, the normal tamed Mega Chicken texture is used.
+
+![Mega Chicken with a saddle and chests](https://i.imgur.com/T5yOSsl.png)
+
+![Mega Chicken appearance examples](https://i.imgur.com/6imh12c.png)
+
+### Capture, storage, and revival
+
+- The Chicken Catcher can capture only a tamed, owned Mega Chicken that is not currently being ridden.
+- A captured Mega Chicken becomes a stack-size-one **Mega Chicken** item containing its entity data: owner, appearance, health and attributes, saddle, chests, cargo, and other saved data.
+- A live captured Mega Chicken item can be placed directly on a block or by using it while looking at a block.
+- If a Mega Chicken dies, it creates a protected revival item instead of ordinary death loot. The item preserves the Mega Chicken's data and restores it at full health.
+- To activate a death/revival item, hold a Nether Star in the player's offhand and right-click the item. The Nether Star is consumed.
+- After activation, right-click a block with the item to restore the Mega Chicken.
+- Death/revival item entities are fire-resistant, invulnerable, no-gravity, and have unlimited lifetime, so the recovery item is not destroyed by fire, despawning, or normal item damage.
+- Live captured items do not need Nether Star activation; only the death/revival form does.
+
+## Redstone Flux generation
+
+![Redstone Flux Eggs](https://i.imgur.com/WklUeVL.png)
+
+The **Redstone Flux Chicken** is a Tier 3 breed made from Redstone and Glowstone Chickens. It lays **Flux Eggs** that contain RF.
+
+- A base Flux Egg stores `1000 RF`.
+- Each Growth, Gain, or Strength point above `1` adds `100 RF` to the egg's stored energy.
+- A `10/10/10` chicken produces up to `3700 RF` per egg.
+- Gain also controls the normal drop stack scaling, so a `10/10/10` chicken can produce three Flux Eggs per cycle.
+- The **Avian Flux Converter** processes one Flux Egg at a time, stores its payload in an internal battery, and exports RF to adjacent machines or batteries.
+- The converter has `50000 RF` of storage by default, discards empty shells, and retains stored RF when broken.
+
+Useful RF settings:
+
+- `general.fluxEggCapacityMultiplier` - Scales stored RF in Flux Eggs.
+- `general.avianFluxCapacity` - Avian Flux Converter capacity; default `50000 RF`.
+- `general.avianFluxMaxReceive` - Maximum RF received per tick; default `4000`.
+- `general.avianFluxMaxExtract` - Maximum RF exported per tick; default `4000`.
+- `general.avianFluxEffectsEnabled` - Enables or disables the converter's light and particle effects without disabling energy transfer.
+
+## Radioactive chickens and items
+
+![Redstone Flux Eggs](https://i.imgur.com/Fj9whGz.png)
+
+Radioactive content is an optional integration with **Mekanism's radiation system**. Modern Chickens does not add a separate radiation mechanic and does not require Mekanism for the core breeding mod.
+
+### Radioactive breeds
+
+The built-in radioactive resource breeds include:
+
+- **Radioactive Waste Chicken** - produces Mekanism radioactive waste eggs.
+- **Uranium Chicken**
+- **Yellorium Chicken**
+- **Blutonium Chicken**
+- **Uraninite Chicken**
+- **Plutonium Pellet Chicken**
+- **Polonium Pellet Chicken**
+- **Antimatter Pellet Chicken**
+
+Mekanism chemicals and gases are inspected at runtime. If Mekanism reports a chemical as radioactive, its generated Chemical Egg or Gas Egg and matching chicken are treated as radioactive automatically. This also covers radioactive chemical content supplied by compatible integrations without a hardcoded list in this page or a manual config edit.
+
+### What is radioactive?
+
+The radiation bridge recognizes radioactive:
+
+- Liquid, chemical, and gas eggs containing radioactive content.
+- Spawn eggs and captured Chicken Items for radioactive breeds.
+- Resource items produced by radioactive breeds.
+- Radioactive fluids or chemicals stored in the Avian Fluid Converter, Avian Chemical Converter, or Avian Dousing Machine.
+
+### Safety behavior
+
+- **Living resource chickens are localized.** Radioactive resource-chicken entities show Mekanism radiation particles and are protected from Mekanism radiation damage. They do not continuously create an atmospheric radiation source simply by standing nearby.
+- **Dropped radioactive items emit a small source.** Dropped radioactive eggs, Chicken Items, spawn eggs, and radioactive resource outputs create a low-level Mekanism radiation source and show warning particles.
+- **Carried items can irradiate the player.** Radioactive items in the inventory, armor slots, or offhand contribute a small, capped amount of Mekanism radiation.
+- **Stored contents can warn and radiate.** Supported Modern Chickens machines and loaded inventories containing radioactive chicken content emit a small source and warning particles while the content remains inside. Removing the content stops the warning.
+- **Breaking a loaded Dousing Machine matters.** Radioactive chemical contents are spilled through Mekanism's radiation API when the machine is removed, so dismantle an active radioactive setup carefully.
+
+Radioactive liquid eggs display a hazard tooltip and can apply Wither briefly when placed by a non-creative player while `general.liquidEggHazardsEnabled` is enabled. Chemical and gas eggs display their radioactive hazard in their tooltip. Disabling that setting removes the liquid-egg hazard tooltip and placement effects; it does not disable Mekanism radiation emitted by radioactive items or stored contents.
+
+## Recipes that ask for an exact egg or chicken
+
+Every liquid, chemical and gas egg is the same item, and so is every chicken, so a normal recipe cannot tell them apart. The `chickens:variant` ingredient picks one exact variant. It works in datapack recipes and in KubeJS recipes.
+
+`kind` and `chickenid` are both required. A recipe that leaves either out fails with a message naming the missing field:
+
+- `kind` - `liquid_egg`, `chemical_egg`, `gas_egg`, `chicken` or `spawn_egg`.
+- `chickenid` - The fluid or chemical id for eggs (for example `minecraft:water`), or the chicken name for chickens and spawn eggs (for example `DiamondChicken`). The older field name `id` is still accepted; if both are present, `chickenid` wins.
+- `min_growth`, `min_gain` and `min_strength` - Optional minimum stats, only used when `kind` is `chicken`.
+
+```json
+{"type": "chickens:variant", "kind": "liquid_egg", "chickenid": "minecraft:water"}
+{"type": "chickens:variant", "kind": "chicken", "chickenid": "DiamondChicken", "min_growth": 5, "min_gain": 3}
+```
+
+In KubeJS you can chain the same fields with `variant` anywhere an ingredient is expected (shaped keys, shapeless lists, other mods' recipes). `kind(...)` and `chickenid(...)` are both mandatory, in any order. `ChickenVariant` is an identical alias if a script already has its own `variant` variable. Chickens also accept `.minGrowth(n)`, `.minGain(n)` and `.minStrength(n)`:
+
+```js
+event.shapeless('minecraft:diamond', [
+  variant.kind('liquid_egg').chickenid('minecraft:water'),
+  variant.kind('chicken').chickenid('IronChicken').minGrowth(5).minGain(3).minStrength(1),
+  'minecraft:coal'
+])
+```
+
+JEI also tells the variants apart: pressing R or U on an egg shows only the recipes of that egg.
+
+## Custom chicken creation
+
+After the first run, Modern Chickens generates `config/custom_chickens.toml`. It contains every stock `[chickens.<name>]` table and is also where bespoke chickens are defined. Global options remain in `config/chickens.toml` under `[general]`.
+
+Each entry can define:
+
+- The quoted table name - Unique registry name; use `[chickens."Steel Chicken"]` for names containing spaces.
+- `id` - Optional positive numeric id; omitted values use the next free id.
+- `texture` - In-world texture resource location.
+- `itemTexture` - Optional Chicken Item and JEI sprite resource location.
+- `layItemName`, `layItemAmount`, and `layItemMeta` - Resource item id, count, and liquid-egg variant.
+- `dropItemName`, `dropItemAmount`, and `dropItemMeta` - Death-drop resource item id, count, and variant.
+- `backgroundColor` and `foregroundColor` - Hex or decimal colours for generated/tinted textures.
+- `parent1` and `parent2` - Existing chicken names; both must resolve for breeding to remain configured.
+- `spawnType` - `NORMAL`, `SNOW`, `END`, `HELL`, or `NONE`.
+- `layCoefficient` - Lay-time multiplier; defaults to `1.0`.
+- `displayName` - Optional in-game display name.
+- `generatedTexture` - Whether the configured texture should be colour-tinted.
+- `enabled` - Whether the chicken participates in registries and breeding; defaults to `true`.
+- `allowNaturalSpawn` - Allows a parent-based chicken into natural spawn tables.
+- `allowDousing` - Allows the Avian Dousing Machine to create this chicken from its registered fluid or chemical. Keep it limited to intentional progression starters.
+
+Missing fields use the mod defaults. Resource locations are normalized to lowercase; omitting a texture falls back to the bone-chicken sprite when `generatedTexture = true`. Existing `chickens_custom.json` files are still read for migration compatibility, but new definitions must use TOML.
+
+## Configuration
+
+The global server configuration is generated at `config/chickens.toml`; stock and custom chicken tables are generated at `config/custom_chickens.toml`. Stop the game before editing either file, then restart the client/server to apply changes.
+
+Common settings include:
+
+- `general.enableFluidChickens`
+- `general.autoRegisterFluidChickens`
+- `general.enableChemicalChickens`
+- `general.enableGasChickens`
+- `general.disableEggLaying`
+- `general.alwaysShowStats`
+- `general.roostSpeed`
+- `general.breederSpeed`
+- `general.scalingDrops`
+- `general.collectorScanRange`
+- `general.liquidEggHazardsEnabled`
+- `general.avianFluidConverterCapacity`
+- `general.avianFluidConverterTransferRate`
+- `general.avianChemicalConverterCapacity`
+- `general.avianChemicalConverterTransferRate`
+- `general.fluxEggCapacityMultiplier`
+- `general.avianFluxCapacity`
+- `general.incubatorEnergyCost`
+- `general.incubatorCapacity`
+- `general.incubatorMaxReceive`
+
+The generated file is the source of truth for the available values and comments in your installed version. Existing legacy `chickens.properties` files are read once for migration and are no longer written by current versions.
+
+See [Explanation.md](Explanation.md) for the complete TOML option reference and migration instructions.
+
+## Links
+
+- [Modern Chickens on GitHub](https://github.com/STRHercules/ModernChickens)
+- [Chickens](https://www.curseforge.com/minecraft/mc-mods/chickens)
+- [Roost](https://www.curseforge.com/minecraft/mc-mods/roost)
+
+## Credits
+
+- [setycz](https://www.curseforge.com/members/setycz/projects) - original [Chickens](https://www.curseforge.com/minecraft/mc-mods/chickens)
+- [Timrwood](https://www.curseforge.com/members/timrwood/projects) - original [Roost](https://www.curseforge.com/minecraft/mc-mods/roost)
+
+---
+
+## Reference
+
+### New Egg Assets
 
 _Dynamic Fluid Eggs!_
 
@@ -116,40 +514,8 @@ _New Redstone Flux Egg Asset!_
 
 > Dynamic Fluid and Chemical Eggs will mimic their respective resource's color.
 	
-## Avian Fluid/Chemical Converters
 
-_Converting Eggs to Fluids and Chemicals!_
-
-![Converters!](https://i.imgur.com/kokLuyI.jpeg)
-	
-Liquid eggs no longer require hand-placing to deploy their contents. Drop a liquid or Chemical egg in the respective Avian Converter and it automatically cracks the shell, stores the fluid/chemical internally, and feeds adjacent tanks or pipes each tick.
-	
-- **Discovery**: JEI adds an “Avian Fluid/Chemical Converter” category that lists every liquid/chemical egg and the fluid/chemical volume it produces. The converter block is registered as a catalyst, so recipes are only a click away.
-- **Catch ’em all**: Modern Chickens now creates a dedicated chicken for every fluid and chemical detected at runtime—if a mod ships a new liquid or chemical, you get a matching bird and egg automatically.
-- **Monitoring**: WTHIT and Jade overlays mirror the in-block gauge with the current fluid/chemical name, stored amount, and tank capacity. You can check the converter’s status without opening the GUI.
-- **Balancing**: Server owners can adjust `general.avianFluidConverterCapacity`, `general.avianFluidConverterTransferRate`, and `general.liquidEggHazardsEnabled` in `config/chickens.toml` to match the rest of their tech progression.
-	
-Pair the converter with standard fluid/chemical transport (pipes, tubes, tanks, or machines) to integrate chickens into modded processing lines—experience, biofuel, radioactive waste, and other tech fluids now flow straight from the coop.
-
-## Avian Dousing Machine
-
-The Avian Dousing Machine ties the Smart Chicken lineage into the new fluid and chemical chicken generators. It consumes stored reagents and Redstone Flux to mint spawn eggs for the dynamically generated liquid and chemical chickens, letting you unlock those breeds in survival without commands or JSON edits.
-
-_Converting Chemicals!_
-
-![Converting Chemicals](https://i.imgur.com/fwZnEtI.jpeg)
-
-_Converting Liquids!_
-
-![Converting Liquids](https://i.imgur.com/Ge7zx4b.jpeg)
-
-- **Inputs**: Place a Smart Chicken spawn egg or captured Smart Chicken in the left slot. The machine only accepts Smart Chickens, treating them as blank templates to be imprinted with a reagent.
-- **Reagents**: Pipe liquids into the built-in fluid tank (often from an Avian Fluid Converter) and feed Mekanism chemicals or gases into the internal chemical buffer directly or via an Avian Chemical Converter. The machine automatically prefers chemicals when both buffers are available.
-- **Outputs**: When it has enough energy and reagent, the Dousing Machine consumes one Smart Chicken plus a chunk of stored liquid or chemical and creates the corresponding liquid or chemical chicken spawn egg in the output slot. Each egg hatches into a chicken that lays the matching liquid or chemical egg item.
-- **Discovery tools**: With Mekanism and JEI installed, an “Avian Dousing Machine” recipe category lists each supported chemical egg, its Smart Chicken input, reagent cost, RF cost, and the resulting chemical chicken spawn egg so you can plan your automation chain.
-- **Status at a glance**: WTHIT overlays mirror the machine’s stored fluid and energy plus its infusion progress, so you can confirm whether a cycle is about to complete without opening the GUI.
-
-### Dousing recipes and KubeJS
+#### Dousing recipes and KubeJS
 
 The machine registers the `chickens:avian_dousing` recipe type. It is a normal server recipe, so datapacks and KubeJS can add or replace dousing recipes without a KubeJS dependency in the mod. Chicken names are the configured registry names (case-insensitive), not item IDs.
 
@@ -191,72 +557,8 @@ Combining the Dousing Machine with the Fluid and Chemical Converters lets you go
 
 ![Dousing WTHIT](https://i.imgur.com/V25C4td.png)
 
-## Roosters
 
-![Rooster](https://i.imgur.com/d49iLC3.png)
-
-Roosters are utility birds inspired by Hatchery’s rooster: they never lay eggs themselves, but they store seeds and power nearby roosts when paired with nests.
-
-- **Behaviour**: Roosters use chicken AI (wandering, following food, panic) but keep their internal egg timer above the lay threshold, so they never produce eggs directly.
-- **Breeding**: A charged adult rooster seeks a nearby adult chicken, spends two seed-charge points, and fertilizes it. The hen determines the offspring, so vanilla hens produce vanilla chicks and Modern Chickens retain their normal breeding/stat rules.
-- **Seed storage**: Right-clicking a rooster opens a small inventory where you can feed it seeds (anything tagged as `#minecraft:chicken_food`). Internally the rooster converts pairs of seeds into the charge used for breeding.
-- **Item form**: Using the Chicken Catcher on a rooster turns it into a specialised chicken item marked as a rooster. That item can be placed back into the world as a rooster, or dropped into a Nest to contribute aura.
-- **Roost synergy**: Roosts scan the area around them for active nests. Each rooster in an active nest adds a production bonus on top of the base roost speed.
-
-Rooster-related configuration entries live in the `general` section of `config/chickens.toml`:
-
-| Key | Type | Default | Description |
-| --- | --- | --- | --- |
-| `general.roosterAuraMultiplier` | Double | `1.25` | Multiplier applied to roost production when exactly one active rooster is found. Additional roosters scale linearly on top of this (e.g., `1.25` with three roosters yields `1 + 3 × 0.25 = 1.75` times the base rate). Values at or below `1.0` effectively disable the aura bonus. |
-| `general.roosterAuraRange` | Integer | `4` | Horizontal search radius (in blocks) used by roosts to find active nests. `0` disables rooster aura entirely; negative values are treated as `0`. |
-| `general.roostSpeed` | Double | `1.0` | Global speed multiplier applied to all roosts before the rooster aura is considered. Use this to fine-tune overall production pacing; roosters then stack on top of the adjusted baseline. |
-
-## Nest
-
-![Nest](https://i.imgur.com/0Pqh6ng.png)
-
-The Nest is a small block that turns captured roosters and seeds into an aura that boosts nearby roosts. It does not produce items on its own; its sole job is to power the rooster aura.
-
-- **Inventory layout**: The GUI exposes two slots – a **seed slot** on the left and a **rooster slot** on the right. The block entity also behaves as a sided inventory so hoppers and item pipes can automate both inputs.
-- **Accepted items**: The seed slot accepts vanilla seeds (`wheat`, `beetroot`, `melon`, `pumpkin`). The rooster slot only accepts rooster-marked chicken items; regular chicken items must go into roosts or breeders instead.
-- **Aura fuel**: When at least one rooster is present and seeds are available, the Nest consumes one seed at a time and converts it into “aura time”. As long as the internal timer has time remaining, the nest is considered active and will be picked up by nearby roosts.
-- **Rooster cap**: Only a limited number of roosters are counted per nest; any extra birds above the configured cap are ignored for aura strength, though they still occupy item space.
-
-Nest behaviour is controlled by these `general` entries in `config/chickens.toml`:
-
-| Key | Type | Default | Description |
-| --- | --- | --- | --- |
-| `general.nestMaxRoosters` | Integer | `1` | Maximum number of roosters a single nest will count towards aura strength. Values are clamped to the range `1–16` when read from the config, so malformed values cannot create excessively large stacks. |
-| `general.nestSeedDurationTicks` | Integer | `1200` | How long (in ticks) a single consumed seed keeps the nest’s aura active. There are 20 ticks per real-time second, so the default of `1200` equals 60 seconds per seed. Setting this to `0` disables aura production from nests entirely (they will hold roosters but never turn seeds into aura). |
-
-Nests and roosters together form a flexible tuning knob for roost-based farms: you can keep `roostSpeed` near `1.0` for baseline balance, then use nests plus roosters to introduce optional “booster stations” for higher-end automation builds.
-
-## Incubator
-
-![Incubator](https://i.imgur.com/5pxcUQB.png)
-
-![Incubator GUI](https://i.imgur.com/a7w4Cdl.png)
-
-![Incubator WTHIT](https://i.imgur.com/tBZfKtz.png)
-
-The Incubator is a compact RF-powered machine that turns chicken spawn eggs into portable chicken items that can be dropped into roosts, breeders, or back into the world as entities.
-
-- **Inputs and outputs**: The left slot accepts chicken spawn eggs from the mod. When fully charged and supplied with an egg, the Incubator consumes RF and the egg to create a matching chicken item in the right slot using default stats for that breed.
-- **Energy system**: The block maintains an internal RF buffer and periodically pulls energy from adjacent blocks using NeoForge’s energy capability. An on-screen energy bar and tooltip show the current and maximum stored RF.
-- **Processing**: Each operation advances over a fixed progress bar (200 ticks by default). Once both the progress bar and the reserved energy meet the configured cost for the current egg, the machine outputs a chicken item and moves on to the next egg.
-- **Automation**: The Incubator exposes a standard sided inventory – eggs can be inserted from the top or sides, and completed chicken items are extracted from the bottom. This makes it easy to chain breeders → incubators → roosts in fully automated setups.
-
-All Incubator tuning lives under `general` in `config/chickens.toml`:
-
-| Key | Type | Default | Description |
-| --- | --- | --- | --- |
-| `general.incubatorEnergyCost` | Integer | `10000` | RF cost to incubate a single egg into a chicken item. Values less than `1` are treated as `1`. Higher values slow processing unless you also increase capacity and transfer rate. |
-| `general.incubatorCapacity` | Integer | `100000` | Size of the Incubator’s internal RF buffer. This caps how much power the machine can hold at once and therefore how many eggs it can process back to back without recharging. |
-| `general.incubatorMaxReceive` | Integer | `4000` | Maximum RF per tick the Incubator will pull from adjacent blocks. Raising this lets high-end generators refill the internal buffer more quickly; lowering it soft-caps the machine’s throughput even if a large buffer is configured. |
-
-Together, the Incubator, Nests, and Roosters provide a smoother progression from early-game eggs to mid- and late-game automation: you can breed for the chickens you want, incubate their spawn eggs into portable items, and then use roosters and nests to push roost farms far beyond their vanilla throughput.
-
-## Redstone Flux
+### Redstone Flux
 
 ![RF Chicken Generator!](https://i.imgur.com/Djoeb5P.jpeg)
 
@@ -267,7 +569,7 @@ Modern Chickens introduces power generation through a dedicated Redstone Flux pr
 - **Flux Egg** – Stores Redstone Flux directly on the item stack. Freshly laid eggs hold 1,000 RF and gain another 100 RF for every growth, gain, or strength point above 1 (maxing out at 3,700 RF per egg from a 10/10/10 chicken).
 - **Avian Flux Converter** – A single-slot machine that drains Flux Eggs into a 50,000 RF internal buffer while exporting energy to adjacent consumers. Empty shells are discarded automatically once their payload is exhausted.
 
-### Flux Egg charge scaling
+#### Flux Egg charge scaling
 
 Flux Eggs inherit the stats of the chicken that laid them, so every breed and breeding investment matters:
 
@@ -278,7 +580,7 @@ Flux Eggs inherit the stats of the chicken that laid them, so every breed and br
 
 The Avian Flux Converter converts each egg’s stored energy on a one-to-one basis, so farms can bank or route the full payload without transmission loss.
 
-### Roost throughput examples
+#### Roost throughput examples
 
 Roost production scales with both chicken stats and stack size. Each cycle takes roughly 27,000 server ticks (the midpoint between the Redstone Flux Chicken’s 18,000–36,000 tick lay window) divided by the number of working chickens times their growth stat. The figures below assume default config values, infinite storage, and continuous feeding so every roost stays active.
 
@@ -290,7 +592,7 @@ Roost production scales with both chicken stats and stack size. Each cycle takes
 
 > **Assumptions:** RF/t values use the average lay time and treat each Flux Egg as delivering its entire stored energy (1,000 RF for base birds, 3,700 RF ×3 eggs for maxed birds). Actual outputs fluctuate slightly with the random lay timer and any custom `roostSpeed` tweaks in [chickens.toml](https://github.com/STRHercules/ModernChickens/blob/main/Examples/Config/chickens.toml).
 
-### Same graph in RF/s:
+#### Same graph in RF/s:
 
 | Installation | RF/s per roost | 10 roosts | 20 roosts | 30 roosts |
 |---|---:|---:|---:|---:|
@@ -299,7 +601,7 @@ Roost production scales with both chicken stats and stack size. Each cycle takes
 | 16× max-stat Redstone Flux Chickens (full roost of 10/10/10) | ≈1,315.6 | ≈13,155.6 | ≈26,311.2 | ≈39,466.6 |
 
 	
-## Custom Chicken Definitions
+### Custom Chicken Definitions
 
 ![Custom Chickens](https://i.imgur.com/3jxZfxf.gif)
 
@@ -368,7 +670,7 @@ Older installations may still have `config/chickens_custom.json`; it remains rea
 >
 > When `generated_texture` is disabled the renderer expects the texture to exist in a resource pack or datapack. Missing assets trigger a warning and fall back to the tinted bone chicken variant so players never see the purple-and-black placeholder in game.
 
-### Spawn Plan Overrides
+#### Spawn Plan Overrides
 
 Natural spawning now reads tuning data from `ChickensSpawnManager`, and datapacks can override those values without editing configs or code. Place JSON files inside `data/<namespace>/chickens/spawn_plans/` with the following structure:
 
@@ -402,7 +704,7 @@ The legacy `overworldSpawnChance`, `netherSpawnChance`, and `endSpawnChance` con
 For on-the-fly testing, `/chickens spawn multiplier <value>` multiplies every biome weight (set back to `1` to restore defaults) and `/chickens spawn debug <true|false>` toggles chat spam that reports each natural chicken spawn with its breed and coordinates.
 When you need an immediate test subject, `/chickens spawn summon <chickenNameOrId>` spawns that breed at your feet and `/chickens spawn summon_random [normal|snow|end|hell]` picks a random chicken from the requested biome bucket.
 
-### Legacy `chickens_custom.json` Field Reference:
+#### Legacy `chickens_custom.json` Field Reference:
 
 This table documents the backward-compatible JSON reader only. Current TOML field names and stock-table behavior are documented in [Explanation.md](Explanation.md).
 

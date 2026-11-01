@@ -108,3 +108,9 @@ Blockbench/
 Flux-Networks-1.21/
 Mekanism-Extras-1.21.1/
 newTextures/
+# local-only docs (not published)
+/AGENTS.md
+/CURSEFORGE.md
+/SUGGESTIONS.md
+/TASK.md
+/wiki.md
