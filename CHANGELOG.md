@@ -1,4 +1,14 @@
 **CHANGELOG**
+# [2.0.13] - 1/11/2026
+
+## New
+
+- **A Door Chicken for every wood.** Spruce, Birch, Jungle, Acacia, Dark Oak, Mangrove, Cherry, Bamboo, Crimson and Warped. Each one lays the door of its own wood. Breed it from the Door Chicken and a chicken of a matching colour.
+
+## Fixed
+
+- **Snowball Chicken and Ice Chicken spawns.** The Snowball Chicken now only appears in frozen biomes with ice or snow. The Ice Chicken no longer spawns on its own: you get it by breeding.
+
 # [2.0.12] - 1/11/2026
 
 ## New

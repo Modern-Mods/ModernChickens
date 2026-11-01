@@ -50,9 +50,8 @@ public final class ChickensSpawnManager {
             "whitechicken", SpawnBiomeRule.LAND,
             "logchicken", SpawnBiomeRule.LAND,
             "flintchicken", SpawnBiomeRule.LAND,
-            "snowballchicken", SpawnBiomeRule.LAND,
+            "snowballchicken", SpawnBiomeRule.ICY,
             "sandchicken", SpawnBiomeRule.SAND,
-            "icechicken", SpawnBiomeRule.ICY,
             "quartzchicken", SpawnBiomeRule.NETHER,
             "soulsandchicken", SpawnBiomeRule.SOUL_SAND_VALLEY,
             "enderchicken", SpawnBiomeRule.END);
