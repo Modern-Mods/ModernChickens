@@ -82,7 +82,9 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
 
         public ItemStack createLay(RandomSource random, boolean scalingDrops) {
             ItemStack stack = chicken.createLayItem();
-            if (scalingDrops) {
+            if (chicken.hasFixedLayAmount()) {
+                chicken.applyFixedLayAmount(stack);
+            } else if (scalingDrops) {
                 stats.scaleOutput(stack);
             }
             return stack;

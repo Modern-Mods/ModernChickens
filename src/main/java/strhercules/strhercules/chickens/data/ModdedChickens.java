@@ -1,5 +1,6 @@
 package strhercules.chickens.data;
 
+import strhercules.chickens.ChickenTeachingRegistry;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
@@ -44,6 +45,20 @@ final class ModdedChickens {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensModded");
     private static final List<Definition> DEFINITIONS = buildDefinitions();
     private static final Set<Integer> PENDING = new HashSet<>();
+    private static final int VOID_MINER_LAY_AMOUNT = 24;
+    private static final float VOID_MINER_LAY_COEFFICIENT = 8.0f;
+    private static final Map<String, FixedOutput> FIXED_OUTPUT = buildFixedOutput();
+
+    private record FixedOutput(int amount, float layCoefficient) {
+    }
+
+    private static Map<String, FixedOutput> buildFixedOutput() {
+        Map<String, FixedOutput> map = new HashMap<>();
+        for (String tier : ChickenTeachingRegistry.VOID_MINER_TIERS) {
+            map.put(tier + "MinerChicken", new FixedOutput(VOID_MINER_LAY_AMOUNT, VOID_MINER_LAY_COEFFICIENT));
+        }
+        return map;
+    }
 
     private ModdedChickens() {
     }
@@ -140,6 +155,11 @@ final class ModdedChickens {
                     parent2);
             chicken.setLayeredResourceTexture(isResourceLayItem(layStack));
             chicken.setSpawnType(def.spawnType());
+            FixedOutput fixedOutput = FIXED_OUTPUT.get(def.entityName());
+            if (fixedOutput != null) {
+                chicken.setFixedLayAmount(fixedOutput.amount());
+                chicken.setLayCoefficient(fixedOutput.layCoefficient());
+            }
             if (def.dropItemSupplier() != null) {
                 def.dropItemSupplier().get().ifPresent(chicken::setDropItem);
             }
@@ -627,7 +647,7 @@ final class ModdedChickens {
                 "imperiumChicken", "BlazeChicken", null));
 
         list.add(new Definition(578, "insaniumChicken", "insanium_chicken",
-                item("mysticalagriculture:insanium_essence"),
+                item("mysticalagradditions:insanium_essence", "mysticalagriculture:insanium_essence"),
                 0x5a015e, 0xde75ff, SpawnType.NONE,
                 "supremiumChicken", "EnderChicken", null));
 
@@ -672,7 +692,7 @@ final class ModdedChickens {
         list.add(new Definition(586, "quantumAlloyChicken", "quantum_alloy_chicken",
                 combine(tag("c:ingots/quantum_alloy"), item("advanced_ae:quantum_alloy")),
                 0x2f7e9f, 0x8bf0ff, SpawnType.NONE,
-                "ae2FluixChicken", "entroChicken", tagDrop("c:ingots/quantum_alloy", "forge:ingots/quantum_alloy")));
+                "ae2FluixChicken", "DiamondChicken", tagDrop("c:ingots/quantum_alloy", "forge:ingots/quantum_alloy")));
 
         list.add(new Definition(587, "fluxNetworkChicken", "flux_chicken",
                 combine(tag("c:dusts/flux"), item("fluxnetworks:flux_dust", "fluxnetworks:flux")),
@@ -831,7 +851,7 @@ final class ModdedChickens {
                 "CoalChicken", "LogChicken", null));
 
         // Excessive Utilities
-        list.add(new Definition(617, "demonChicken", "demon_chicken",
+        list.add(new Definition(617, "demonChicken", "demon_metal_chicken",
                 item("excessive_utilities:demon_ingot"),
                 0x5c0000, 0xff2200, SpawnType.HELL,
                 "NetheriteChicken", "BlazeChicken", null));
@@ -1072,6 +1092,292 @@ final class ModdedChickens {
                 item("enderio_evolution:vivid_alloy_ingot"),
                 0x147f95, 0xe4ffff, SpawnType.NONE,
                 "LightBlueChicken", "DiamondChicken", null));
+
+        // Thaumaturge clusters, ingots and essences of more mods, soulstone and Void Miners
+        list.add(new Definition(676, "thaumaturgeIronClusterChicken", "thaumaturge_iron_cluster_chicken",
+                item("thaumaturge:cluster_iron"),
+                0x8c6a4f, 0xd8af93, SpawnType.NONE,
+                "earthCrystalChicken", "orderCrystalChicken", null));
+        list.add(new Definition(677, "thaumaturgeCopperClusterChicken", "thaumaturge_copper_cluster_chicken",
+                item("thaumaturge:cluster_copper"),
+                0x8a4a1f, 0xe07b39, SpawnType.NONE,
+                "earthCrystalChicken", "waterCrystalChicken", null));
+        list.add(new Definition(678, "thaumaturgeGoldClusterChicken", "thaumaturge_gold_cluster_chicken",
+                item("thaumaturge:cluster_gold"),
+                0xa68a00, 0xffd700, SpawnType.NONE,
+                "earthCrystalChicken", "airCrystalChicken", null));
+        list.add(new Definition(679, "thaumaturgeTinClusterChicken", "thaumaturge_tin_cluster_chicken",
+                item("thaumaturge:cluster_tin"),
+                0x7a8896, 0xc9d6e3, SpawnType.NONE,
+                "orderCrystalChicken", "waterCrystalChicken", null));
+        list.add(new Definition(680, "thaumaturgeLeadClusterChicken", "thaumaturge_lead_cluster_chicken",
+                item("thaumaturge:cluster_lead"),
+                0x2d2f40, 0x5a5e7a, SpawnType.NONE,
+                "earthCrystalChicken", "entropyCrystalChicken", null));
+        list.add(new Definition(681, "thaumaturgeSilverClusterChicken", "thaumaturge_silver_cluster_chicken",
+                item("thaumaturge:cluster_silver"),
+                0x9aa9bf, 0xe8f1ff, SpawnType.NONE,
+                "orderCrystalChicken", "airCrystalChicken", null));
+        list.add(new Definition(682, "thaumaturgeCinnabarClusterChicken", "thaumaturge_cinnabar_cluster_chicken",
+                item("thaumaturge:cluster_cinnabar"),
+                0x6e1a12, 0xc0392b, SpawnType.NONE,
+                "fireCrystalChicken", "waterCrystalChicken", null));
+        list.add(new Definition(683, "thaumaturgeQuartzClusterChicken", "thaumaturge_quartz_cluster_chicken",
+                item("thaumaturge:cluster_quartz"),
+                0xb5ae94, 0xf1ede0, SpawnType.NONE,
+                "orderCrystalChicken", "fireCrystalChicken", null));
+        list.add(new Definition(684, "awakenedSupremiumChicken", "awakened_supremium_chicken",
+                item("mysticalagriculture:awakened_supremium_ingot"),
+                0xa76100, 0xf08c00, SpawnType.NONE,
+                "supremiumChicken", "DiamondChicken", null));
+        list.add(new Definition(685, "prosperityChicken", "prosperity_chicken",
+                item("mysticalagriculture:prosperity_ingot"),
+                0x96baba, 0xfcffff, SpawnType.NONE,
+                "inferiumChicken", "IronChicken", null));
+        list.add(new Definition(686, "souliumChicken", "soulium_chicken",
+                item("mysticalagriculture:soulium_ingot"),
+                0x3a2418, 0xa16244, SpawnType.NONE,
+                "soulSandChicken", "IronChicken", null));
+        list.add(new Definition(687, "advancedAlloyChicken", "advanced_alloy_chicken",
+                item("energizedpower:advanced_alloy_ingot"),
+                0x613114, 0x91664d, SpawnType.NONE,
+                "IronChicken", "RedstoneChicken", null));
+        list.add(new Definition(688, "crystallizedAlloyChicken", "crystallized_alloy_chicken",
+                item("energizedpower:crystallized_alloy_ingot"),
+                0x043259, 0x168ae2, SpawnType.NONE,
+                "advancedAlloyChicken", "QuartzChicken", null));
+        list.add(new Definition(689, "energizedAlloyChicken", "energized_alloy_chicken",
+                item("energizedpower:energized_alloy_ingot"),
+                0x0d76b6, 0xd4e8f8, SpawnType.NONE,
+                "advancedAlloyChicken", "GlowstoneChicken", null));
+        list.add(new Definition(690, "energizedCopperChicken", "energized_copper_chicken",
+                item("energizedpower:energized_copper_ingot"),
+                0xdc7c49, 0xfffadd, SpawnType.NONE,
+                "IronChicken", "RedstoneChicken", null));
+        list.add(new Definition(691, "energizedGoldChicken", "energized_gold_chicken",
+                item("energizedpower:energized_gold_ingot"),
+                0xeaf4aa, 0xffff90, SpawnType.NONE,
+                "GoldChicken", "RedstoneChicken", null));
+        list.add(new Definition(692, "deshChicken", "desh_chicken",
+                item("ad_astra:desh_ingot"),
+                0xad4849, 0xeea257, SpawnType.NONE,
+                "IronChicken", "YellowChicken", null));
+        list.add(new Definition(693, "ostrumChicken", "ostrum_chicken",
+                item("ad_astra:ostrum_ingot"),
+                0x5a4252, 0xb8767d, SpawnType.NONE,
+                "deshChicken", "PurpleChicken", null));
+        list.add(new Definition(694, "caloriteChicken", "calorite_chicken",
+                item("ad_astra:calorite_ingot"),
+                0x7f193e, 0xdd5356, SpawnType.NONE,
+                "deshChicken", "RedChicken", null));
+        list.add(new Definition(695, "etriumChicken", "etrium_chicken",
+                item("ad_astra:etrium_ingot"),
+                0x4da7a7, 0xa5fff3, SpawnType.NONE,
+                "ostrumChicken", "caloriteChicken", null));
+        list.add(new Definition(696, "adamantChicken", "adamant_chicken",
+                item("oritech:adamant_ingot"),
+                0x1f4484, 0xc3f5ff, SpawnType.NONE,
+                "NetheriteChicken", "IronChicken", null));
+        list.add(new Definition(697, "biosteelChicken", "biosteel_chicken",
+                item("oritech:biosteel_ingot"),
+                0x3c5e40, 0xc3d4bb, SpawnType.NONE,
+                "SlimeChicken", "IronChicken", null));
+        list.add(new Definition(698, "duratiumChicken", "duratium_chicken",
+                item("oritech:duratium_ingot"),
+                0x20182b, 0x8d78a8, SpawnType.NONE,
+                "IronChicken", "EmeraldChicken", null));
+        list.add(new Definition(699, "energiteChicken", "energite_chicken",
+                item("oritech:energite_ingot"),
+                0xa805ff, 0xffc5ff, SpawnType.NONE,
+                "RedstoneChicken", "GlowstoneChicken", null));
+        list.add(new Definition(800, "ironwoodChicken", "ironwood_chicken",
+                item("twilightforest:ironwood_ingot"),
+                0x55483b, 0x95887f, SpawnType.NONE,
+                "IronChicken", "LogChicken", null));
+        list.add(new Definition(801, "steeleafChicken", "steeleaf_chicken",
+                item("twilightforest:steeleaf_ingot"),
+                0x243c18, 0x629c4b, SpawnType.NONE,
+                "IronChicken", "GreenChicken", null));
+        list.add(new Definition(802, "knightmetalChicken", "knightmetal_chicken",
+                item("twilightforest:knightmetal_ingot"),
+                0x6b6e64, 0xd0e3b8, SpawnType.NONE,
+                "ironwoodChicken", "steeleafChicken", null));
+        list.add(new Definition(803, "fieryIngotChicken", "fiery_ingot_chicken",
+                item("twilightforest:fiery_ingot"),
+                0x42251e, 0xffc74b, SpawnType.NONE,
+                "BlazeChicken", "LavaChicken", null));
+        list.add(new Definition(804, "lightiumChicken", "lightium_chicken",
+                item("mysticalextendedtier:lightium_ingot"),
+                0x658eaa, 0x92cff8, SpawnType.NONE,
+                "LimeChicken", "DiamondChicken", null));
+        list.add(new Definition(805, "orniumChicken", "ornium_chicken",
+                item("mysticalextendedtier:ornium_ingot"),
+                0x4c2660, 0x644277, SpawnType.NONE,
+                "OrangeChicken", "DiamondChicken", null));
+        list.add(new Definition(806, "ouraniumChicken", "ouranium_chicken",
+                item("mysticalextendedtier:ouranium_ingot"),
+                0x2a5a62, 0x537f86, SpawnType.NONE,
+                "GreenChicken", "NetheriteChicken", null));
+        list.add(new Definition(807, "torniumChicken", "tornium_chicken",
+                item("mysticalextendedtier:tornium_ingot"),
+                0x38383a, 0x535353, SpawnType.NONE,
+                "PurpleChicken", "NetheriteChicken", null));
+        list.add(new Definition(808, "enhancedRedstoneChicken", "enhanced_redstone_chicken",
+                item("extendedcrafting:enhanced_redstone_ingot"),
+                0x5f2600, 0xc64e00, SpawnType.NONE,
+                "RedstoneChicken", "IronChicken", null));
+        list.add(new Definition(809, "enhancedEnderChicken", "enhanced_ender_chicken",
+                item("extendedcrafting:enhanced_ender_ingot"),
+                0x043e46, 0x138393, SpawnType.NONE,
+                "EnderChicken", "IronChicken", null));
+        list.add(new Definition(810, "crystaltineChicken", "crystaltine_chicken",
+                item("extendedcrafting:crystaltine_ingot"),
+                0x53c1ea, 0xb3f6ff, SpawnType.NONE,
+                "enhancedEnderChicken", "DiamondChicken", null));
+        list.add(new Definition(811, "theUltimateChicken", "the_ultimate_chicken",
+                item("extendedcrafting:the_ultimate_ingot"),
+                0xc1c1c1, 0xffffff, SpawnType.NONE,
+                "crystaltineChicken", "NetheriteChicken", null));
+        list.add(new Definition(812, "choriumChicken", "chorium_chicken",
+                item("createcasing:chorium_ingot"),
+                0x714271, 0xcea6ce, SpawnType.NONE,
+                "IronChicken", "CyanChicken", null));
+        list.add(new Definition(813, "alfsteelChicken", "alfsteel_chicken",
+                item("masterfulbotany:alfsteel_ingot"),
+                0xa44d00, 0xffb100, SpawnType.NONE,
+                "terrasteelchicken", "elementiumchicken", null));
+        list.add(new Definition(814, "aerialiteChicken", "aerialite_chicken",
+                item("extrabotany:aerialite_ingot"),
+                0x02426e, 0x0890b7, SpawnType.NONE,
+                "alfsteelChicken", "LightBlueChicken", null));
+        list.add(new Definition(815, "orichalcosChicken", "orichalcos_chicken",
+                item("extrabotany:orichalcos_ingot"),
+                0x55109e, 0xde6470, SpawnType.NONE,
+                "alfsteelChicken", "OrangeChicken", null));
+        list.add(new Definition(816, "photoniumChicken", "photonium_chicken",
+                item("extrabotany:photonium_ingot"),
+                0x8f8e8e, 0xffffff, SpawnType.NONE,
+                "alfsteelChicken", "YellowChicken", null));
+        list.add(new Definition(817, "shadowiumChicken", "shadowium_chicken",
+                item("extrabotany:shadowium_ingot"),
+                0x464646, 0x888888, SpawnType.NONE,
+                "alfsteelChicken", "BlackChicken", null));
+        list.add(new Definition(818, "souliumEssenceChicken", "soulium_essence_chicken",
+                item("mysticalagriculture:soulium_essence"),
+                0x342016, 0x653f2b, SpawnType.NONE,
+                "insaniumChicken", "soulSandChicken", null));
+        list.add(new Definition(819, "awakenedSupremiumEssenceChicken", "awakened_supremium_essence_chicken",
+                item("mysticalagriculture:awakened_supremium_essence"),
+                0x834c00, 0xd17900, SpawnType.NONE,
+                "supremiumChicken", "insaniumChicken", null));
+        list.add(new Definition(820, "awakenedDraconiumEssenceChicken", "awakened_draconium_essence_chicken",
+                item("mysticalagriculture:awakened_draconium_essence"),
+                0x8a3a10, 0xf0a030, SpawnType.NONE,
+                "insaniumChicken", "awakenedSupremiumEssenceChicken", null));
+        list.add(new Definition(821, "lightiumEssenceChicken", "lightium_essence_chicken",
+                item("mysticalextendedtier:lightium_essence"),
+                0x537186, 0x9cc9eb, SpawnType.NONE,
+                "insaniumChicken", "LimeChicken", null));
+        list.add(new Definition(822, "orniumEssenceChicken", "ornium_essence_chicken",
+                item("mysticalextendedtier:ornium_essence"),
+                0x401a54, 0x603e72, SpawnType.NONE,
+                "lightiumEssenceChicken", "OrangeChicken", null));
+        list.add(new Definition(823, "ouraniumEssenceChicken", "ouranium_essence_chicken",
+                item("mysticalextendedtier:ouranium_essence"),
+                0x083841, 0x2d5961, SpawnType.NONE,
+                "orniumEssenceChicken", "GreenChicken", null));
+        list.add(new Definition(824, "torniumEssenceChicken", "tornium_essence_chicken",
+                item("mysticalextendedtier:tornium_essence"),
+                0x424242, 0x757575, SpawnType.NONE,
+                "ouraniumEssenceChicken", "PurpleChicken", null));
+        list.add(new Definition(825, "soulstoneCobbleChicken", "soulstone_cobble_chicken",
+                item("mysticalagriculture:soulstone_cobble"),
+                0x493025, 0x6b564b, SpawnType.NONE,
+                "soulSandChicken", "GrayChicken", null));
+        list.add(new Definition(826, "amethystineMinerChicken", "amethystine_miner_chicken",
+                item("voidminersremastered:amethystine"),
+                0x68058c, 0xbd09ff, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(827, "aurantiumMinerChicken", "aurantium_miner_chicken",
+                item("voidminersremastered:aurantium"),
+                0x8c6b04, 0xffc208, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(828, "azurineMinerChicken", "azurine_miner_chicken",
+                item("voidminersremastered:azurine"),
+                0x178c8c, 0x2affff, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(829, "caeriumMinerChicken", "caerium_miner_chicken",
+                item("voidminersremastered:caerium"),
+                0x01018c, 0x0101ff, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(830, "citrinetineMinerChicken", "citrinetine_miner_chicken",
+                item("voidminersremastered:citrinetine"),
+                0x8c8c22, 0xffff3d, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(831, "rosariumMinerChicken", "rosarium_miner_chicken",
+                item("voidminersremastered:rosarium"),
+                0x8c038c, 0xff06ff, SpawnType.NONE,
+                null, null, null));
+        list.add(new Definition(832, "rubetineMinerChicken", "rubetine_miner_chicken",
+                item("voidminersremastered:rubetine"),
+                0x8c0707, 0xff0c0c, SpawnType.NONE,
+                null, null, null));
+
+        // Applied Energistics 2 processors
+        list.add(new Definition(833, "logicProcessorChicken", "logic_processor_chicken",
+                item("ae2:logic_processor"),
+                0x1a1c29, 0xb96d3a, SpawnType.NONE,
+                "ae2SiliconChicken", "GoldChicken", null));
+        list.add(new Definition(834, "calculationProcessorChicken", "calculation_processor_chicken",
+                item("ae2:calculation_processor"),
+                0x1c1d2a, 0x776980, SpawnType.NONE,
+                "ae2SiliconChicken", "certusQuartzChicken", null));
+        list.add(new Definition(835, "engineeringProcessorChicken", "engineering_processor_chicken",
+                item("ae2:engineering_processor"),
+                0x1d1e2b, 0x63666a, SpawnType.NONE,
+                "ae2SiliconChicken", "DiamondChicken", null));
+
+        // Applied Energistics 2 printed circuits and addon processors
+        list.add(new Definition(836, "printedSiliconChicken", "printed_silicon_chicken",
+                item("ae2:printed_silicon"),
+                0x161722, 0x2f3648, SpawnType.NONE,
+                "ae2SiliconChicken", "IronChicken", null));
+        list.add(new Definition(837, "printedLogicProcessorChicken", "printed_logic_processor_chicken",
+                item("ae2:printed_logic_processor"),
+                0xd67814, 0xfff961, SpawnType.NONE,
+                "printedSiliconChicken", "GoldChicken", null));
+        list.add(new Definition(838, "printedCalculationProcessorChicken", "printed_calculation_processor_chicken",
+                item("ae2:printed_calculation_processor"),
+                0x5f86ae, 0x9ed8ff, SpawnType.NONE,
+                "printedSiliconChicken", "certusQuartzChicken", null));
+        list.add(new Definition(839, "printedEngineeringProcessorChicken", "printed_engineering_processor_chicken",
+                item("ae2:printed_engineering_processor"),
+                0x18949d, 0x36e7d4, SpawnType.NONE,
+                "printedSiliconChicken", "DiamondChicken", null));
+        list.add(new Definition(840, "printedQuantumProcessorChicken", "printed_quantum_processor_chicken",
+                item("advanced_ae:printed_quantum_processor"),
+                0x181640, 0x443e8b, SpawnType.NONE,
+                "printedEngineeringProcessorChicken", "quantumAlloyChicken", null));
+        list.add(new Definition(841, "quantumProcessorChicken", "quantum_processor_chicken",
+                item("advanced_ae:quantum_processor"),
+                0x1a1c2e, 0x79435f, SpawnType.NONE,
+                "engineeringProcessorChicken", "quantumAlloyChicken", null));
+        list.add(new Definition(842, "concurrentProcessorPrintChicken", "concurrent_processor_print_chicken",
+                item("extendedae:concurrent_processor_print"),
+                0x048591, 0x19d4a9, SpawnType.NONE,
+                "printedLogicProcessorChicken", "entroChicken", null));
+        list.add(new Definition(843, "concurrentProcessorChicken", "concurrent_processor_chicken",
+                item("extendedae:concurrent_processor"),
+                0x1e202f, 0x6c5e61, SpawnType.NONE,
+                "logicProcessorChicken", "entroChicken", null));
+        list.add(new Definition(844, "printedAccumulationProcessorChicken", "printed_accumulation_processor_chicken",
+                item("megacells:printed_accumulation_processor"),
+                0x252928, 0x404440, SpawnType.NONE,
+                "printedEngineeringProcessorChicken", "ae2FluixChicken", null));
+        list.add(new Definition(845, "accumulationProcessorChicken", "accumulation_processor_chicken",
+                item("megacells:accumulation_processor"),
+                0x16171c, 0x4e4f60, SpawnType.NONE,
+                "engineeringProcessorChicken", "ae2FluixChicken", null));
 
         return list;
     }

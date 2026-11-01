@@ -1,4 +1,42 @@
 **CHANGELOG**
+# [2.0.12] - 1/11/2026
+
+## New
+
+- **Void Miners Remastered chickens.** One for each tier: Amethystine, Aurantium, Azurine, Caerium, Citrinetine, Rosarium and Rubetine. They are not bred. Right-click a normal chicken with the Frame of the tier you want and it becomes that Miner Chicken. They always lay 24 crystals of their tier and they are very slow, whatever their stats are, even at 10/10/10.
+- **Thaumaturge native cluster chickens:** Iron, Copper, Gold, Tin, Lead, Silver, Cinnabar and Quartz. They were a KubeJS script before and now come with the mod.
+- **A chicken for every Mystical Agriculture tier essence of the addons you have.** Soulium, Awakened Supremium, Awakened Draconium, Lightium, Ornium, Ouranium and Tornium, plus a Soulstone Cobble chicken.
+- **More metal chickens**, all in the Bronze Chicken style:
+  - Mystical Agriculture: Awakened Supremium, Prosperity and Soulium.
+  - Energized Power: Advanced Alloy, Crystallized Alloy, Energized Alloy, Energized Copper and Energized Gold.
+  - Ad Astra: Desh, Ostrum, Calorite and Etrium.
+  - Oritech: Adamant, Biosteel, Duratium and Energite.
+  - Twilight Forest: Ironwood, Steeleaf, Knightmetal and Fiery.
+  - Mystical Extended Tier: Lightium, Ornium, Ouranium and Tornium.
+  - Extended Crafting: Enhanced Redstone, Enhanced Ender, Crystaltine and The Ultimate.
+  - Create Encased: Chorium. Masterful Botany: Alfsteel. Extra Botany: Aerialite, Orichalcos, Photonium and Shadowium.
+- **Applied Energistics 2 circuit chickens.** Printed Silicon, the Logic, Calculation and Engineering Processors and their Printed Circuits. The processors of the addons you have too: Quantum (Advanced AE), Concurrent (ExtendedAE) and Accumulation (MEGA Cells), each with its printed circuit.
+- **Recipes can ask for one exact egg or chicken.** Every liquid, chemical and gas egg and every chicken is the same item, so a recipe could not tell them apart. The new `chickens:variant` ingredient fixes it, in datapacks and in KubeJS. For example `{"type": "chickens:variant", "kind": "liquid_egg", "id": "minecraft:water"}`, or `{"type": "chickens:variant", "kind": "chicken", "id": "DiamondChicken", "min_growth": 5, "min_gain": 3, "min_strength": 0}` to also ask for stats. The kinds are `liquid_egg`, `chemical_egg`, `gas_egg`, `chicken` and `spawn_egg`.
+
+## Improved
+
+- The Obsidian, Prismarine Shard, Prismarine Crystal and Soul Sand chickens use the original art from the Chickens mod again, and the Moon Stone Chicken uses the original art from More Chickens.
+- The five Mystical Agriculture tier chickens (Inferium to Insanium) use the same style as the new ones.
+
+## Fixed
+- **Natural spawns of the basic chickens.** They now appear where they make sense, even in biomes without vanilla chickens:
+  - Sand Chicken: beaches and deserts.
+  - Ice Chicken: frozen biomes.
+  - White, Log, Flint and Snowball chickens: any land biome except deserts, beaches, oceans and mushroom islands.
+  - Quartz Chicken: every Nether biome, fortresses included.
+  - Soul Sand Chicken: Soul Sand Valleys and Nether fortresses.
+  - Ender Chicken: the End, End cities included.
+
+- **JEI mixed up the recipes of eggs and spawn eggs.** Looking up a fluid, chemical or gas egg, or the Avian Dousing Machine, showed every recipe at once. Now each egg only shows its own recipe.
+- **The Insanium Chicken never appeared.** Mystical Agriculture 8 moved Insanium Essence to Mystical Agradditions and the chicken still looked for the old item.
+- **The Quantum Alloy Chicken needed an Entro Chicken to exist.** Its parents are now Fluix and Diamond, so it appears with Advanced AE alone.
+- **Mekanism radiation scan filled structure chests with loot, which broke Lootr** (issue #2). Chests that have not been opened yet are skipped now.
+
 # [2.7.8] - 17/10/2026
 
 ## New

@@ -29,6 +29,7 @@ public class ChickensRegistryItem {
     private SpawnType spawnType;
     private boolean enabled = true;
     private float layCoefficient = 1.0f;
+    private int fixedLayAmount;
     @Nullable
     private Component displayName;
     private boolean generatedTexture;
@@ -102,6 +103,26 @@ public class ChickensRegistryItem {
     public ChickensRegistryItem setLayCoefficient(float coefficient) {
         layCoefficient = coefficient;
         return this;
+    }
+
+    public ChickensRegistryItem setFixedLayAmount(int amount) {
+        fixedLayAmount = Math.max(amount, 0);
+        return this;
+    }
+
+    public boolean hasFixedLayAmount() {
+        return fixedLayAmount > 0;
+    }
+
+    public int getFixedLayAmount() {
+        return fixedLayAmount;
+    }
+
+    public ItemStack applyFixedLayAmount(ItemStack stack) {
+        if (hasFixedLayAmount() && !stack.isEmpty()) {
+            stack.setCount(Math.min(fixedLayAmount, stack.getMaxStackSize()));
+        }
+        return stack;
     }
 
     public ChickensRegistryItem setDisplayName(Component name) {

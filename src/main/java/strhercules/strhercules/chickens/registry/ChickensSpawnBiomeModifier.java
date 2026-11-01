@@ -26,13 +26,14 @@ public final class ChickensSpawnBiomeModifier implements BiomeModifier {
         if (phase != Phase.ADD) {
             return;
         }
-        Optional<SpawnPlan> maybePlan = ChickensSpawnManager.planFor(biome);
+        Optional<SpawnPlan> maybePlan = ChickensSpawnManager.planForSpawn(biome);
         if (maybePlan.isEmpty()) {
             return;
         }
         SpawnPlan plan = maybePlan.get();
         boolean vanillaChickenBiome = hasVanillaChickenSpawn(builder);
-        if (requiresVanillaChicken(plan.spawnType()) && !vanillaChickenBiome) {
+        if (requiresVanillaChicken(plan.spawnType()) && !vanillaChickenBiome
+                && !ChickensSpawnManager.hasRuleCandidate(biome)) {
             return;
         }
 

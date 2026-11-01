@@ -276,7 +276,9 @@ public class RoostBlockEntity extends AbstractChickenContainerBlockEntity {
                 int growth = data.getInt("Growth");
                 int strength = data.getInt("Strength");
                 ItemStack drop = chicken.createLayItem();
-                if (ChickensConfigHolder.get().isScalingDropsEnabled()) {
+                if (chicken.hasFixedLayAmount()) {
+                    chicken.applyFixedLayAmount(drop);
+                } else if (ChickensConfigHolder.get().isScalingDropsEnabled()) {
                     new ChickenStats(growth, gain, strength, false).scaleOutput(drop);
                 }
                 tooltip.add(Component.translatable("tooltip.chickens.roost.summary", chicken.getDisplayName(), chickens,

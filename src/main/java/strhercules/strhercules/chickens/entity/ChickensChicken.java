@@ -4,6 +4,7 @@ import strhercules.chickens.LavaChickenGameplay;
 import strhercules.chickens.ChickenTeachingRegistry;
 import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
+import strhercules.chickens.SpawnBiomeRule;
 import strhercules.chickens.SpawnType;
 import strhercules.chickens.blockentity.HenhouseBlockEntity;
 import strhercules.chickens.config.ChickensConfigHolder;
@@ -23,6 +24,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
@@ -233,7 +235,9 @@ public class ChickensChicken extends Chicken {
         int min = description.getMinLayTime();
         int max = description.getMaxLayTime();
         int base = min + this.random.nextInt(Math.max(max - min, 1));
-        int adjusted = (int) Math.max(1.0f, (base * (10.0f - this.getGrowth() + 1.0f)) / 10.0f);
+        int adjusted = description.hasFixedLayAmount()
+                ? base
+                : (int) Math.max(1.0f, (base * (10.0f - this.getGrowth() + 1.0f)) / 10.0f);
         this.setLayTime(adjusted * 2);
     }
 
@@ -318,7 +322,9 @@ public class ChickensChicken extends Chicken {
         }
         int gain = this.getGain();
         ChickenStats stats = new ChickenStats(this.getGrowth(), gain, this.getStrength(), this.getStatsAnalyzed());
-        if (ChickensConfigHolder.get().isScalingDropsEnabled()) {
+        if (description.hasFixedLayAmount()) {
+            depositOrDrop(description.applyFixedLayAmount(stack));
+        } else if (ChickensConfigHolder.get().isScalingDropsEnabled()) {
             depositOrDrop(stats.scaleOutput(stack));
         } else {
             depositOrDrop(stack);
@@ -629,7 +635,8 @@ public class ChickensChicken extends Chicken {
                 spawnData = new GroupData(this.getChickenType());
             } else {
                 Holder<Biome> biome = level.getBiome(this.blockPosition());
-                Optional<ChickensRegistryItem> selected = ChickensSpawnManager.pickChicken(biome, this.random);
+                Optional<ChickensRegistryItem> selected = ChickensSpawnManager.pickChicken(level, biome,
+                        this.blockPosition(), this.random);
                 if (selected.isPresent()) {
                     int type = selected.get().getId();
                     this.setChickenType(type);
@@ -680,9 +687,18 @@ public class ChickensChicken extends Chicken {
             return canSpawnOnSolid(type, level, pos);
         }
         if (spawnType != SpawnType.HELL && spawnType != SpawnType.END && overworldEnabled) {
-            return net.minecraft.world.entity.animal.Animal.checkAnimalSpawnRules(type, level, reason, pos, random);
+            return net.minecraft.world.entity.animal.Animal.checkAnimalSpawnRules(type, level, reason, pos, random)
+                    || canSpawnOnSand(level, biome, pos);
         }
         return false;
+    }
+
+    // Animals never spawn on sand in vanilla, so the beach and desert chickens need their own ground check.
+    private static boolean canSpawnOnSand(LevelAccessor level, Holder<Biome> biome, BlockPos pos) {
+        return SpawnBiomeRule.SAND.matchesBiome(biome)
+                && level.getBlockState(pos).isAir()
+                && level.getBlockState(pos.below()).is(BlockTags.SAND)
+                && level.getRawBrightness(pos, 0) > 8;
     }
 
     private static boolean canSpawnOnSolid(net.minecraft.world.entity.EntityType<ChickensChicken> type, LevelAccessor level, BlockPos pos) {

@@ -2,6 +2,7 @@ package strhercules.chickens.integration.jei;
 
 import strhercules.chickens.ChemicalEggRegistry;
 import strhercules.chickens.ChemicalEggRegistryItem;
+import strhercules.chickens.ChickenTeachingRegistry;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
@@ -51,6 +52,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -63,7 +65,9 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @JeiPlugin
@@ -77,6 +81,17 @@ public class ChickensJeiPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
+        // Every egg and spawn egg stores its chicken or liquid id in the stack, so JEI has to tell them apart.
+        // Without a subtype each variant counts as the same ingredient and all recipes show up mixed together.
+        IIngredientSubtypeInterpreter<ItemStack> byStoredType = (stack, context) -> {
+            int type = ChickenItemHelper.getChickenType(stack);
+            return type == 0 ? IIngredientSubtypeInterpreter.NONE : Integer.toString(type);
+        };
+        registration.registerSubtypeInterpreter(ModRegistry.SPAWN_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.COLORED_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.LIQUID_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.CHEMICAL_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.GAS_EGG.get(), byStoredType);
         registration.registerSubtypeInterpreter(ModRegistry.CHICKEN_ITEM.get(), (stack, context) -> {
             if (!(stack.getItem() instanceof ChickenItem)) {
                 return IIngredientSubtypeInterpreter.NONE;
@@ -499,6 +514,17 @@ public class ChickensJeiPlugin implements IModPlugin {
                     new ItemStack(Blocks.GRASS_BLOCK),
                     new ItemStack(Items.CHICKEN_SPAWN_EGG),
                     chickenItem.createFor(americanChicken)));
+        }
+
+        for (Map.Entry<ResourceLocation, String> entry : ChickenTeachingRegistry.namespacedTargets().entrySet()) {
+            ChickensRegistryItem target = ChickensRegistry.getByEntityName(entry.getValue());
+            Optional<Item> trigger = BuiltInRegistries.ITEM.getOptional(entry.getKey());
+            if (trigger.isPresent() && target != null && target.isEnabled()) {
+                list.add(new ChickensJeiRecipeTypes.TeachingRecipe(
+                        new ItemStack(trigger.get()),
+                        new ItemStack(Items.CHICKEN_SPAWN_EGG),
+                        chickenItem.createFor(target)));
+            }
         }
 
         // dirtChicken: dirt + gallina vanilla → dirtChicken

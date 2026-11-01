@@ -2,15 +2,19 @@ package strhercules.chickens.spawn;
 
 import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
+import strhercules.chickens.SpawnBiomeRule;
 import strhercules.chickens.SpawnType;
 import strhercules.chickens.config.ChickensConfigHolder;
 import strhercules.chickens.config.ChickensConfigValues;
 import strhercules.chickens.registry.ModEntityTypes;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
 import net.minecraft.util.random.WeightedEntry;
 import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.MobSpawnSettings;
 import org.slf4j.Logger;
@@ -19,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 
@@ -39,6 +44,18 @@ public final class ChickensSpawnManager {
     private static final double NETHER_ENERGY = 0.45D;
 
     private static final Map<SpawnType, SpawnPlan> PLANS = new EnumMap<>(SpawnType.class);
+
+    // Chickens that only appear in specific places. Everything else follows its spawn type.
+    private static final Map<String, SpawnBiomeRule> BIOME_RULES = Map.of(
+            "whitechicken", SpawnBiomeRule.LAND,
+            "logchicken", SpawnBiomeRule.LAND,
+            "flintchicken", SpawnBiomeRule.LAND,
+            "snowballchicken", SpawnBiomeRule.LAND,
+            "sandchicken", SpawnBiomeRule.SAND,
+            "icechicken", SpawnBiomeRule.ICY,
+            "quartzchicken", SpawnBiomeRule.NETHER,
+            "soulsandchicken", SpawnBiomeRule.SOUL_SAND_VALLEY,
+            "enderchicken", SpawnBiomeRule.END);
 
     private ChickensSpawnManager() {
     }
@@ -148,6 +165,70 @@ public final class ChickensSpawnManager {
 
     public static Optional<SpawnPlan> planFor(Holder<Biome> biome) {
         return planFor(ChickensRegistry.getSpawnType(biome));
+    }
+
+    public static SpawnBiomeRule ruleFor(ChickensRegistryItem chicken) {
+        return BIOME_RULES.getOrDefault(chicken.getEntityName().toLowerCase(Locale.ROOT), SpawnBiomeRule.TYPE);
+    }
+
+    private static boolean isSpawnable(ChickensRegistryItem chicken) {
+        return chicken.isEnabled() && chicken.canSpawn() && spawnWeightFor(chicken) > 0;
+    }
+
+    /** True when at least one chicken with its own spawn rule may appear in this biome. */
+    public static boolean hasRuleCandidate(Holder<Biome> biome) {
+        for (ChickensRegistryItem chicken : ChickensRegistry.getItems()) {
+            SpawnBiomeRule rule = ruleFor(chicken);
+            if (rule != SpawnBiomeRule.TYPE && isSpawnable(chicken) && rule.matchesBiome(biome)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Plan used when building biome spawn tables. Biomes that only host chickens with their own rule,
+     * such as deserts, fall back to the overworld plan.
+     */
+    public static Optional<SpawnPlan> planForSpawn(Holder<Biome> biome) {
+        Optional<SpawnPlan> plan = planFor(biome);
+        if (plan.isPresent() || !hasRuleCandidate(biome)) {
+            return plan;
+        }
+        return planFor(SpawnType.NORMAL);
+    }
+
+    private static boolean hasVanillaChickens(Holder<Biome> biome) {
+        return biome.value().getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
+                .anyMatch(spawn -> spawn.type == EntityType.CHICKEN);
+    }
+
+    /** Picks the chicken for a spawn at an exact position, honouring each chicken's biome rule. */
+    public static Optional<ChickensRegistryItem> pickChicken(ServerLevelAccessor level, Holder<Biome> biome,
+            BlockPos pos, RandomSource random) {
+        SpawnType biomeType = ChickensRegistry.getSpawnType(biome);
+        boolean vanillaChickenBiome = hasVanillaChickens(biome);
+        List<WeightedEntry.Wrapper<ChickensRegistryItem>> weighted = new ArrayList<>();
+        for (ChickensRegistryItem chicken : ChickensRegistry.getItems()) {
+            if (!isSpawnable(chicken)) {
+                continue;
+            }
+            SpawnBiomeRule rule = ruleFor(chicken);
+            boolean allowed;
+            if (rule == SpawnBiomeRule.TYPE) {
+                allowed = chicken.getSpawnType() == biomeType
+                        && (vanillaChickenBiome || biomeType == SpawnType.HELL || biomeType == SpawnType.END);
+            } else {
+                allowed = rule.matches(level, biome, pos);
+            }
+            if (allowed) {
+                weighted.add(WeightedEntry.wrap(chicken, spawnWeightFor(chicken)));
+            }
+        }
+        if (weighted.isEmpty()) {
+            return Optional.empty();
+        }
+        return WeightedRandomList.create(weighted).getRandom(random).map(WeightedEntry.Wrapper::data);
     }
 
     public static Optional<SpawnPlan> planFor(SpawnType type) {

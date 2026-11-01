@@ -18,6 +18,7 @@ import strhercules.chickens.item.ChickensSpawnEggItem;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -83,6 +84,11 @@ public final class RadioactiveContentHelper {
     }
 
     public static boolean hasRadioactiveItems(Container container) {
+        // Reading a slot of a chest that still owns an unrolled loot table rolls that loot immediately.
+        // Those chests are empty from the player's point of view, so they cannot be radioactive yet.
+        if (container instanceof RandomizableContainer randomizable && randomizable.getLootTable() != null) {
+            return false;
+        }
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
             if (isRadioactive(container.getItem(slot))) {
                 return true;
