@@ -77,6 +77,17 @@ public class ChickensJeiPlugin implements IModPlugin {
 
     @Override
     public void registerItemSubtypes(ISubtypeRegistration registration) {
+        // Every egg and spawn egg stores its chicken or liquid id in the stack, so JEI has to tell them apart.
+        // Without a subtype each variant counts as the same ingredient and all recipes show up mixed together.
+        IIngredientSubtypeInterpreter<ItemStack> byStoredType = (stack, context) -> {
+            int type = ChickenItemHelper.getChickenType(stack);
+            return type == 0 ? IIngredientSubtypeInterpreter.NONE : Integer.toString(type);
+        };
+        registration.registerSubtypeInterpreter(ModRegistry.SPAWN_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.COLORED_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.LIQUID_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.CHEMICAL_EGG.get(), byStoredType);
+        registration.registerSubtypeInterpreter(ModRegistry.GAS_EGG.get(), byStoredType);
         registration.registerSubtypeInterpreter(ModRegistry.CHICKEN_ITEM.get(), (stack, context) -> {
             if (!(stack.getItem() instanceof ChickenItem)) {
                 return IIngredientSubtypeInterpreter.NONE;

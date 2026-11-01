@@ -1,4 +1,21 @@
 **CHANGELOG**
+# [2.0.12] - 1/11/2026
+
+## New
+
+- **Natural spawns of the basic chickens.** They now appear where they make sense, even in biomes without vanilla chickens:
+  - Sand Chicken: beaches and deserts.
+  - Ice Chicken: frozen biomes.
+  - White, Log, Flint and Snowball chickens: any land biome except deserts, beaches, oceans and mushroom islands.
+  - Quartz Chicken: every Nether biome, fortresses included.
+  - Soul Sand Chicken: Soul Sand Valleys and Nether fortresses.
+  - Ender Chicken: the End, End cities included.
+
+## Fixed
+
+- **JEI mixed up the recipes of eggs and spawn eggs.** Looking up a fluid, chemical or gas egg, or the Avian Dousing Machine, showed every recipe at once. Now each egg only shows its own recipe.
+- **Mekanism radiation scan filled structure chests with loot, which broke Lootr** (issue #2). Chests that have not been opened yet are skipped now.
+
 # [2.7.3] - 17/10/2026
 
 ## New

@@ -4,6 +4,7 @@ import strhercules.chickens.LavaChickenGameplay;
 import strhercules.chickens.ChickenTeachingRegistry;
 import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
+import strhercules.chickens.SpawnBiomeRule;
 import strhercules.chickens.SpawnType;
 import strhercules.chickens.blockentity.HenhouseBlockEntity;
 import strhercules.chickens.config.ChickensConfigHolder;
@@ -23,6 +24,7 @@ import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.tags.BlockTags;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
@@ -615,7 +617,8 @@ public class ChickensChicken extends Chicken {
                 spawnData = new GroupData(this.getChickenType());
             } else {
                 Holder<Biome> biome = level.getBiome(this.blockPosition());
-                Optional<ChickensRegistryItem> selected = ChickensSpawnManager.pickChicken(biome, this.random);
+                Optional<ChickensRegistryItem> selected = ChickensSpawnManager.pickChicken(level, biome,
+                        this.blockPosition(), this.random);
                 if (selected.isPresent()) {
                     int type = selected.get().getId();
                     this.setChickenType(type);
@@ -666,9 +669,18 @@ public class ChickensChicken extends Chicken {
             return canSpawnOnSolid(type, level, pos);
         }
         if (spawnType != SpawnType.HELL && spawnType != SpawnType.END && overworldEnabled) {
-            return net.minecraft.world.entity.animal.Animal.checkAnimalSpawnRules(type, level, reason, pos, random);
+            return net.minecraft.world.entity.animal.Animal.checkAnimalSpawnRules(type, level, reason, pos, random)
+                    || canSpawnOnSand(level, biome, pos);
         }
         return false;
+    }
+
+    // Animals never spawn on sand in vanilla, so the beach and desert chickens need their own ground check.
+    private static boolean canSpawnOnSand(LevelAccessor level, Holder<Biome> biome, BlockPos pos) {
+        return SpawnBiomeRule.SAND.matchesBiome(biome)
+                && level.getBlockState(pos).isAir()
+                && level.getBlockState(pos.below()).is(BlockTags.SAND)
+                && level.getRawBrightness(pos, 0) > 8;
     }
 
     private static boolean canSpawnOnSolid(net.minecraft.world.entity.EntityType<ChickensChicken> type, LevelAccessor level, BlockPos pos) {

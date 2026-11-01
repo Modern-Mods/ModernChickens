@@ -297,7 +297,8 @@ public final class DefaultChickens {
                 401, "EnderChicken", texture("EnderChicken"),
                 new ItemStack(Items.ENDER_PEARL),
                 0x001a00, 0x001a33,
-                diamondChicken, netherwartChicken);
+                diamondChicken, netherwartChicken).setSpawnType(SpawnType.END)
+                .allowNaturalSpawn();
         chickens.add(enderChicken);
 
         ChickensRegistryItem ghastChicken = new ChickensRegistryItem(

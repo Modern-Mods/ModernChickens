@@ -22,7 +22,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.fluids.FluidStack;
 
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
+
 import javax.annotation.Nullable;
+import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.Locale;
 import java.util.Set;
 
@@ -39,7 +43,34 @@ public final class RadioactiveContentHelper {
             "poloniumpelletchicken",
             "antimatterpelletchicken");
 
+    // 1.20.1 has no public getter for the loot table of a chest, and the field name differs between
+    // development and release, so the only ResourceLocation field of the class is looked up once.
+    @Nullable
+    private static final Field LOOT_TABLE_FIELD = findLootTableField();
+
     private RadioactiveContentHelper() {
+    }
+
+    @Nullable
+    private static Field findLootTableField() {
+        for (Field field : RandomizableContainerBlockEntity.class.getDeclaredFields()) {
+            if (field.getType() == ResourceLocation.class && !Modifier.isStatic(field.getModifiers())) {
+                field.setAccessible(true);
+                return field;
+            }
+        }
+        return null;
+    }
+
+    private static boolean hasPendingLoot(Container container) {
+        if (LOOT_TABLE_FIELD == null || !(container instanceof RandomizableContainerBlockEntity chest)) {
+            return false;
+        }
+        try {
+            return LOOT_TABLE_FIELD.get(chest) != null;
+        } catch (IllegalAccessException exception) {
+            return false;
+        }
     }
 
     public static boolean isRadioactive(@Nullable ChickensRegistryItem chicken) {
@@ -83,6 +114,11 @@ public final class RadioactiveContentHelper {
     }
 
     public static boolean hasRadioactiveItems(Container container) {
+        // Reading a slot of a chest that still owns an unrolled loot table rolls that loot immediately.
+        // Those chests are empty from the player's point of view, so they cannot be radioactive yet.
+        if (hasPendingLoot(container)) {
+            return false;
+        }
         for (int slot = 0; slot < container.getContainerSize(); slot++) {
             if (isRadioactive(container.getItem(slot))) {
                 return true;
