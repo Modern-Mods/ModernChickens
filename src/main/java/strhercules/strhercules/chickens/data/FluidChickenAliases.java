@@ -3,7 +3,7 @@ package strhercules.chickens.data;
 import com.electronwill.nightconfig.core.UnmodifiableConfig;
 import com.electronwill.nightconfig.core.file.CommentedFileConfig;
 import com.electronwill.nightconfig.toml.TomlFormat;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +60,11 @@ final class FluidChickenAliases {
         LOGGER.info("Loaded {} fluid chicken alias rules from {}", rules.size(), path.getFileName());
     }
 
-    static ResourceLocation canonicalId(ResourceLocation fluidId) {
-        ResourceLocation current = fluidId;
-        Set<ResourceLocation> visited = new HashSet<>();
+    static Identifier canonicalId(Identifier fluidId) {
+        Identifier current = fluidId;
+        Set<Identifier> visited = new HashSet<>();
         while (visited.add(current)) {
-            ResourceLocation next = null;
+            Identifier next = null;
             for (AliasRule rule : rules) {
                 next = rule.resolve(current);
                 if (next != null) {
@@ -115,7 +115,7 @@ final class FluidChickenAliases {
                     : canonicalPath;
             String aliasProbe = aliasNamespace + ":" + aliasPrefix + (aliasWildcard ? "alias" : "");
             String canonicalProbe = canonicalNamespace + ":" + canonicalPrefix + (canonicalWildcard ? "canonical" : "");
-            if (ResourceLocation.tryParse(aliasProbe) == null || ResourceLocation.tryParse(canonicalProbe) == null) {
+            if (Identifier.tryParse(aliasProbe) == null || Identifier.tryParse(canonicalProbe) == null) {
                 LOGGER.warn("Ignoring malformed fluid chicken alias {} = {}", rawAlias, rawCanonical);
                 return null;
             }
@@ -123,7 +123,7 @@ final class FluidChickenAliases {
                     canonicalNamespace, canonicalPrefix, canonicalWildcard);
         }
 
-        private ResourceLocation resolve(ResourceLocation source) {
+        private Identifier resolve(Identifier source) {
             if (!aliasNamespace.equals(source.getNamespace())
                     || aliasWildcard && !source.getPath().startsWith(aliasPath)
                     || !aliasWildcard && !aliasPath.equals(source.getPath())) {
@@ -131,7 +131,7 @@ final class FluidChickenAliases {
             }
             String suffix = aliasWildcard ? source.getPath().substring(aliasPath.length()) : "";
             String targetPath = canonicalWildcard ? canonicalPath + suffix : canonicalPath;
-            return ResourceLocation.tryParse(canonicalNamespace + ":" + targetPath);
+            return Identifier.tryParse(canonicalNamespace + ":" + targetPath);
         }
 
         private boolean wildcard() {

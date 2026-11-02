@@ -13,9 +13,9 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import java.util.Locale;
@@ -41,8 +41,13 @@ public final class WildChickensCategory implements IRecipeCategory<ChickensJeiRe
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -59,11 +64,12 @@ public final class WildChickensCategory implements IRecipeCategory<ChickensJeiRe
 
     @Override
     public void draw(ChickensJeiRecipeTypes.WildChickenRecipe recipe, IRecipeSlotsView recipeSlotsView,
-            GuiGraphics graphics, double mouseX, double mouseY) {
+            GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        background.draw(graphics);
         Component location = Component.translatable("gui.chickens.wild_chickens.location");
         Component biomes = Component.translatable("gui.chickens.wild_chickens.biome."
                 + recipe.spawnType().name().toLowerCase(Locale.ROOT));
-        graphics.drawString(Minecraft.getInstance().font, location, 32, 6, 0xFF7F7F7F, false);
-        graphics.drawString(Minecraft.getInstance().font, biomes, 32, 19, 0xFF404040, false);
+        graphics.text(Minecraft.getInstance().font, location, 32, 6, 0xFF7F7F7F, false);
+        graphics.text(Minecraft.getInstance().font, biomes, 32, 19, 0xFF404040, false);
     }
 }

@@ -6,7 +6,8 @@ import strhercules.chickens.entity.ColoredEgg;
 import strhercules.chickens.entity.MegaChicken;
 import strhercules.chickens.entity.Rooster;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.neoforged.bus.api.IEventBus;
@@ -26,26 +27,30 @@ public final class ModEntityTypes {
             () -> EntityType.Builder.<ChickensChicken>of(ChickensChicken::new, MobCategory.CREATURE)
                     .sized(0.4F, 0.7F)
                     .clientTrackingRange(10)
-                    .build(ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "chicken").toString()));
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "chicken"))));
 
     public static final DeferredHolder<EntityType<?>, EntityType<Rooster>> ROOSTER = ENTITY_TYPES.register("rooster",
             () -> EntityType.Builder.<Rooster>of(Rooster::new, MobCategory.CREATURE)
                     .sized(0.4F, 0.7F)
                     .clientTrackingRange(10)
-                    .build(ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "rooster").toString()));
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "rooster"))));
 
     public static final DeferredHolder<EntityType<?>, EntityType<MegaChicken>> MEGA_CHICKEN = ENTITY_TYPES.register("mega_chicken",
             () -> EntityType.Builder.<MegaChicken>of(MegaChicken::new, MobCategory.CREATURE)
                     .sized(1.2F, 2.8F)
                     .clientTrackingRange(10)
-                    .build(ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken").toString()));
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken"))));
 
     public static final DeferredHolder<EntityType<?>, EntityType<ColoredEgg>> COLORED_EGG = ENTITY_TYPES.register("colored_egg",
             () -> EntityType.Builder.<ColoredEgg>of(ColoredEgg::new, MobCategory.MISC)
                     .sized(0.25F, 0.25F)
                     .clientTrackingRange(4)
                     .updateInterval(10)
-                    .build(ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "colored_egg").toString()));
+                    .build(ResourceKey.create(Registries.ENTITY_TYPE,
+                            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "colored_egg"))));
 
     private ModEntityTypes() {
     }

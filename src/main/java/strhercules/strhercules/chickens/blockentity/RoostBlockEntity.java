@@ -269,12 +269,12 @@ public class RoostBlockEntity extends AbstractChickenContainerBlockEntity {
     @Override
     public void appendTooltip(List<Component> tooltip, CompoundTag data) {
         if (data.contains("ChickenId")) {
-            ChickensRegistryItem chicken = ChickensRegistry.getByType(data.getInt("ChickenId"));
+            ChickensRegistryItem chicken = ChickensRegistry.getByType(data.getIntOr("ChickenId", 0));
             if (chicken != null) {
-                int chickens = data.getInt("ChickenCount");
-                int gain = data.getInt("Gain");
-                int growth = data.getInt("Growth");
-                int strength = data.getInt("Strength");
+                int chickens = data.getIntOr("ChickenCount", 0);
+                int gain = data.getIntOr("Gain", 0);
+                int growth = data.getIntOr("Growth", 0);
+                int strength = data.getIntOr("Strength", 0);
                 ItemStack drop = chicken.createLayItem();
                 if (chicken.hasFixedLayAmount()) {
                     chicken.applyFixedLayAmount(drop);

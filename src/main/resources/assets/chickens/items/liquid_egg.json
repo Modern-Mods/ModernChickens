@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "chickens:item/liquid_egg",
+    "tints": [
+      { "type": "chickens:chicken", "kind": "liquid_egg" }
+    ]
+  }
+}

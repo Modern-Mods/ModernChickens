@@ -31,57 +31,31 @@ public final class ModBlockEntities {
             DeferredRegister.create(Registries.BLOCK_ENTITY_TYPE, ChickensMod.MOD_ID);
 
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<HenhouseBlockEntity>> HENHOUSE = BLOCK_ENTITIES
-            .register("henhouse", () -> BlockEntityType.Builder
-                    .of(HenhouseBlockEntity::new, henhouseBlocks())
-                    .build(null));
+            .register("henhouse", () -> new BlockEntityType<>(HenhouseBlockEntity::new, henhouseBlocks()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RoostBlockEntity>> ROOST = BLOCK_ENTITIES
-            .register("roost", () -> BlockEntityType.Builder
-                    .of(RoostBlockEntity::new, ModRegistry.ROOST.get())
-                    .build(null));
+            .register("roost", () -> new BlockEntityType<>(RoostBlockEntity::new, ModRegistry.ROOST.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalRoostBlockEntity>> MECHANICAL_ROOST = BLOCK_ENTITIES
-            .register("mechanical_roost", () -> BlockEntityType.Builder
-                    .of(MechanicalRoostBlockEntity::new, ModRegistry.MECHANICAL_ROOST.get())
-                    .build(null));
+            .register("mechanical_roost", () -> new BlockEntityType<>(MechanicalRoostBlockEntity::new, ModRegistry.MECHANICAL_ROOST.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<RoostGeneratorBlockEntity>> ROOST_GENERATOR = BLOCK_ENTITIES
-            .register("roost_generator", () -> BlockEntityType.Builder
-                    .of(RoostGeneratorBlockEntity::new, ModRegistry.ROOST_GENERATOR.get())
-                    .build(null));
+            .register("roost_generator", () -> new BlockEntityType<>(RoostGeneratorBlockEntity::new, ModRegistry.ROOST_GENERATOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<MechanicalNestBlockEntity>> MECHANICAL_NEST = BLOCK_ENTITIES
-            .register("mechanical_nest", () -> BlockEntityType.Builder
-                    .of(MechanicalNestBlockEntity::new, ModRegistry.MECHANICAL_NEST.get())
-                    .build(null));
+            .register("mechanical_nest", () -> new BlockEntityType<>(MechanicalNestBlockEntity::new, ModRegistry.MECHANICAL_NEST.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<NestBlockEntity>> NEST = BLOCK_ENTITIES
-            .register("nest", () -> BlockEntityType.Builder
-                    .of(NestBlockEntity::new, ModRegistry.NEST.get())
-                    .build(null));
+            .register("nest", () -> new BlockEntityType<>(NestBlockEntity::new, ModRegistry.NEST.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BreederBlockEntity>> BREEDER = BLOCK_ENTITIES
-            .register("breeder", () -> BlockEntityType.Builder
-                    .of(BreederBlockEntity::new, ModRegistry.BREEDER.get())
-                    .build(null));
+            .register("breeder", () -> new BlockEntityType<>(BreederBlockEntity::new, ModRegistry.BREEDER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<CollectorBlockEntity>> COLLECTOR = BLOCK_ENTITIES
-            .register("collector", () -> BlockEntityType.Builder
-                    .of(CollectorBlockEntity::new, ModRegistry.COLLECTOR.get())
-                    .build(null));
+            .register("collector", () -> new BlockEntityType<>(CollectorBlockEntity::new, ModRegistry.COLLECTOR.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AvianFluxConverterBlockEntity>> AVIAN_FLUX_CONVERTER = BLOCK_ENTITIES
-            .register("avian_flux_converter", () -> BlockEntityType.Builder
-                    .of(AvianFluxConverterBlockEntity::new, ModRegistry.AVIAN_FLUX_CONVERTER.get())
-                    .build(null));
+            .register("avian_flux_converter", () -> new BlockEntityType<>(AvianFluxConverterBlockEntity::new, ModRegistry.AVIAN_FLUX_CONVERTER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AvianFluidConverterBlockEntity>> AVIAN_FLUID_CONVERTER = BLOCK_ENTITIES
-            .register("avian_fluid_converter", () -> BlockEntityType.Builder
-                    .of(AvianFluidConverterBlockEntity::new, ModRegistry.AVIAN_FLUID_CONVERTER.get())
-                    .build(null));
+            .register("avian_fluid_converter", () -> new BlockEntityType<>(AvianFluidConverterBlockEntity::new, ModRegistry.AVIAN_FLUID_CONVERTER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AvianChemicalConverterBlockEntity>> AVIAN_CHEMICAL_CONVERTER = BLOCK_ENTITIES
-            .register("avian_chemical_converter", () -> BlockEntityType.Builder
-                    .of(AvianChemicalConverterBlockEntity::new, ModRegistry.AVIAN_CHEMICAL_CONVERTER.get())
-                    .build(null));
+            .register("avian_chemical_converter", () -> new BlockEntityType<>(AvianChemicalConverterBlockEntity::new, ModRegistry.AVIAN_CHEMICAL_CONVERTER.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<AvianDousingMachineBlockEntity>> AVIAN_DOUSING_MACHINE = BLOCK_ENTITIES
-            .register("avian_dousing_machine", () -> BlockEntityType.Builder
-                    .of(AvianDousingMachineBlockEntity::new, ModRegistry.AVIAN_DOUSING_MACHINE.get())
-                    .build(null));
+            .register("avian_dousing_machine", () -> new BlockEntityType<>(AvianDousingMachineBlockEntity::new, ModRegistry.AVIAN_DOUSING_MACHINE.get()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<IncubatorBlockEntity>> INCUBATOR = BLOCK_ENTITIES
-            .register("incubator", () -> BlockEntityType.Builder
-                    .of(IncubatorBlockEntity::new, ModRegistry.INCUBATOR.get())
-                    .build(null));
+            .register("incubator", () -> new BlockEntityType<>(IncubatorBlockEntity::new, ModRegistry.INCUBATOR.get()));
 
     private ModBlockEntities() {
     }

@@ -1,0 +1,2089 @@
+{
+  "model": {
+    "type": "minecraft:select",
+    "property": "chickens:chicken_model",
+    "cases": [
+      {
+        "when": "acaciadoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/acaciadoorchicken"
+        }
+      },
+      {
+        "when": "acacialogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/acacialogchicken"
+        }
+      },
+      {
+        "when": "accumulationprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/accumulationprocessorchicken"
+        }
+      },
+      {
+        "when": "adamantchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/adamantchicken"
+        }
+      },
+      {
+        "when": "advancedalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/advancedalloychicken"
+        }
+      },
+      {
+        "when": "advancedprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/advancedprocessorchicken"
+        }
+      },
+      {
+        "when": "aerialitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/aerialitechicken"
+        }
+      },
+      {
+        "when": "alchemicalbrasschicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/alchemicalbrasschicken"
+        }
+      },
+      {
+        "when": "alfsteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/alfsteelchicken"
+        }
+      },
+      {
+        "when": "allthemodiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/allthemodiumchicken"
+        }
+      },
+      {
+        "when": "aluminumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/aluminumchicken"
+        }
+      },
+      {
+        "when": "amberchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/amberchicken"
+        }
+      },
+      {
+        "when": "amethystchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/amethystchicken"
+        }
+      },
+      {
+        "when": "amethystineminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/amethystineminerchicken"
+        }
+      },
+      {
+        "when": "andesitealloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/andesitealloychicken"
+        }
+      },
+      {
+        "when": "arditechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/arditechicken"
+        }
+      },
+      {
+        "when": "aurantiumminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/aurantiumminerchicken"
+        }
+      },
+      {
+        "when": "awakeneddraconiumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/awakeneddraconiumessencechicken"
+        }
+      },
+      {
+        "when": "awakenedsupremiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/awakenedsupremiumchicken"
+        }
+      },
+      {
+        "when": "awakenedsupremiumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/awakenedsupremiumessencechicken"
+        }
+      },
+      {
+        "when": "azurineminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/azurineminerchicken"
+        }
+      },
+      {
+        "when": "bambooblockchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bambooblockchicken"
+        }
+      },
+      {
+        "when": "bamboodoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bamboodoorchicken"
+        }
+      },
+      {
+        "when": "basalzrodchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/basalzrodchicken"
+        }
+      },
+      {
+        "when": "basicprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/basicprocessorchicken"
+        }
+      },
+      {
+        "when": "bedrockiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bedrockiumchicken"
+        }
+      },
+      {
+        "when": "biosteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/biosteelchicken"
+        }
+      },
+      {
+        "when": "birchdoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/birchdoorchicken"
+        }
+      },
+      {
+        "when": "birchlogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/birchlogchicken"
+        }
+      },
+      {
+        "when": "blackchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blackchicken"
+        }
+      },
+      {
+        "when": "blackironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blackironchicken"
+        }
+      },
+      {
+        "when": "blackquartzchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blackquartzchicken"
+        }
+      },
+      {
+        "when": "blazechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blazechicken"
+        }
+      },
+      {
+        "when": "blitzrodchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blitzrodchicken"
+        }
+      },
+      {
+        "when": "blizzrodchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blizzrodchicken"
+        }
+      },
+      {
+        "when": "bloodslime",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bloodslime"
+        }
+      },
+      {
+        "when": "bluechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bluechicken"
+        }
+      },
+      {
+        "when": "blueslime",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blueslime"
+        }
+      },
+      {
+        "when": "blutoniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/blutoniumchicken"
+        }
+      },
+      {
+        "when": "boopbeepchick",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/boopbeepchick"
+        }
+      },
+      {
+        "when": "brasschicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/brasschicken"
+        }
+      },
+      {
+        "when": "breezechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/breezechicken"
+        }
+      },
+      {
+        "when": "bronzechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bronzechicken"
+        }
+      },
+      {
+        "when": "brownchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/brownchicken"
+        }
+      },
+      {
+        "when": "bulletchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/bulletchicken"
+        }
+      },
+      {
+        "when": "cablechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cablechicken"
+        }
+      },
+      {
+        "when": "caeriumminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/caeriumminerchicken"
+        }
+      },
+      {
+        "when": "calculationprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/calculationprocessorchicken"
+        }
+      },
+      {
+        "when": "caloritechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/caloritechicken"
+        }
+      },
+      {
+        "when": "cherrydoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cherrydoorchicken"
+        }
+      },
+      {
+        "when": "cherrylogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cherrylogchicken"
+        }
+      },
+      {
+        "when": "chickenosto",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/chickenosto"
+        }
+      },
+      {
+        "when": "choriumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/choriumchicken"
+        }
+      },
+      {
+        "when": "chromechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/chromechicken"
+        }
+      },
+      {
+        "when": "cinnabarchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cinnabarchicken"
+        }
+      },
+      {
+        "when": "citrinetineminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/citrinetineminerchicken"
+        }
+      },
+      {
+        "when": "claychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/claychicken"
+        }
+      },
+      {
+        "when": "coalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/coalchicken"
+        }
+      },
+      {
+        "when": "cobaltchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cobaltchicken"
+        }
+      },
+      {
+        "when": "concurrentprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/concurrentprocessorchicken"
+        }
+      },
+      {
+        "when": "concurrentprocessorprintchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/concurrentprocessorprintchicken"
+        }
+      },
+      {
+        "when": "conductiveironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/conductiveironchicken"
+        }
+      },
+      {
+        "when": "constantanchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/constantanchicken"
+        }
+      },
+      {
+        "when": "constructionalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/constructionalloychicken"
+        }
+      },
+      {
+        "when": "constructioncorechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/constructioncorechicken"
+        }
+      },
+      {
+        "when": "copperchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/copperchicken"
+        }
+      },
+      {
+        "when": "crimsondoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crimsondoorchicken"
+        }
+      },
+      {
+        "when": "crimsonstemchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crimsonstemchicken"
+        }
+      },
+      {
+        "when": "crudesteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crudesteelchicken"
+        }
+      },
+      {
+        "when": "crystallinealloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crystallinealloychicken"
+        }
+      },
+      {
+        "when": "crystallinepinkslimechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crystallinepinkslimechicken"
+        }
+      },
+      {
+        "when": "crystallizedalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crystallizedalloychicken"
+        }
+      },
+      {
+        "when": "crystalmatrixchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crystalmatrixchicken"
+        }
+      },
+      {
+        "when": "crystaltinechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/crystaltinechicken"
+        }
+      },
+      {
+        "when": "cupronickelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cupronickelchicken"
+        }
+      },
+      {
+        "when": "cyanchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cyanchicken"
+        }
+      },
+      {
+        "when": "cyanitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/cyanitechicken"
+        }
+      },
+      {
+        "when": "darkgemchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/darkgemchicken"
+        }
+      },
+      {
+        "when": "darkoakdoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/darkoakdoorchicken"
+        }
+      },
+      {
+        "when": "darkoaklogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/darkoaklogchicken"
+        }
+      },
+      {
+        "when": "darksteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/darksteelchicken"
+        }
+      },
+      {
+        "when": "demonchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/demonchicken"
+        }
+      },
+      {
+        "when": "demonmetalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/demonmetalchicken"
+        }
+      },
+      {
+        "when": "deshchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/deshchicken"
+        }
+      },
+      {
+        "when": "destructioncorechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/destructioncorechicken"
+        }
+      },
+      {
+        "when": "diamantinecrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/diamantinecrystalchicken"
+        }
+      },
+      {
+        "when": "diamondchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/diamondchicken"
+        }
+      },
+      {
+        "when": "doorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/doorchicken"
+        }
+      },
+      {
+        "when": "draconiumawakenedchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/draconiumawakenedchicken"
+        }
+      },
+      {
+        "when": "draconiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/draconiumchicken"
+        }
+      },
+      {
+        "when": "duratiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/duratiumchicken"
+        }
+      },
+      {
+        "when": "eclipsealloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/eclipsealloychicken"
+        }
+      },
+      {
+        "when": "electricalsteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/electricalsteelchicken"
+        }
+      },
+      {
+        "when": "electrumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/electrumchicken"
+        }
+      },
+      {
+        "when": "elementiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/elementiumchicken"
+        }
+      },
+      {
+        "when": "emeradiccrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/emeradiccrystalchicken"
+        }
+      },
+      {
+        "when": "emeraldchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/emeraldchicken"
+        }
+      },
+      {
+        "when": "enderchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/enderchicken"
+        }
+      },
+      {
+        "when": "enderiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/enderiumchicken"
+        }
+      },
+      {
+        "when": "energeticalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energeticalloychicken"
+        }
+      },
+      {
+        "when": "energeticsilverchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energeticsilverchicken"
+        }
+      },
+      {
+        "when": "energitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energitechicken"
+        }
+      },
+      {
+        "when": "energizedalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energizedalloychicken"
+        }
+      },
+      {
+        "when": "energizedcopperchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energizedcopperchicken"
+        }
+      },
+      {
+        "when": "energizedgoldchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/energizedgoldchicken"
+        }
+      },
+      {
+        "when": "engineeringprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/engineeringprocessorchicken"
+        }
+      },
+      {
+        "when": "enhancedenderchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/enhancedenderchicken"
+        }
+      },
+      {
+        "when": "enhancedredstonechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/enhancedredstonechicken"
+        }
+      },
+      {
+        "when": "enoricrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/enoricrystalchicken"
+        }
+      },
+      {
+        "when": "etriumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/etriumchicken"
+        }
+      },
+      {
+        "when": "fieryingotchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/fieryingotchicken"
+        }
+      },
+      {
+        "when": "flintchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/flintchicken"
+        }
+      },
+      {
+        "when": "funwaychick",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/funwaychick"
+        }
+      },
+      {
+        "when": "garnetchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/garnetchicken"
+        }
+      },
+      {
+        "when": "ghastchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ghastchicken"
+        }
+      },
+      {
+        "when": "glasschicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/glasschicken"
+        }
+      },
+      {
+        "when": "glowstonechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/glowstonechicken"
+        }
+      },
+      {
+        "when": "goldchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/goldchicken"
+        }
+      },
+      {
+        "when": "graphitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/graphitechicken"
+        }
+      },
+      {
+        "when": "graychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/graychicken"
+        }
+      },
+      {
+        "when": "greenchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/greenchicken"
+        }
+      },
+      {
+        "when": "gunpowderchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/gunpowderchicken"
+        }
+      },
+      {
+        "when": "imperiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/imperiumchicken"
+        }
+      },
+      {
+        "when": "improvedprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/improvedprocessorchicken"
+        }
+      },
+      {
+        "when": "inferiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/inferiumchicken"
+        }
+      },
+      {
+        "when": "infinitychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/infinitychicken"
+        }
+      },
+      {
+        "when": "insaniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/insaniumchicken"
+        }
+      },
+      {
+        "when": "invarchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/invarchicken"
+        }
+      },
+      {
+        "when": "iridiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/iridiumchicken"
+        }
+      },
+      {
+        "when": "ironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ironchicken"
+        }
+      },
+      {
+        "when": "ironwoodchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ironwoodchicken"
+        }
+      },
+      {
+        "when": "joanfoitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/joanfoitechicken"
+        }
+      },
+      {
+        "when": "jungledoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/jungledoorchicken"
+        }
+      },
+      {
+        "when": "junglelogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/junglelogchicken"
+        }
+      },
+      {
+        "when": "knightmetalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/knightmetalchicken"
+        }
+      },
+      {
+        "when": "knightslimechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/knightslimechicken"
+        }
+      },
+      {
+        "when": "lavachicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lavachicken"
+        }
+      },
+      {
+        "when": "leadchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/leadchicken"
+        }
+      },
+      {
+        "when": "leatherchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/leatherchicken"
+        }
+      },
+      {
+        "when": "lightbluechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lightbluechicken"
+        }
+      },
+      {
+        "when": "lightiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lightiumchicken"
+        }
+      },
+      {
+        "when": "lightiumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lightiumessencechicken"
+        }
+      },
+      {
+        "when": "limechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/limechicken"
+        }
+      },
+      {
+        "when": "logchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/logchicken"
+        }
+      },
+      {
+        "when": "logicprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/logicprocessorchicken"
+        }
+      },
+      {
+        "when": "ludicritechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ludicritechicken"
+        }
+      },
+      {
+        "when": "lumiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lumiumchicken"
+        }
+      },
+      {
+        "when": "lunarreactivedustchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/lunarreactivedustchicken"
+        }
+      },
+      {
+        "when": "magentachicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/magentachicken"
+        }
+      },
+      {
+        "when": "magicalwoodchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/magicalwoodchicken"
+        }
+      },
+      {
+        "when": "magmachicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/magmachicken"
+        }
+      },
+      {
+        "when": "magmaslime",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/magmaslime"
+        }
+      },
+      {
+        "when": "malachitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/malachitechicken"
+        }
+      },
+      {
+        "when": "manasteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/manasteelchicken"
+        }
+      },
+      {
+        "when": "mangrovedoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/mangrovedoorchicken"
+        }
+      },
+      {
+        "when": "mangrovelogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/mangrovelogchicken"
+        }
+      },
+      {
+        "when": "manyullynchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/manyullynchicken"
+        }
+      },
+      {
+        "when": "melodicalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/melodicalloychicken"
+        }
+      },
+      {
+        "when": "mithrilchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/mithrilchicken"
+        }
+      },
+      {
+        "when": "moonstonechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/moonstonechicken"
+        }
+      },
+      {
+        "when": "mramericanchick",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/mramericanchick"
+        }
+      },
+      {
+        "when": "mushashitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/mushashitechicken"
+        }
+      },
+      {
+        "when": "nadienitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/nadienitechicken"
+        }
+      },
+      {
+        "when": "naquadahchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/naquadahchicken"
+        }
+      },
+      {
+        "when": "netheritechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/netheritechicken"
+        }
+      },
+      {
+        "when": "netherwartchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/netherwartchicken"
+        }
+      },
+      {
+        "when": "neutroniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/neutroniumchicken"
+        }
+      },
+      {
+        "when": "nickelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/nickelchicken"
+        }
+      },
+      {
+        "when": "obsidianchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/obsidianchicken"
+        }
+      },
+      {
+        "when": "orangechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/orangechicken"
+        }
+      },
+      {
+        "when": "orichalcoschicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/orichalcoschicken"
+        }
+      },
+      {
+        "when": "orniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/orniumchicken"
+        }
+      },
+      {
+        "when": "orniumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/orniumessencechicken"
+        }
+      },
+      {
+        "when": "osmiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/osmiumchicken"
+        }
+      },
+      {
+        "when": "ostrumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ostrumchicken"
+        }
+      },
+      {
+        "when": "ouraniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ouraniumchicken"
+        }
+      },
+      {
+        "when": "ouraniumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/ouraniumessencechicken"
+        }
+      },
+      {
+        "when": "paleoakdoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/paleoakdoorchicken"
+        }
+      },
+      {
+        "when": "paleoaklogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/paleoaklogchicken"
+        }
+      },
+      {
+        "when": "paliscrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/paliscrystalchicken"
+        }
+      },
+      {
+        "when": "pcrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pcrystalchicken"
+        }
+      },
+      {
+        "when": "peridotchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/peridotchicken"
+        }
+      },
+      {
+        "when": "photoniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/photoniumchicken"
+        }
+      },
+      {
+        "when": "pigironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pigironchicken"
+        }
+      },
+      {
+        "when": "pinkchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pinkchicken"
+        }
+      },
+      {
+        "when": "pinkslimechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pinkslimechicken"
+        }
+      },
+      {
+        "when": "platinumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/platinumchicken"
+        }
+      },
+      {
+        "when": "printedaccumulationprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedaccumulationprocessorchicken"
+        }
+      },
+      {
+        "when": "printedcalculationprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedcalculationprocessorchicken"
+        }
+      },
+      {
+        "when": "printedengineeringprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedengineeringprocessorchicken"
+        }
+      },
+      {
+        "when": "printedlogicprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedlogicprocessorchicken"
+        }
+      },
+      {
+        "when": "printedquantumprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedquantumprocessorchicken"
+        }
+      },
+      {
+        "when": "printedsiliconchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/printedsiliconchicken"
+        }
+      },
+      {
+        "when": "prometheumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/prometheumchicken"
+        }
+      },
+      {
+        "when": "prosperitychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/prosperitychicken"
+        }
+      },
+      {
+        "when": "prudentiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/prudentiumchicken"
+        }
+      },
+      {
+        "when": "pshardchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pshardchicken"
+        }
+      },
+      {
+        "when": "pulsatingironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/pulsatingironchicken"
+        }
+      },
+      {
+        "when": "purplechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/purplechicken"
+        }
+      },
+      {
+        "when": "purpleslime",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/purpleslime"
+        }
+      },
+      {
+        "when": "quantumalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/quantumalloychicken"
+        }
+      },
+      {
+        "when": "quantumprocessorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/quantumprocessorchicken"
+        }
+      },
+      {
+        "when": "quartzchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/quartzchicken"
+        }
+      },
+      {
+        "when": "quartzenrichedironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/quartzenrichedironchicken"
+        }
+      },
+      {
+        "when": "quicksilverchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/quicksilverchicken"
+        }
+      },
+      {
+        "when": "redchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/redchicken"
+        }
+      },
+      {
+        "when": "redstonealloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/redstonealloychicken"
+        }
+      },
+      {
+        "when": "redstonechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/redstonechicken"
+        }
+      },
+      {
+        "when": "redstonecrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/redstonecrystalchicken"
+        }
+      },
+      {
+        "when": "redstonefluxchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/redstonefluxchicken"
+        }
+      },
+      {
+        "when": "refinedironchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/refinedironchicken"
+        }
+      },
+      {
+        "when": "resinbrickchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/resinbrickchicken"
+        }
+      },
+      {
+        "when": "restoniacrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/restoniacrystalchicken"
+        }
+      },
+      {
+        "when": "richslagchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/richslagchicken"
+        }
+      },
+      {
+        "when": "robot_chicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/robot_chicken"
+        }
+      },
+      {
+        "when": "rosariumminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/rosariumminerchicken"
+        }
+      },
+      {
+        "when": "rubberchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/rubberchicken"
+        }
+      },
+      {
+        "when": "rubetineminerchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/rubetineminerchicken"
+        }
+      },
+      {
+        "when": "rubychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/rubychicken"
+        }
+      },
+      {
+        "when": "saltchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/saltchicken"
+        }
+      },
+      {
+        "when": "saltpeterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/saltpeterchicken"
+        }
+      },
+      {
+        "when": "sandchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/sandchicken"
+        }
+      },
+      {
+        "when": "sapphirechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/sapphirechicken"
+        }
+      },
+      {
+        "when": "shadowiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/shadowiumchicken"
+        }
+      },
+      {
+        "when": "signalumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/signalumchicken"
+        }
+      },
+      {
+        "when": "siliconchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/siliconchicken"
+        }
+      },
+      {
+        "when": "silverdyechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/silverdyechicken"
+        }
+      },
+      {
+        "when": "silverorechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/silverorechicken"
+        }
+      },
+      {
+        "when": "slagchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/slagchicken"
+        }
+      },
+      {
+        "when": "slimechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/slimechicken"
+        }
+      },
+      {
+        "when": "smartchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/smartchicken"
+        }
+      },
+      {
+        "when": "snowballchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/snowballchicken"
+        }
+      },
+      {
+        "when": "soulariumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/soulariumchicken"
+        }
+      },
+      {
+        "when": "souliumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/souliumchicken"
+        }
+      },
+      {
+        "when": "souliumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/souliumessencechicken"
+        }
+      },
+      {
+        "when": "soulsandchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/soulsandchicken"
+        }
+      },
+      {
+        "when": "soulstonecobblechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/soulstonecobblechicken"
+        }
+      },
+      {
+        "when": "sprucedoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/sprucedoorchicken"
+        }
+      },
+      {
+        "when": "sprucelogchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/sprucelogchicken"
+        }
+      },
+      {
+        "when": "starmetalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/starmetalchicken"
+        }
+      },
+      {
+        "when": "steelchckennchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/steelchckennchicken"
+        }
+      },
+      {
+        "when": "steelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/steelchicken"
+        }
+      },
+      {
+        "when": "steeleafchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/steeleafchicken"
+        }
+      },
+      {
+        "when": "stellaralloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/stellaralloychicken"
+        }
+      },
+      {
+        "when": "stoneburntchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/stoneburntchicken"
+        }
+      },
+      {
+        "when": "stringchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/stringchicken"
+        }
+      },
+      {
+        "when": "sulfurchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/sulfurchicken"
+        }
+      },
+      {
+        "when": "supremiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/supremiumchicken"
+        }
+      },
+      {
+        "when": "tanzanitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/tanzanitechicken"
+        }
+      },
+      {
+        "when": "terrasteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/terrasteelchicken"
+        }
+      },
+      {
+        "when": "tertiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/tertiumchicken"
+        }
+      },
+      {
+        "when": "thaumaturgecinnabarclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgecinnabarclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgecopperclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgecopperclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgegoldclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgegoldclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgeironclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgeironclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgeleadclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgeleadclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgequartzclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgequartzclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgesilverclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgesilverclusterchicken"
+        }
+      },
+      {
+        "when": "thaumaturgetinclusterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumaturgetinclusterchicken"
+        }
+      },
+      {
+        "when": "thaumiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/thaumiumchicken"
+        }
+      },
+      {
+        "when": "theultimatechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/theultimatechicken"
+        }
+      },
+      {
+        "when": "tinchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/tinchicken"
+        }
+      },
+      {
+        "when": "titaniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/titaniumchicken"
+        }
+      },
+      {
+        "when": "topazchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/topazchicken"
+        }
+      },
+      {
+        "when": "torniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/torniumchicken"
+        }
+      },
+      {
+        "when": "torniumessencechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/torniumessencechicken"
+        }
+      },
+      {
+        "when": "tungstenchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/tungstenchicken"
+        }
+      },
+      {
+        "when": "tungstensteelchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/tungstensteelchicken"
+        }
+      },
+      {
+        "when": "unknownchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/unknownchicken"
+        }
+      },
+      {
+        "when": "unobtainiumalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/unobtainiumalloychicken"
+        }
+      },
+      {
+        "when": "unobtainiumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/unobtainiumchicken"
+        }
+      },
+      {
+        "when": "unobtainiumvibraniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/unobtainiumvibraniumchicken"
+        }
+      },
+      {
+        "when": "uraniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/uraniumchicken"
+        }
+      },
+      {
+        "when": "vanilla",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vanilla"
+        }
+      },
+      {
+        "when": "vanillachicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vanillachicken"
+        }
+      },
+      {
+        "when": "vibraniumalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vibraniumalloychicken"
+        }
+      },
+      {
+        "when": "vibraniumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vibraniumchicken"
+        }
+      },
+      {
+        "when": "vibrantalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vibrantalloychicken"
+        }
+      },
+      {
+        "when": "vinteumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vinteumchicken"
+        }
+      },
+      {
+        "when": "vividalloychicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/vividalloychicken"
+        }
+      },
+      {
+        "when": "voidcrystalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/voidcrystalchicken"
+        }
+      },
+      {
+        "when": "voidmetalchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/voidmetalchicken"
+        }
+      },
+      {
+        "when": "warpeddoorchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/warpeddoorchicken"
+        }
+      },
+      {
+        "when": "warpedstemchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/warpedstemchicken"
+        }
+      },
+      {
+        "when": "waterchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/waterchicken"
+        }
+      },
+      {
+        "when": "whitechicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/whitechicken"
+        }
+      },
+      {
+        "when": "xpchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/xpchicken"
+        }
+      },
+      {
+        "when": "yelloriumchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/yelloriumchicken"
+        }
+      },
+      {
+        "when": "yellowchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/yellowchicken"
+        }
+      },
+      {
+        "when": "yellowgarnetchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/yellowgarnetchicken"
+        }
+      },
+      {
+        "when": "zincchicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/zincchicken"
+        }
+      },
+      {
+        "when": "#rooster",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/rooster"
+        }
+      },
+      {
+        "when": "#robot_chicken",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken/smartchicken"
+        }
+      },
+      {
+        "when": "#layered",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken_layered",
+          "tints": [
+            { "type": "chickens:chicken", "kind": "background" },
+            { "type": "chickens:chicken", "kind": "background" },
+            { "type": "chickens:chicken", "kind": "foreground" }
+          ]
+        }
+      },
+      {
+        "when": "#bone",
+        "model": {
+          "type": "minecraft:model",
+          "model": "chickens:item/chicken_bone",
+          "tints": [
+            { "type": "minecraft:constant", "value": 16777215 },
+            { "type": "chickens:chicken", "kind": "overlay" }
+          ]
+        }
+      }
+    ],
+    "fallback": {
+      "type": "minecraft:model",
+      "model": "chickens:item/chicken",
+      "tints": [
+        { "type": "chickens:chicken", "kind": "background" }
+      ]
+    }
+  }
+}

@@ -26,7 +26,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
@@ -39,12 +39,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.EnumMap;
+import java.util.Optional;
 import java.util.Map;
 
 /**
@@ -67,7 +70,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
     private int tankCapacity = DEFAULT_TANK_CAPACITY;
     private int transferRate = DEFAULT_TRANSFER_RATE;
     @Nullable
-    private ResourceLocation chemicalId;
+    private Identifier chemicalId;
     private int chemicalEntryId = -1;
     private boolean storedGaseous;
     private boolean cachedActiveState;
@@ -92,7 +95,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
     }
 
     private void tickServer(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         boolean drained = crackChemicalEgg();
@@ -215,7 +218,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
 
     private void markChemicalDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -249,7 +252,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
     }
 
     @Nullable
-    public ResourceLocation getChemicalId() {
+    public Identifier getChemicalId() {
         return chemicalId;
     }
 
@@ -328,7 +331,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
             stack.setCount(getMaxStackSize());
         }
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }
@@ -400,23 +403,17 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveWithoutMetadata(provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     @Nullable
@@ -426,42 +423,35 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        CompoundTag tankTag = new CompoundTag();
-        tankTag.putInt("Amount", chemicalAmount);
-        tankTag.putInt("Capacity", tankCapacity);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        ValueOutput tankOutput = output.child("ChemicalTank");
+        tankOutput.putInt("Amount", chemicalAmount);
+        tankOutput.putInt("Capacity", tankCapacity);
         if (chemicalId != null) {
-            tankTag.putString("Chemical", chemicalId.toString());
+            tankOutput.putString("Chemical", chemicalId.toString());
         }
-        tankTag.putInt("EntryId", chemicalEntryId);
-        tankTag.putBoolean("Gaseous", storedGaseous);
-        tag.put("ChemicalTank", tankTag);
-        tag.putInt("TransferRate", transferRate);
-        if (customName != null) {
-            ComponentSerialization.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), customName)
-                    .result().ifPresent(component -> tag.put("CustomName", component));
-        }
+        tankOutput.putInt("EntryId", chemicalEntryId);
+        tankOutput.putBoolean("Gaseous", storedGaseous);
+        output.putInt("TransferRate", transferRate);
+        output.storeNullable("CustomName", ComponentSerialization.CODEC, customName);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        if (tag.contains("ChemicalTank", Tag.TAG_COMPOUND)) {
-            CompoundTag tankTag = tag.getCompound("ChemicalTank");
-            chemicalAmount = Math.max(0, tankTag.getInt("Amount"));
-            tankCapacity = Math.max(1, tankTag.getInt("Capacity"));
-            if (tankTag.contains("Chemical")) {
-                chemicalId = ResourceLocation.tryParse(tankTag.getString("Chemical"));
-            } else {
-                chemicalId = null;
-            }
-            chemicalEntryId = tankTag.contains("EntryId") ? tankTag.getInt("EntryId") : -1;
-            storedGaseous = tankTag.getBoolean("Gaseous");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        Optional<ValueInput> tank = input.child("ChemicalTank");
+        if (tank.isPresent()) {
+            ValueInput tankInput = tank.get();
+            chemicalAmount = Math.max(0, tankInput.getIntOr("Amount", 0));
+            tankCapacity = Math.max(1, tankInput.getIntOr("Capacity", 0));
+            chemicalId = tankInput.getString("Chemical").map(Identifier::tryParse).orElse(null);
+            chemicalEntryId = tankInput.getIntOr("EntryId", -1);
+            storedGaseous = tankInput.getBooleanOr("Gaseous", false);
         } else {
             chemicalAmount = 0;
             tankCapacity = DEFAULT_TANK_CAPACITY;
@@ -469,14 +459,8 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
             chemicalEntryId = -1;
             storedGaseous = false;
         }
-        transferRate = Math.max(0, tag.getInt("TransferRate"));
-        if (tag.contains("CustomName", Tag.TAG_COMPOUND)) {
-            ComponentSerialization.CODEC
-                    .parse(provider.createSerializationContext(NbtOps.INSTANCE), tag.getCompound("CustomName"))
-                    .result().ifPresent(component -> customName = component);
-        } else {
-            customName = null;
-        }
+        transferRate = Math.max(0, input.getIntOr("TransferRate", 0));
+        customName = input.read("CustomName", ComponentSerialization.CODEC).orElse(null);
         syncWithConfig(false);
         cachedActiveState = false;
         invalidateChemicalHandlers();
@@ -487,7 +471,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
         super.onLoad();
         syncWithConfig(false);
         invalidateChemicalHandlers();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }
@@ -649,7 +633,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
             markChemicalDirty();
             return;
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         long amount = MekanismChemicalHelper.getStackAmount(stack);
         if (id == null) {
             return;
@@ -666,7 +650,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
         if (stack == null || MekanismChemicalHelper.isStackEmpty(stack)) {
             return true;
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         if (id == null) {
             return false;
         }
@@ -681,7 +665,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
         if (stack == null || MekanismChemicalHelper.isStackEmpty(stack)) {
             return MekanismChemicalHelper.emptyStack();
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         if (id == null) {
             return stack;
         }
@@ -728,7 +712,7 @@ public class AvianChemicalConverterBlockEntity extends BlockEntity implements Wo
         if (template == null || MekanismChemicalHelper.isStackEmpty(template)) {
             return MekanismChemicalHelper.emptyStack();
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(template);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(template);
         long requested = MekanismChemicalHelper.getStackAmount(template);
         if (id == null || requested <= 0) {
             return MekanismChemicalHelper.emptyStack();

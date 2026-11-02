@@ -1,13 +1,13 @@
 package strhercules.chickens.integration.kubejs;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 
 /** Fluent KubeJS override for an automatically generated fluid or chemical chicken. */
 public final class KubeLineageBuilder {
     @Nullable
-    private final ResourceLocation resourceId;
+    private final Identifier resourceId;
     private final boolean chemical;
     @Nullable
     private String parent1;
@@ -19,13 +19,13 @@ public final class KubeLineageBuilder {
     @Nullable
     private Integer spawnWeight;
 
-    KubeLineageBuilder(@Nullable ResourceLocation resourceId, boolean chemical) {
+    KubeLineageBuilder(@Nullable Identifier resourceId, boolean chemical) {
         this.resourceId = resourceId;
         this.chemical = chemical;
     }
 
     @Nullable
-    ResourceLocation resourceId() {
+    Identifier resourceId() {
         return resourceId;
     }
 

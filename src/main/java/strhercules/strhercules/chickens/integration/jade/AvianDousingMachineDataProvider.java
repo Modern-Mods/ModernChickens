@@ -3,7 +3,7 @@ package strhercules.chickens.integration.jade;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.network.chat.Component;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
@@ -14,7 +14,7 @@ import snownee.jade.api.IServerDataProvider;
 enum AvianDousingMachineDataProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "avian_dousing_machine");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "avian_dousing_machine");
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
@@ -45,7 +45,7 @@ enum AvianDousingMachineDataProvider implements IServerDataProvider<BlockAccesso
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 }

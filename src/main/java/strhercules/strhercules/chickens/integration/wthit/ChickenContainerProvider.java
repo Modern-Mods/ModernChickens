@@ -56,11 +56,11 @@ final class ChickenContainerProvider<T extends AbstractChickenContainerBlockEnti
                     roost.getEnergyCostPerOperation()));
         }
 
-        boolean hasChickens = tag.getBoolean("HasChickens");
-        boolean hasSeeds = tag.getBoolean("HasSeeds");
-        int totalTicks = tag.getInt(TOTAL_KEY);
-        int etaTicks = tag.getInt(ETA_KEY);
-        int step = tag.getInt(STEP_KEY);
+        boolean hasChickens = tag.getBooleanOr("HasChickens", false);
+        boolean hasSeeds = tag.getBooleanOr("HasSeeds", false);
+        int totalTicks = tag.getIntOr(TOTAL_KEY, 0);
+        int etaTicks = tag.getIntOr(ETA_KEY, 0);
+        int step = tag.getIntOr(STEP_KEY, 0);
         if (hasChickens && hasSeeds && totalTicks > 0 && etaTicks > 0 && step > 0) {
             helper.addText(Component.translatable("tooltip.chickens.wthit.eta",
                     describeEta(normaliseRemainingTicks(etaTicks, step))));

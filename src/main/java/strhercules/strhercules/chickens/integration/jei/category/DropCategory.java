@@ -12,17 +12,17 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.RecipeType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Displays the passive drops produced by each chicken, keeping the same layout
  * as the original mod to preserve the nostalgic UI.
  */
 public class DropCategory implements IRecipeCategory<ChickensJeiRecipeTypes.DropRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/drops.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/drops_icon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/drops.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/drops_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -46,8 +46,13 @@ public class DropCategory implements IRecipeCategory<ChickensJeiRecipeTypes.Drop
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -64,8 +69,9 @@ public class DropCategory implements IRecipeCategory<ChickensJeiRecipeTypes.Drop
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.DropRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.DropRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 40, 21);
     }
 }

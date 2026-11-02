@@ -1,18 +1,18 @@
 package strhercules.chickens.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
 import strhercules.chickens.menu.AvianDousingMachineMenu;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity.InfusionMode;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity.SpecialInfusion;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.minecraft.world.entity.player.Inventory;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import strhercules.chickens.client.render.ClientFluids;
 import net.minecraft.util.Mth;
 
 /**
@@ -21,7 +21,7 @@ import net.minecraft.util.Mth;
  * Smart Chicken infusion will complete.
  */
 public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousingMachineMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/douser.png");
 
     private static final int CHEM_BAR_X = 9;
@@ -43,17 +43,16 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
     private static final int TEXTURE_SIZE = 256;
 
     public AvianDousingMachineScreen(AvianDousingMachineMenu menu, Inventory inventory, Component title) {
-        super(menu, inventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        super(menu, inventory, title, 176, 166);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
-        graphics.blit(GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, TEXTURE_SIZE, TEXTURE_SIZE);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, TEXTURE_SIZE, TEXTURE_SIZE);
 
         renderChemicalBar(graphics, x, y);
         renderLiquidBar(graphics, x, y);
@@ -62,21 +61,19 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, 8, 6, 0xFF404040, false);
+        graphics.text(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFF404040, false);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         renderSideConfig(graphics, mouseX, mouseY);
         renderTooltips(graphics, mouseX, mouseY);
-        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    private void renderChemicalBar(GuiGraphics graphics, int originX, int originY) {
+    private void renderChemicalBar(GuiGraphicsExtractor graphics, int originX, int originY) {
         int amount = menu.getChemicalAmount();
         int capacity = Math.max(menu.getChemicalCapacity(), 1);
         if (amount <= 0) {
@@ -92,11 +89,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
         if (entry != null) {
             color = entry.getEggColor();
         }
-        float r = ((color >> 16) & 0xFF) / 255.0F;
-        float g = ((color >> 8) & 0xFF) / 255.0F;
-        float b = (color & 0xFF) / 255.0F;
-        RenderSystem.setShaderColor(r, g, b, 1.0F);
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + CHEM_BAR_X,
                 originY + CHEM_BAR_Y + offset,
                 BAR_TEXTURE_X,
@@ -104,11 +97,11 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
                 BAR_WIDTH,
                 filled,
                 TEXTURE_SIZE,
-                TEXTURE_SIZE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                TEXTURE_SIZE,
+                0xFF000000 | color);
     }
 
-    private void renderLiquidBar(GuiGraphics graphics, int originX, int originY) {
+    private void renderLiquidBar(GuiGraphicsExtractor graphics, int originX, int originY) {
         int amount = menu.getFluidAmount();
         int capacity = Math.max(menu.getFluidCapacity(), 1);
         if (amount <= 0) {
@@ -124,14 +117,10 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
         if (color == -1) {
             color = 0x3FA7FF;
             if (!stack.isEmpty()) {
-                color = IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack);
+                color = ClientFluids.tint(stack);
             }
         }
-        float r = ((color >> 16) & 0xFF) / 255.0F;
-        float g = ((color >> 8) & 0xFF) / 255.0F;
-        float b = (color & 0xFF) / 255.0F;
-        RenderSystem.setShaderColor(r, g, b, 1.0F);
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + LIQUID_BAR_X,
                 originY + LIQUID_BAR_Y + offset,
                 BAR_TEXTURE_X,
@@ -139,11 +128,11 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
                 BAR_WIDTH,
                 filled,
                 TEXTURE_SIZE,
-                TEXTURE_SIZE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                TEXTURE_SIZE,
+                0xFF000000 | color);
     }
 
-    private void renderEnergyBar(GuiGraphics graphics, int originX, int originY) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics, int originX, int originY) {
         int energy = getDisplayedEnergy();
         int capacity = Math.max(getDisplayedCapacity(), 1);
         if (energy <= 0) {
@@ -156,8 +145,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
             return;
         }
         int offset = BAR_HEIGHT - filled;
-        RenderSystem.setShaderColor(0.95F, 0.75F, 0.20F, 1.0F);
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + ENERGY_BAR_X,
                 originY + ENERGY_BAR_Y + offset,
                 ENERGY_TEXTURE_X,
@@ -165,11 +153,11 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
                 BAR_WIDTH,
                 filled,
                 TEXTURE_SIZE,
-                TEXTURE_SIZE);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+                TEXTURE_SIZE,
+                0xFFF2BF33);
     }
 
-    private void renderProgressArrow(GuiGraphics graphics, int originX, int originY) {
+    private void renderProgressArrow(GuiGraphicsExtractor graphics, int originX, int originY) {
         int progress = menu.getProgress();
         int max = Math.max(menu.getMaxProgress(), 1);
         if (progress <= 0) {
@@ -179,7 +167,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
         if (width <= 0) {
             return;
         }
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + PROGRESS_X,
                 originY + PROGRESS_Y,
                 176,
@@ -190,7 +178,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
                 TEXTURE_SIZE);
     }
 
-    private void renderTooltips(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderTooltips(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (isHoveringChemical(mouseX, mouseY)) {
             int amount = menu.getChemicalAmount();
             int capacity = Math.max(menu.getChemicalCapacity(), 1);
@@ -200,7 +188,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
             Component tooltip = Component.translatable("tooltip.chickens.avian_dousing_machine.chemical",
                     chemicalName, amount, capacity, AvianDousingMachineBlockEntity.CHEMICAL_COST,
                     menu.getEnergyCostForMode(InfusionMode.CHEMICAL));
-            graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
             return;
         }
         if (isHoveringLiquid(mouseX, mouseY)) {
@@ -221,7 +209,7 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
                     : menu.getEnergyCostForMode(InfusionMode.LIQUID);
             Component tooltip = Component.translatable("tooltip.chickens.avian_dousing_machine.liquid",
                     fluidName, amount, capacity, useCost, energyCost);
-            graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
             return;
         }
         if (isHoveringEnergy(mouseX, mouseY)) {
@@ -229,14 +217,14 @@ public class AvianDousingMachineScreen extends SideConfigurableScreen<AvianDousi
             int capacity = Math.max(getDisplayedCapacity(), 1);
             Component tooltip = Component.translatable("tooltip.chickens.avian_dousing_machine.energy", energy, capacity,
                     menu.getEnergyCostForCurrentOperation());
-            graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
             return;
         }
         if (isHoveringProgress(mouseX, mouseY)) {
             int progress = menu.getProgress();
             int max = Math.max(menu.getMaxProgress(), 1);
             Component tooltip = Component.translatable("tooltip.chickens.avian_dousing_machine.progress", progress * 100 / max);
-            graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+            graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
             return;
         }
     }

@@ -5,17 +5,19 @@ import strhercules.chickens.integration.jei.ChickensJeiRecipeTypes;
 import strhercules.chickens.registry.ModRegistry;
 import mezz.jei.api.gui.builder.IRecipeLayoutBuilder;
 import mezz.jei.api.gui.drawable.IDrawable;
+import mezz.jei.api.gui.ingredient.IRecipeSlotsView;
 import mezz.jei.api.helpers.IGuiHelper;
 import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public final class LavaChickenCategory implements IRecipeCategory<ChickensJeiRecipeTypes.LavaChickenRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/gui/lava_chicken.png");
 
     private final IDrawable background;
@@ -37,8 +39,13 @@ public final class LavaChickenCategory implements IRecipeCategory<ChickensJeiRec
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -54,5 +61,11 @@ public final class LavaChickenCategory implements IRecipeCategory<ChickensJeiRec
                 .addItemStack(recipe.lavaBucket());
         builder.addSlot(RecipeIngredientRole.OUTPUT, 37, 50)
                 .addItemStack(recipe.lavaChicken());
+    }
+
+    @Override
+    public void draw(ChickensJeiRecipeTypes.LavaChickenRecipe recipe, IRecipeSlotsView recipeSlotsView,
+            GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        background.draw(graphics);
     }
 }

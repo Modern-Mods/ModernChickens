@@ -5,6 +5,7 @@ import strhercules.chickens.registry.ModMenuTypes;
 import strhercules.chickens.registry.ModRegistry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -39,7 +40,7 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
     public MegaChickenMenu(int id, Inventory playerInventory, MegaChicken chicken) {
         super(ModMenuTypes.MEGA_CHICKEN.get(), id);
         this.chicken = chicken;
-        this.cargo = chicken != null ? chicken.getInventory() : new SimpleContainer(55);
+        this.cargo = chicken != null ? chicken.getInventory() : new SimpleContainer(54);
         this.chestEquipment = chicken != null ? chicken.getChestEquipment() : new SimpleContainer(3);
 
         if (chicken != null) {
@@ -47,7 +48,8 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
             this.chestEquipment.startOpen(playerInventory.player);
         }
 
-        this.addSlot(new SaddleSlot(this.cargo, 0, chicken));
+        this.addSlot(new SaddleSlot(chicken != null
+                ? chicken.createEquipmentSlotContainer(EquipmentSlot.SADDLE) : new SimpleContainer(1), 0, chicken));
         this.addSlot(new FlyingEggSlot(this.chestEquipment, MegaChicken.FLYING_EGG_SLOT, 86, 10, chicken));
         this.addSlot(new ChestSlot(this.chestEquipment, MegaChicken.RIGHT_CHEST_SLOT, 86, 40,
                 this.cargo, chicken, false));
@@ -56,7 +58,7 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
 
         for (int row = 0; row < 6; row++) {
             for (int column = 0; column < CARGO_COLUMNS; column++) {
-                this.addSlot(new CargoSlot(this.cargo, 1 + column + row * CARGO_COLUMNS,
+                this.addSlot(new CargoSlot(this.cargo, column + row * CARGO_COLUMNS,
                         8 + column * 18, 63 + row * 18, chicken, row < CARGO_ROWS_PER_CHEST));
             }
         }
@@ -89,8 +91,8 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
                 && this.cargo.stillValid(player)
                 && this.chestEquipment.stillValid(player)
                 && this.chicken.isAlive()
-                && (this.chicken.level().isClientSide || this.chicken.isOwnedByPlayer(player))
-                && player.canInteractWithEntity(this.chicken, 4.0D));
+                && (this.chicken.level().isClientSide() || this.chicken.isOwnedByPlayer(player))
+                && player.isWithinEntityInteractionRange(this.chicken, 4.0D));
     }
 
     @Override
@@ -155,7 +157,15 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPlace(ItemStack stack) {
-            return this.chicken != null && stack.is(Items.SADDLE) && this.chicken.isSaddleable();
+            return this.chicken != null && this.chicken.isEquippableInSlot(stack, EquipmentSlot.SADDLE);
+        }
+
+        @Override
+        public void setByPlayer(ItemStack stack, ItemStack previous) {
+            if (this.chicken != null) {
+                this.chicken.onEquipItem(EquipmentSlot.SADDLE, previous, stack);
+            }
+            super.setByPlayer(stack, previous);
         }
 
         @Override
@@ -236,7 +246,7 @@ public final class MegaChickenMenu extends AbstractContainerMenu {
 
         @Override
         public boolean mayPickup(Player player) {
-            int start = 1 + (this.topRows ? 0 : CARGO_SLOTS_PER_CHEST);
+            int start = this.topRows ? 0 : CARGO_SLOTS_PER_CHEST;
             int end = start + CARGO_SLOTS_PER_CHEST;
             for (int index = start; index < end; index++) {
                 if (!this.cargo.getItem(index).isEmpty()) {

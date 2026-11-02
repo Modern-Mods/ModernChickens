@@ -5,7 +5,7 @@ import strhercules.chickens.blockentity.MechanicalNestBlockEntity;
 import strhercules.chickens.blockentity.NestBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
@@ -16,7 +16,7 @@ import java.util.Locale;
 enum NestDataProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "nest_data");
 
     @Override
@@ -57,7 +57,7 @@ enum NestDataProvider implements IServerDataProvider<BlockAccessor> {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 

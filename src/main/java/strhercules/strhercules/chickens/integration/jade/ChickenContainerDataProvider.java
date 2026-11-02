@@ -6,7 +6,7 @@ import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
 import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
@@ -21,7 +21,7 @@ import java.util.List;
 enum ChickenContainerDataProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "chicken_container");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "chicken_container");
     private static final String ETA_KEY = "ChickensEta";
     private static final String TOTAL_KEY = "ChickensTotal";
     private static final String STEP_KEY = "ChickensStep";
@@ -54,11 +54,11 @@ enum ChickenContainerDataProvider implements IServerDataProvider<BlockAccessor> 
                     roost.getEnergyCostPerOperation()));
         }
 
-        boolean hasChickens = tag.getBoolean("HasChickens");
-        boolean hasSeeds = tag.getBoolean("HasSeeds");
-        int totalTicks = tag.getInt(TOTAL_KEY);
-        int etaTicks = tag.getInt(ETA_KEY);
-        int step = tag.getInt(STEP_KEY);
+        boolean hasChickens = tag.getBooleanOr("HasChickens", false);
+        boolean hasSeeds = tag.getBooleanOr("HasSeeds", false);
+        int totalTicks = tag.getIntOr(TOTAL_KEY, 0);
+        int etaTicks = tag.getIntOr(ETA_KEY, 0);
+        int step = tag.getIntOr(STEP_KEY, 0);
         if (hasChickens && hasSeeds && totalTicks > 0 && etaTicks > 0 && step > 0) {
             builder.addText(Component.translatable("tooltip.chickens.wthit.eta",
                     describeEta(normaliseRemainingTicks(etaTicks, step))));
@@ -67,7 +67,7 @@ enum ChickenContainerDataProvider implements IServerDataProvider<BlockAccessor> 
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 

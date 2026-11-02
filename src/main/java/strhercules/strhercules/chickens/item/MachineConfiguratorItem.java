@@ -7,16 +7,16 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /** Mekanism-style face configurator with no Mekanism runtime dependency. */
 public final class MachineConfiguratorItem extends Item {
@@ -34,48 +34,48 @@ public final class MachineConfiguratorItem extends Item {
             return InteractionResult.PASS;
         }
         MachineSideConfig.Channel channel = channel(context.getItemInHand());
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             MachineSideConfig.Mode mode = configurable.sideConfig().cycle(context.getClickedFace(), channel);
             blockEntity.setChanged();
             level.sendBlockUpdated(context.getClickedPos(), blockEntity.getBlockState(),
                     blockEntity.getBlockState(), 3);
             if (context.getPlayer() != null) {
-                context.getPlayer().displayClientMessage(Component.translatable(
+                context.getPlayer().sendOverlayMessage(Component.translatable(
                         "message.chickens.configurator.face", context.getClickedFace().getName(),
-                        channelName(channel), modeName(mode)), true);
+                        channelName(channel), modeName(mode)));
             }
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, net.minecraft.world.entity.player.Player player,
+    public InteractionResult use(Level level, net.minecraft.world.entity.player.Player player,
             InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         if (player.isShiftKeyDown()) {
             MachineSideConfig.Channel next = MachineSideConfig.Channel.values()[(channel(stack).ordinal() + 1)
                     % MachineSideConfig.Channel.values().length];
             setChannel(stack, next);
-            if (!level.isClientSide) {
-                player.displayClientMessage(Component.translatable("message.chickens.configurator.channel",
-                        channelName(next)), true);
+            if (!level.isClientSide()) {
+                player.sendOverlayMessage(Component.translatable("message.chickens.configurator.channel",
+                        channelName(next)));
             }
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
-            TooltipFlag flag) {
-        tooltip.add(Component.translatable("item.chickens.configurator.channel", channelName(channel(stack)))
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("item.chickens.configurator.channel", channelName(channel(stack)))
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.chickens.configurator.hint").withStyle(ChatFormatting.DARK_GRAY));
+        tooltip.accept(Component.translatable("item.chickens.configurator.hint").withStyle(ChatFormatting.DARK_GRAY));
     }
 
     private static MachineSideConfig.Channel channel(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        int ordinal = data.copyTag().getInt(CHANNEL_TAG);
+        int ordinal = data.copyTag().getIntOr(CHANNEL_TAG, 0);
         return ordinal >= 0 && ordinal < MachineSideConfig.Channel.values().length
                 ? MachineSideConfig.Channel.values()[ordinal]
                 : MachineSideConfig.Channel.ITEMS;

@@ -16,7 +16,7 @@ import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.item.LiquidEggItem;
 import strhercules.chickens.item.ChickensSpawnEggItem;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.Container;
 import net.minecraft.world.RandomizableContainer;
 import net.minecraft.world.item.ItemStack;
@@ -97,7 +97,7 @@ public final class RadioactiveContentHelper {
         return false;
     }
 
-    public static boolean isRadioactiveChemical(@Nullable ResourceLocation chemicalId) {
+    public static boolean isRadioactiveChemical(@Nullable Identifier chemicalId) {
         if (chemicalId == null) {
             return false;
         }
@@ -114,7 +114,7 @@ public final class RadioactiveContentHelper {
         if (fluid == null || fluid.isEmpty()) {
             return false;
         }
-        ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
+        Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid.getFluid());
         LiquidEggRegistryItem entry = fluidId == null ? null : LiquidEggRegistry.findByFluid(fluidId);
         return entry != null && entry.hasHazard(LiquidEggRegistryItem.HazardFlag.RADIOACTIVE);
     }

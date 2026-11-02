@@ -76,7 +76,7 @@ public class CollectorBlockEntity extends AbstractChickenContainerBlockEntity {
             return 0;
         }
         int installed = getCapacityLevel();
-        return level != null && level.isClientSide && syncedCapacityLevel >= 0
+        return level != null && level.isClientSide() && syncedCapacityLevel >= 0
                 ? syncedCapacityLevel : installed;
     }
 
@@ -263,9 +263,9 @@ public class CollectorBlockEntity extends AbstractChickenContainerBlockEntity {
 
     @Override
     public void appendTooltip(List<Component> tooltip, net.minecraft.nbt.CompoundTag data) {
-        tooltip.add(Component.translatable("tooltip.chickens.collector.slots", data.getInt("FilledSlots"),
-                data.getInt("TotalSlots")));
-        tooltip.add(Component.translatable("tooltip.chickens.collector.range", data.getInt("Range")));
+        tooltip.add(Component.translatable("tooltip.chickens.collector.slots", data.getIntOr("FilledSlots", 0),
+                data.getIntOr("TotalSlots", 0)));
+        tooltip.add(Component.translatable("tooltip.chickens.collector.range", data.getIntOr("Range", 0)));
         super.appendTooltip(tooltip, data);
     }
 

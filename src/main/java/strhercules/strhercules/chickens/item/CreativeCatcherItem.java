@@ -5,7 +5,7 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.entity.ChickensChicken;
 import strhercules.chickens.entity.Rooster;
 import strhercules.chickens.registry.ModRegistry;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -41,8 +41,8 @@ public class CreativeCatcherItem extends Item {
         if (entity instanceof Chicken && !(entity instanceof ChickensChicken)) {
             if (entity.isBaby()) {
                 spawnParticles(level, position, true);
-                playSound(level, position, SoundEvents.CHICKEN_HURT);
-                return InteractionResult.sidedSuccess(level.isClientSide);
+                playSound(level, position, ChickenItemHelper.chickenHurtSound());
+                return InteractionResult.SUCCESS;
             }
             if (level instanceof ServerLevel serverLevel) {
                 ChickensRegistryItem vanillaDesc = ChickensRegistry.getByEntityName("VanillaChicken");
@@ -57,7 +57,7 @@ public class CreativeCatcherItem extends Item {
                     playSound(level, position, SoundEvents.CHICKEN_EGG);
                 }
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         if (!(entity instanceof ChickensChicken chicken)) {
@@ -66,8 +66,8 @@ public class CreativeCatcherItem extends Item {
 
         if (entity.isBaby()) {
             spawnParticles(level, position, true);
-            playSound(level, position, SoundEvents.CHICKEN_HURT);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            playSound(level, position, ChickenItemHelper.chickenHurtSound());
+            return InteractionResult.SUCCESS;
         }
 
         if (level instanceof ServerLevel serverLevel) {
@@ -83,14 +83,14 @@ public class CreativeCatcherItem extends Item {
             playSound(level, position, SoundEvents.CHICKEN_EGG);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     private InteractionResult catchRooster(Level level, Vec3 position, Rooster rooster) {
         if (rooster.isBaby()) {
             spawnParticles(level, position, true);
-            playSound(level, position, SoundEvents.CHICKEN_HURT);
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            playSound(level, position, ChickenItemHelper.chickenHurtSound());
+            return InteractionResult.SUCCESS;
         }
 
         if (level instanceof ServerLevel serverLevel) {
@@ -107,17 +107,17 @@ public class CreativeCatcherItem extends Item {
             playSound(level, position, SoundEvents.CHICKEN_EGG);
         }
 
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     private static void spawnParticles(Level level, Vec3 position, boolean failedCapture) {
         for (int i = 0; i < 20; i++) {
-            double offsetX = level.random.nextDouble() * 0.6D - 0.3D;
-            double offsetY = level.random.nextDouble() * 0.6D;
-            double offsetZ = level.random.nextDouble() * 0.6D - 0.3D;
-            double velocityX = level.random.nextGaussian() * 0.02D;
-            double velocityY = level.random.nextGaussian() * (failedCapture ? 0.1D : 0.2D);
-            double velocityZ = level.random.nextGaussian() * 0.02D;
+            double offsetX = level.getRandom().nextDouble() * 0.6D - 0.3D;
+            double offsetY = level.getRandom().nextDouble() * 0.6D;
+            double offsetZ = level.getRandom().nextDouble() * 0.6D - 0.3D;
+            double velocityX = level.getRandom().nextGaussian() * 0.02D;
+            double velocityY = level.getRandom().nextGaussian() * (failedCapture ? 0.1D : 0.2D);
+            double velocityZ = level.getRandom().nextGaussian() * 0.02D;
             if (level instanceof ServerLevel serverLevel) {
                 serverLevel.sendParticles(
                         failedCapture ? ParticleTypes.SMOKE : ParticleTypes.POOF,

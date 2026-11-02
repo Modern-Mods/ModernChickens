@@ -21,7 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomModelData;
 import net.minecraft.world.item.component.CustomData;
@@ -29,8 +29,9 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 import java.nio.file.Path;
-import java.util.Optional;
+import java.util.List;
 import java.util.Locale;
+import java.util.Optional;
 
 
 /**
@@ -49,7 +50,7 @@ public final class ChickensCommands {
 
     private static void onRegisterCommands(RegisterCommandsEvent event) {
         LiteralArgumentBuilder<CommandSourceStack> root = Commands.literal("chickens")
-                .requires(source -> source.hasPermission(4))
+                .requires(Commands.hasPermission(Commands.LEVEL_OWNERS))
                 .then(Commands.literal("export")
                         .then(Commands.literal("breeding")
                                 .executes(ctx -> exportBreedingGraph(ctx.getSource()))))
@@ -132,7 +133,7 @@ public final class ChickensCommands {
         ItemStack stack = new ItemStack(ModRegistry.CHICKEN_ITEM.get(), amount);
 
         // custom_model_data — mirrors what KubeJS shows (e.g. 105 for chickenType 105)
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(chicken.getId()));
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) chicken.getId()), List.of(), List.of(), List.of()));
 
         // custom_data  — ChickenStats compound + ChickenType int
         CompoundTag chickenData = new CompoundTag();
@@ -223,15 +224,15 @@ public final class ChickensCommands {
 
     private static boolean spawnChickenNearSource(CommandSourceStack source, ChickensRegistryItem chicken) {
         ServerLevel level = source.getLevel();
-        ChickensChicken entity = ModEntityTypes.CHICKENS_CHICKEN.get().create(level);
+        ChickensChicken entity = ModEntityTypes.CHICKENS_CHICKEN.get().create(level, EntitySpawnReason.COMMAND);
         if (entity == null) {
             return false;
         }
         entity.setChickenType(chicken.getId());
         var pos = source.getPosition();
         var rot = source.getRotation();
-        entity.moveTo(pos.x, pos.y, pos.z, rot.y, rot.x);
-        entity.finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), MobSpawnType.COMMAND, null);
+        entity.snapTo(pos.x, pos.y, pos.z, rot.y, rot.x);
+        entity.finalizeSpawn(level, level.getCurrentDifficultyAt(entity.blockPosition()), EntitySpawnReason.COMMAND, null);
         level.addFreshEntity(entity);
         return true;
     }

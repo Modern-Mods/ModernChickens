@@ -10,18 +10,18 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.bus.api.IEventBus;
-import net.neoforged.neoforge.network.PacketDistributor;
+import net.neoforged.neoforge.client.network.ClientPacketDistributor;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 
 /** Server-validated changes made from a machine's in-GUI I/O window. */
 public record SideConfigPayload(BlockPos pos, int direction, int channel, boolean reset) implements CustomPacketPayload {
     public static final Type<SideConfigPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "side_config"));
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "side_config"));
     public static final StreamCodec<RegistryFriendlyByteBuf, SideConfigPayload> STREAM_CODEC = StreamCodec.composite(
             BlockPos.STREAM_CODEC, SideConfigPayload::pos,
             ByteBufCodecs.VAR_INT, SideConfigPayload::direction,
@@ -34,11 +34,11 @@ public record SideConfigPayload(BlockPos pos, int direction, int channel, boolea
     }
 
     public static void send(BlockPos pos, Direction direction, MachineSideConfig.Channel channel) {
-        PacketDistributor.sendToServer(new SideConfigPayload(pos, direction.ordinal(), channel.ordinal(), false));
+        ClientPacketDistributor.sendToServer(new SideConfigPayload(pos, direction.ordinal(), channel.ordinal(), false));
     }
 
     public static void sendReset(BlockPos pos) {
-        PacketDistributor.sendToServer(new SideConfigPayload(pos, -1, -1, true));
+        ClientPacketDistributor.sendToServer(new SideConfigPayload(pos, -1, -1, true));
     }
 
     private static void register(RegisterPayloadHandlersEvent event) {

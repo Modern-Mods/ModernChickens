@@ -5,8 +5,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /** Shared tooltip presentation for the machine upgrade items. */
 public final class UpgradeItem extends Item {
@@ -49,8 +50,9 @@ public final class UpgradeItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("item.chickens." + kind.id + ".tooltip")
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("item.chickens." + kind.id + ".tooltip")
                 .withStyle(ChatFormatting.GRAY));
     }
 }

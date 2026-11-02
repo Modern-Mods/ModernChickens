@@ -30,9 +30,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 
 import javax.annotation.Nullable;
 
@@ -51,37 +53,35 @@ public final class MechanicalNestBlockEntity extends BlockEntity
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
     private final MachineSideConfig sideConfig = new MachineSideConfig();
-    private final EnergyStorage energyStorage = new EnergyStorage(DEFAULT_CAPACITY, DEFAULT_RECEIVE, DEFAULT_RECEIVE) {
+    private final MachineEnergyHandler energyStorage = new MachineEnergyHandler() {
         @Override
-        public int receiveEnergy(int amount, boolean simulate) {
-            int accepted = Math.min(Math.max(amount, 0), Math.min(MechanicalNestBlockEntity.this.maxReceive,
-                    MechanicalNestBlockEntity.this.capacity - MechanicalNestBlockEntity.this.energy));
-            if (!simulate && accepted > 0) {
-                MechanicalNestBlockEntity.this.energy += accepted;
-                setChanged();
-            }
-            return accepted;
-        }
-
-        @Override
-        public int extractEnergy(int amount, boolean simulate) {
-            int extracted = Math.min(Math.max(amount, 0), Math.min(MechanicalNestBlockEntity.this.maxReceive,
-                    MechanicalNestBlockEntity.this.energy));
-            if (!simulate && extracted > 0) {
-                MechanicalNestBlockEntity.this.energy -= extracted;
-                setChanged();
-            }
-            return extracted;
-        }
-
-        @Override
-        public int getEnergyStored() {
+        protected int storedEnergy() {
             return MechanicalNestBlockEntity.this.energy;
         }
 
         @Override
-        public int getMaxEnergyStored() {
+        protected void storeEnergy(int value) {
+            MechanicalNestBlockEntity.this.energy = value;
+        }
+
+        @Override
+        protected int energyCapacity() {
             return MechanicalNestBlockEntity.this.capacity;
+        }
+
+        @Override
+        protected int maxInsert() {
+            return MechanicalNestBlockEntity.this.maxReceive;
+        }
+
+        @Override
+        protected int maxExtract() {
+            return MechanicalNestBlockEntity.this.maxReceive;
+        }
+
+        @Override
+        protected void onEnergyChanged() {
+            setChanged();
         }
     };
 
@@ -97,7 +97,7 @@ public final class MechanicalNestBlockEntity extends BlockEntity
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state, MechanicalNestBlockEntity nest) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         nest.tickServer(level);
@@ -128,18 +128,12 @@ public final class MechanicalNestBlockEntity extends BlockEntity
                     || energy >= capacity) {
                 continue;
             }
-            IEnergyStorage neighbor = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler neighbor = level.getCapability(Capabilities.Energy.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (neighbor == null) {
                 continue;
             }
-            int amount = neighbor.extractEnergy(Math.min(maxReceive, capacity - energy), true);
-            if (amount > 0) {
-                int accepted = energyStorage.receiveEnergy(amount, true);
-                if (accepted > 0) {
-                    energyStorage.receiveEnergy(neighbor.extractEnergy(accepted, false), false);
-                }
-            }
+            EnergyHandlerUtil.move(neighbor, energyStorage, Math.min(maxReceive, capacity - energy), null);
         }
     }
 
@@ -276,7 +270,7 @@ public final class MechanicalNestBlockEntity extends BlockEntity
         return capacity <= 0 ? 0 : Math.round(15.0F * energy / capacity);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig, direction);
     }
 
@@ -373,7 +367,7 @@ public final class MechanicalNestBlockEntity extends BlockEntity
         if (index < 0 || index >= INVENTORY_SIZE) {
             return;
         }
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             items.set(index, stack.copy());
             return;
         }
@@ -467,31 +461,31 @@ public final class MechanicalNestBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        tag.putInt("InventoryVersion", INVENTORY_VERSION);
-        tag.putInt("Energy", energy);
-        sideConfig.save(tag);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        ContainerHelper.saveAllItems(output, items);
+        output.putInt("InventoryVersion", INVENTORY_VERSION);
+        output.putInt("Energy", energy);
+        sideConfig.save(output);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        if (tag.getInt("InventoryVersion") >= INVENTORY_VERSION) {
-            ContainerHelper.loadAllItems(tag, items, provider);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        if (input.getIntOr("InventoryVersion", 0) >= INVENTORY_VERSION) {
+            ContainerHelper.loadAllItems(input, items);
         } else {
             // Version 1 stored Range Upgrades in slot 2 and RF Upgrades in
             // slot 3. Preserve the rooster, speed, and RF contents while
             // dropping the no-longer-supported range slot.
             NonNullList<ItemStack> legacyItems = NonNullList.withSize(4, ItemStack.EMPTY);
-            ContainerHelper.loadAllItems(tag, legacyItems, provider);
+            ContainerHelper.loadAllItems(input, legacyItems);
             items.set(ROOSTER_SLOT, legacyItems.get(ROOSTER_SLOT));
             items.set(SPEED_UPGRADE_SLOT, legacyItems.get(SPEED_UPGRADE_SLOT));
             items.set(RF_UPGRADE_SLOT, legacyItems.get(3));
         }
-        sideConfig.load(tag);
-        energy = Math.max(0, tag.getInt("Energy"));
+        sideConfig.load(input);
+        energy = Math.max(0, input.getIntOr("Energy", 0));
         activeBoostedRoosts = 0;
         syncCapacity();
         cachedActive = false;
@@ -499,14 +493,12 @@ public final class MechanicalNestBlockEntity extends BlockEntity
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveWithoutMetadata(provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Nullable
@@ -516,16 +508,12 @@ public final class MechanicalNestBlockEntity extends BlockEntity
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     private void notifyBlockUpdate() {
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
         }

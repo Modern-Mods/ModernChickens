@@ -1,0 +1,9 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "chickens:item/chicken_item_base",
+    "layer1": "chickens:item/chicken_item_resource_one",
+    "layer2": "chickens:item/chicken_item_resource_two",
+    "layer3": "chickens:item/chicken_item_resource_parts"
+  }
+}

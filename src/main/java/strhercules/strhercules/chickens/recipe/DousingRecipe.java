@@ -10,17 +10,17 @@ import strhercules.chickens.item.ChickenItem;
 import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.item.ChickensSpawnEggItem;
 import strhercules.chickens.registry.ModRecipeTypes;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.PlacementInfo;
+import net.minecraft.world.item.crafting.RecipeBookCategories;
+import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeInput;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -49,10 +49,10 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
         }, type -> type.name().toLowerCase(Locale.ROOT));
     }
 
-    public record Reagent(ReagentType type, ResourceLocation id, int amount) {
+    public record Reagent(ReagentType type, Identifier id, int amount) {
         private static final MapCodec<Reagent> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
                 ReagentType.CODEC.fieldOf("type").forGetter(Reagent::type),
-                ResourceLocation.CODEC.fieldOf("id").forGetter(Reagent::id),
+                Identifier.CODEC.fieldOf("id").forGetter(Reagent::id),
                 Codec.INT.optionalFieldOf("amount", 1).forGetter(Reagent::amount)
         ).apply(instance, Reagent::new));
 
@@ -73,16 +73,18 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
                 buffer.writeUtf(recipe.inputChickenName);
                 buffer.writeUtf(recipe.resultChickenName);
                 buffer.writeEnum(recipe.reagent.type());
-                ResourceLocation.STREAM_CODEC.encode(buffer, recipe.reagent.id());
+                Identifier.STREAM_CODEC.encode(buffer, recipe.reagent.id());
                 buffer.writeVarInt(recipe.reagent.amount());
                 buffer.writeVarInt(recipe.energyCost);
             },
             buffer -> new DousingRecipe(
                     buffer.readUtf(),
                     buffer.readUtf(),
-                    new Reagent(buffer.readEnum(ReagentType.class), ResourceLocation.STREAM_CODEC.decode(buffer),
+                    new Reagent(buffer.readEnum(ReagentType.class), Identifier.STREAM_CODEC.decode(buffer),
                             buffer.readVarInt()),
                     buffer.readVarInt()));
+
+    public static final RecipeSerializer<DousingRecipe> SERIALIZER = new RecipeSerializer<>(CODEC, STREAM_CODEC);
 
     private final String inputChickenName;
     private final String resultChickenName;
@@ -112,7 +114,7 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
         return reagent.type();
     }
 
-    public ResourceLocation reagentId() {
+    public Identifier reagentId() {
         return reagent.id();
     }
 
@@ -180,11 +182,11 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
         if (ChickensRegistry.getByEntityName(name) != null) {
             return null;
         }
-        ResourceLocation id = ResourceLocation.tryParse(name);
+        Identifier id = Identifier.tryParse(name);
         if (id == null) {
             return null;
         }
-        Item item = BuiltInRegistries.ITEM.get(id);
+        Item item = BuiltInRegistries.ITEM.getValue(id);
         return item == null || item == Items.AIR ? null : item;
     }
 
@@ -193,7 +195,7 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
         if (reagent.type() != ReagentType.ITEM) {
             return null;
         }
-        ItemStack stack = new ItemStack(net.minecraft.core.registries.BuiltInRegistries.ITEM.get(reagent.id()));
+        ItemStack stack = new ItemStack(BuiltInRegistries.ITEM.getValue(reagent.id()));
         return stack.is(Items.AIR) ? null : stack;
     }
 
@@ -203,50 +205,38 @@ public final class DousingRecipe implements Recipe<SingleRecipeInput> {
     }
 
     @Override
-    public ItemStack assemble(SingleRecipeInput input, HolderLookup.Provider registries) {
-        return getResultItem(registries);
-    }
-
-    @Override
-    public boolean canCraftInDimensions(int width, int height) {
-        return width * height >= 1;
-    }
-
-    @Override
-    public ItemStack getResultItem(HolderLookup.Provider registries) {
+    public ItemStack assemble(SingleRecipeInput input) {
         return resultStack();
     }
 
     @Override
-    public NonNullList<Ingredient> getIngredients() {
-        ItemStack item = reagentItem();
-        NonNullList<Ingredient> ingredients = NonNullList.create();
-        if (item != null) {
-            ingredients.add(Ingredient.of(item.getItem()));
-        }
-        return ingredients;
+    public boolean showNotification() {
+        return false;
     }
 
     @Override
-    public RecipeSerializer<?> getSerializer() {
+    public String group() {
+        return "";
+    }
+
+    @Override
+    public PlacementInfo placementInfo() {
+        return PlacementInfo.NOT_PLACEABLE;
+    }
+
+    @Override
+    public RecipeBookCategory recipeBookCategory() {
+        return RecipeBookCategories.CRAFTING_MISC;
+    }
+
+    @Override
+    public RecipeSerializer<DousingRecipe> getSerializer() {
         return ModRecipeTypes.AVIAN_DOUSING_SERIALIZER.get();
     }
 
     @Override
-    public RecipeType<?> getType() {
+    public RecipeType<DousingRecipe> getType() {
         return ModRecipeTypes.AVIAN_DOUSING.get();
-    }
-
-    public static final class Serializer implements RecipeSerializer<DousingRecipe> {
-        @Override
-        public MapCodec<DousingRecipe> codec() {
-            return CODEC;
-        }
-
-        @Override
-        public StreamCodec<RegistryFriendlyByteBuf, DousingRecipe> streamCodec() {
-            return STREAM_CODEC;
-        }
     }
 
     @Nullable

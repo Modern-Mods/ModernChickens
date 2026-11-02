@@ -2,7 +2,7 @@ package strhercules.chickens.integration.kubejs;
 
 import dev.latvian.mods.kubejs.event.KubeStartupEvent;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.slf4j.Logger;
@@ -37,8 +37,8 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
     private final Map<String, ChickensRegistryItem> byName;
     private final List<KubeChickenBuilder> builders = new ArrayList<>();
     private final Map<String, KubeChickenModifier> modifiers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
-    private final Map<ResourceLocation, KubeLineageBuilder> fluidRules = new HashMap<>();
-    private final Map<ResourceLocation, KubeLineageBuilder> chemicalRules = new HashMap<>();
+    private final Map<Identifier, KubeLineageBuilder> fluidRules = new HashMap<>();
+    private final Map<Identifier, KubeLineageBuilder> chemicalRules = new HashMap<>();
     private final Map<String, KubeEggModifier> eggModifiers = new TreeMap<>(String.CASE_INSENSITIVE_ORDER);
     private final Map<Item, String> teachingRules = new HashMap<>();
 
@@ -63,7 +63,7 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
     }
 
     public KubeLineageBuilder fluid(String id) {
-        ResourceLocation resourceId = parseResource(id, "fluid");
+        Identifier resourceId = parseResource(id, "fluid");
         KubeLineageBuilder builder = resourceId == null
                 ? new KubeLineageBuilder(null, false)
                 : fluidRules.computeIfAbsent(resourceId, key -> new KubeLineageBuilder(key, false));
@@ -71,7 +71,7 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
     }
 
     public KubeLineageBuilder chemical(String id) {
-        ResourceLocation resourceId = parseResource(id, "chemical");
+        Identifier resourceId = parseResource(id, "chemical");
         return resourceId == null
                 ? new KubeLineageBuilder(null, true)
                 : chemicalRules.computeIfAbsent(resourceId, key -> new KubeLineageBuilder(key, true));
@@ -210,7 +210,7 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
 
     private void applyEggModifiers() {
         for (Map.Entry<String, KubeEggModifier> entry : eggModifiers.entrySet()) {
-            ResourceLocation id = ResourceLocation.tryParse(entry.getKey());
+            Identifier id = Identifier.tryParse(entry.getKey());
             if (id == null) {
                 LOGGER.warn("Egg modifier has a malformed resource id '{}'; ignoring", entry.getKey());
                 continue;
@@ -375,8 +375,8 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
     }
 
     @Nullable
-    private static ResourceLocation parseResource(String value, String kind) {
-        ResourceLocation id = value == null ? null : ResourceLocation.tryParse(value.trim());
+    private static Identifier parseResource(String value, String kind) {
+        Identifier id = value == null ? null : Identifier.tryParse(value.trim());
         if (id == null) {
             LOGGER.warn("Ignoring {} rule with malformed resource id '{}'", kind, value);
         }
@@ -394,7 +394,7 @@ public class ChickenRegistryKubeEvent implements KubeStartupEvent {
         if (value == null) {
             return null;
         }
-        ResourceLocation id = ResourceLocation.tryParse(value.toString().trim());
+        Identifier id = Identifier.tryParse(value.toString().trim());
         return id == null ? null : BuiltInRegistries.ITEM.getOptional(id).orElse(null);
     }
 

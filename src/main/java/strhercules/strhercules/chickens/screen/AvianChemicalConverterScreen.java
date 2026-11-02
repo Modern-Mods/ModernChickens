@@ -1,14 +1,14 @@
 package strhercules.chickens.screen;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChemicalEggRegistryItem;
 import strhercules.chickens.integration.mekanism.MekanismChemicalHelper;
 import strhercules.chickens.menu.AvianChemicalConverterMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 /**
@@ -16,7 +16,7 @@ import net.minecraft.world.entity.player.Inventory;
  * tints the tank based on the stored chemical egg colour.
  */
 public class AvianChemicalConverterScreen extends SideConfigurableScreen<AvianChemicalConverterMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/fluidchemicalconverter.png");
     private static final int TANK_X = 104;
     private static final int TANK_Y = 15;
@@ -26,36 +26,33 @@ public class AvianChemicalConverterScreen extends SideConfigurableScreen<AvianCh
     private static final int TANK_TEXTURE_Y = 1;
 
     public AvianChemicalConverterScreen(AvianChemicalConverterMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        super(menu, playerInventory, title, 176, 166);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
-        graphics.blit(GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         renderTank(graphics, x, y);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, 8, 6, 0xFF404040, false);
+        graphics.text(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFF404040, false);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         renderSideConfig(graphics, mouseX, mouseY);
         renderTankTooltip(graphics, mouseX, mouseY);
-        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    private void renderTank(GuiGraphics graphics, int originX, int originY) {
+    private void renderTank(GuiGraphicsExtractor graphics, int originX, int originY) {
         int amount = this.menu.getChemicalAmount();
         int capacity = Math.max(this.menu.getCapacity(), 1);
         if (amount <= 0) {
@@ -73,16 +70,12 @@ public class AvianChemicalConverterScreen extends SideConfigurableScreen<AvianCh
         } else {
             color = MekanismChemicalHelper.getChemicalTint(menu.getChemicalId());
         }
-        float r = ((color >> 16) & 0xFF) / 255.0F;
-        float g = ((color >> 8) & 0xFF) / 255.0F;
-        float b = (color & 0xFF) / 255.0F;
-        RenderSystem.setShaderColor(r, g, b, 1.0F);
-        graphics.blit(GUI_TEXTURE, originX + TANK_X, originY + TANK_Y + offset, TANK_TEXTURE_X,
-                TANK_TEXTURE_Y + offset, TANK_WIDTH, filled, 256, 256);
-        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, originX + TANK_X, originY + TANK_Y + offset, TANK_TEXTURE_X,
+                TANK_TEXTURE_Y + offset, TANK_WIDTH, filled, 256, 256,
+                0xFF000000 | color);
     }
 
-    private void renderTankTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderTankTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!isHoveringTank(mouseX, mouseY)) {
             return;
         }
@@ -94,7 +87,7 @@ public class AvianChemicalConverterScreen extends SideConfigurableScreen<AvianCh
         Component tooltip = amount <= 0
                 ? Component.translatable("tooltip.chickens.avian_chemical_converter.empty")
                 : Component.translatable("tooltip.chickens.avian_chemical_converter.level", name, amount, capacity);
-        graphics.renderTooltip(this.font, tooltip, mouseX, mouseY);
+        graphics.setTooltipForNextFrame(this.font, tooltip, mouseX, mouseY);
     }
 
     private boolean isHoveringTank(int mouseX, int mouseY) {

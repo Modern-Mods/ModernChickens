@@ -91,7 +91,7 @@ public final class MechanicalNestMenu extends AbstractContainerMenu implements S
     }
 
     private boolean serverSide() {
-        return nest.getLevel() != null && !nest.getLevel().isClientSide;
+        return nest.getLevel() != null && !nest.getLevel().isClientSide();
     }
 
     private int serverEnergy() { return nest.getEnergyStored(); }

@@ -5,7 +5,7 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChickensRegistryItem;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.DynamicTexture;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
@@ -22,19 +22,19 @@ import java.util.Optional;
 
 public final class DynamicChickenTextures {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensDynamicTextures");
-    private static final ResourceLocation BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier BASE_TEXTURE = Identifier.fromNamespaceAndPath(
             "minecraft", "textures/entity/chicken.png");
-    private static final ResourceLocation LAYERED_BASE_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier LAYERED_BASE_TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/entity/chicken_base_two.png");
-    private static final ResourceLocation LAYERED_PRIMARY_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier LAYERED_PRIMARY_TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/entity/chicken_resource.png");
-    private static final ResourceLocation LAYERED_FOREGROUND_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier LAYERED_FOREGROUND_TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/entity/chicken_resource_two.png");
-    private static final ResourceLocation LAYERED_PARTS_TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier LAYERED_PARTS_TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/entity/chicken_parts.png");
     private static final int LAYERED_TEXTURE_WIDTH = 64;
     private static final int LAYERED_TEXTURE_HEIGHT = 32;
-    private static final Map<Integer, ResourceLocation> CACHE = new HashMap<>();
+    private static final Map<Integer, Identifier> CACHE = new HashMap<>();
     private static NativeImage baseImageCache;
     private static NativeImage layeredBaseImageCache;
     private static NativeImage layeredPrimaryImageCache;
@@ -44,16 +44,16 @@ public final class DynamicChickenTextures {
     private DynamicChickenTextures() {
     }
 
-    public static ResourceLocation textureFor(ChickensRegistryItem chicken) {
+    public static Identifier textureFor(ChickensRegistryItem chicken) {
         return CACHE.computeIfAbsent(chicken.getId(), id -> generateTexture(chicken));
     }
 
-    private static ResourceLocation generateTexture(ChickensRegistryItem chicken) {
+    private static Identifier generateTexture(ChickensRegistryItem chicken) {
         if (chicken.hasLayeredResourceTexture()) {
             NativeImage layered = generateLayeredImage(chicken);
             if (layered != null) {
-                DynamicTexture texture = new DynamicTexture(layered);
-                ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+                DynamicTexture texture = new DynamicTexture(() -> "chickens_dynamic_chicken_" + chicken.getId(), layered);
+                Identifier id = Identifier.fromNamespaceAndPath(
                         ChickensMod.MOD_ID, "dynamic/chicken_" + chicken.getId());
                 Minecraft.getInstance().getTextureManager().register(id, texture);
                 return id;
@@ -63,7 +63,7 @@ public final class DynamicChickenTextures {
         return generateLegacyTexture(chicken);
     }
 
-    private static ResourceLocation generateLegacyTexture(ChickensRegistryItem chicken) {
+    private static Identifier generateLegacyTexture(ChickensRegistryItem chicken) {
         NativeImage base = getBaseImage();
         if (base == null) {
             return BASE_TEXTURE;
@@ -74,15 +74,15 @@ public final class DynamicChickenTextures {
         int accent = chicken.getFgColor();
         for (int y = 0; y < base.getHeight(); y++) {
             for (int x = 0; x < base.getWidth(); x++) {
-                int rgba = base.getPixelRGBA(x, y);
-                int alpha = (rgba >>> 24) & 0xFF;
+                int argb = base.getPixel(x, y);
+                int alpha = (argb >>> 24) & 0xFF;
                 if (alpha == 0) {
-                    image.setPixelRGBA(x, y, 0);
+                    image.setPixel(x, y, 0);
                     continue;
                 }
-                int r = rgba & 0xFF;
-                int g = (rgba >> 8) & 0xFF;
-                int b = (rgba >> 16) & 0xFF;
+                int r = (argb >> 16) & 0xFF;
+                int g = (argb >> 8) & 0xFF;
+                int b = argb & 0xFF;
                 float max = Math.max(Math.max(r, g), b) / 255.0f;
                 float min = Math.min(Math.min(r, g), b) / 255.0f;
                 float saturation = max == 0.0f ? 0.0f : (max - min) / max;
@@ -94,13 +94,13 @@ public final class DynamicChickenTextures {
                 } else {
                     resultRgb = (r << 16) | (g << 8) | b;
                 }
-                int finalColor = toAbgr(alpha, resultRgb);
-                image.setPixelRGBA(x, y, finalColor);
+                int finalColor = (alpha << 24) | resultRgb;
+                image.setPixel(x, y, finalColor);
             }
         }
 
-        DynamicTexture texture = new DynamicTexture(image);
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(
+        DynamicTexture texture = new DynamicTexture(() -> "chickens_dynamic_chicken_" + chicken.getId(), image);
+        Identifier id = Identifier.fromNamespaceAndPath(
                 ChickensMod.MOD_ID, "dynamic/chicken_" + chicken.getId());
         Minecraft.getInstance().getTextureManager().register(id, texture);
         return id;
@@ -140,17 +140,17 @@ public final class DynamicChickenTextures {
         int blue = color & 0xFF;
         for (int y = 0; y < source.getHeight(); y++) {
             for (int x = 0; x < source.getWidth(); x++) {
-                int sourcePixel = source.getPixelRGBA(x, y);
+                int sourcePixel = source.getPixel(x, y);
                 int alpha = (sourcePixel >>> 24) & 0xFF;
                 if (alpha == 0) {
                     continue;
                 }
-                int shade = sourcePixel & 0xFF;
+                int shade = (sourcePixel >> 16) & 0xFF;
                 int tintedRed = red * shade / 255;
                 int tintedGreen = green * shade / 255;
                 int tintedBlue = blue * shade / 255;
-                target.setPixelRGBA(offsetX + x, offsetY + y,
-                        toAbgr(alpha, (tintedRed << 16) | (tintedGreen << 8) | tintedBlue));
+                target.setPixel(offsetX + x, offsetY + y,
+                        (alpha << 24) | (tintedRed << 16) | (tintedGreen << 8) | tintedBlue);
             }
         }
     }
@@ -158,9 +158,9 @@ public final class DynamicChickenTextures {
     private static void copyLayer(NativeImage target, NativeImage source, int offsetX, int offsetY) {
         for (int y = 0; y < source.getHeight(); y++) {
             for (int x = 0; x < source.getWidth(); x++) {
-                int pixel = source.getPixelRGBA(x, y);
+                int pixel = source.getPixel(x, y);
                 if (((pixel >>> 24) & 0xFF) != 0) {
-                    target.setPixelRGBA(offsetX + x, offsetY + y, pixel);
+                    target.setPixel(offsetX + x, offsetY + y, pixel);
                 }
             }
         }
@@ -180,13 +180,6 @@ public final class DynamicChickenTextures {
         int g = (int) (sg + (eg - sg) * clamped);
         int b = (int) (sb + (eb - sb) * clamped);
         return (r << 16) | (g << 8) | b;
-    }
-
-    private static int toAbgr(int alpha, int rgb) {
-        int r = (rgb >> 16) & 0xFF;
-        int g = (rgb >> 8) & 0xFF;
-        int b = rgb & 0xFF;
-        return (alpha << 24) | (b << 16) | (g << 8) | r;
     }
 
     private static NativeImage getBaseImage() {
@@ -225,7 +218,7 @@ public final class DynamicChickenTextures {
         return layeredPartsImageCache;
     }
 
-    private static NativeImage loadImage(ResourceLocation location) {
+    private static NativeImage loadImage(Identifier location) {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(location);
         if (resource.isEmpty()) {
             LOGGER.warn("Unable to load chicken texture {}", location);

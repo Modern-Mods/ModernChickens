@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "chickens:item/robot_rooster_spawn_egg",
+    "tints": [
+      { "type": "minecraft:constant", "value": 4868682 },
+      { "type": "minecraft:constant", "value": 14066477 }
+    ]
+  }
+}

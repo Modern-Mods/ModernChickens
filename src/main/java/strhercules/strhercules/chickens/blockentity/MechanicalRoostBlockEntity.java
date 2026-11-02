@@ -24,9 +24,11 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
@@ -88,7 +90,7 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
 
     @Override
     protected void runServerTick(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         syncWithConfig();
@@ -157,7 +159,7 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
                     rowTimeElapsed[row] + increment);
         }
         if (rowTimeElapsed[row] >= rowTimeUntilNextDrop[row]
-                && spawnRowItem(row, entry, level.random)) {
+                && spawnRowItem(row, entry, level.getRandom())) {
             resetRowTimer(level, row);
         }
         updateRowProgress(row);
@@ -222,7 +224,7 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
             clearRowTimer(row);
             return;
         }
-        int rawTarget = entry.getLayTime(level.random);
+        int rawTarget = entry.getLayTime(level.getRandom());
         rowRawLayTime[row] = rawTarget;
         rowAppliedSpeedMultiplier[row] = rowSpeedMultiplier(entry);
         rowTimeUntilNextDrop[row] = scaleLayTime(rawTarget, rowAppliedSpeedMultiplier[row]);
@@ -614,7 +616,7 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
         syncWithConfig();
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig(), direction);
     }
 
@@ -633,24 +635,13 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
             if (!sideConfig().allows(direction, MachineSideConfig.Channel.ENERGY, true)) {
                 continue;
             }
-            IEnergyStorage neighbor = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler neighbor = level.getCapability(Capabilities.Energy.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (neighbor == null) {
                 continue;
             }
             int space = Math.min(maxReceive, capacity - energyStorage.getEnergyStored());
-            int available = neighbor.extractEnergy(space, true);
-            if (available <= 0) {
-                continue;
-            }
-            int accepted = energyStorage.receiveEnergy(available, true);
-            if (accepted <= 0) {
-                continue;
-            }
-            int drained = neighbor.extractEnergy(accepted, false);
-            if (drained > 0) {
-                energyStorage.receiveEnergy(drained, false);
-            }
+            EnergyHandlerUtil.move(neighbor, energyStorage, space, null);
         }
     }
 
@@ -685,24 +676,24 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("Energy", getEnergyStored());
-        tag.putIntArray("RowTimeUntilNextDrop", rowTimeUntilNextDrop);
-        tag.putIntArray("RowTimeElapsed", rowTimeElapsed);
-        tag.putIntArray("RowProgress", rowProgress);
-        tag.putIntArray("RowRawLayTime", rowRawLayTime);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Energy", getEnergyStored());
+        output.putIntArray("RowTimeUntilNextDrop", rowTimeUntilNextDrop);
+        output.putIntArray("RowTimeElapsed", rowTimeElapsed);
+        output.putIntArray("RowProgress", rowProgress);
+        output.putIntArray("RowRawLayTime", rowRawLayTime);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         syncWithConfig();
-        energyStorage.setEnergy(Mth.clamp(tag.getInt("Energy"), 0, capacity));
-        loadRowValues(tag.getIntArray("RowTimeUntilNextDrop"), rowTimeUntilNextDrop, Integer.MAX_VALUE);
-        loadRowValues(tag.getIntArray("RowTimeElapsed"), rowTimeElapsed, Integer.MAX_VALUE);
-        loadRowValues(tag.getIntArray("RowProgress"), rowProgress, 1000);
-        loadRowValues(tag.getIntArray("RowRawLayTime"), rowRawLayTime, Integer.MAX_VALUE);
+        energyStorage.setEnergy(Mth.clamp(input.getIntOr("Energy", 0), 0, capacity));
+        loadRowValues(input.getIntArray("RowTimeUntilNextDrop").orElse(new int[0]), rowTimeUntilNextDrop, Integer.MAX_VALUE);
+        loadRowValues(input.getIntArray("RowTimeElapsed").orElse(new int[0]), rowTimeElapsed, Integer.MAX_VALUE);
+        loadRowValues(input.getIntArray("RowProgress").orElse(new int[0]), rowProgress, 1000);
+        loadRowValues(input.getIntArray("RowRawLayTime").orElse(new int[0]), rowRawLayTime, Integer.MAX_VALUE);
         for (int row = 0; row < CHICKEN_SLOT_COUNT; row++) {
             rowChickenData[row] = null;
         }
@@ -716,25 +707,19 @@ public class MechanicalRoostBlockEntity extends AbstractChickenContainerBlockEnt
         }
     }
 
-    private final class MachineEnergyStorage extends EnergyStorage {
+    private final class MachineEnergyStorage extends StoredEnergyHandler {
         MachineEnergyStorage() {
             super(DEFAULT_ENERGY_CAPACITY, DEFAULT_ENERGY_MAX_RECEIVE, 0);
         }
 
         @Override
-        public int receiveEnergy(int amount, boolean simulate) {
-            int previousMaxReceive = this.maxReceive;
-            this.maxReceive = MechanicalRoostBlockEntity.this.maxReceive;
-            int received = super.receiveEnergy(amount, simulate);
-            this.maxReceive = previousMaxReceive;
-            if (received > 0 && !simulate) {
-                setChanged();
-            }
-            return received;
+        protected int maxInsert() {
+            return MechanicalRoostBlockEntity.this.maxReceive;
         }
 
-        void setEnergy(int energy) {
-            this.energy = Mth.clamp(energy, 0, getMaxEnergyStored());
+        @Override
+        protected void onEnergyChanged() {
+            setChanged();
         }
 
         void setLimits(int capacity, int maxReceive) {

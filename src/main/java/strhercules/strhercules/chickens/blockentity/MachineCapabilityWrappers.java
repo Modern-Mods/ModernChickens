@@ -2,9 +2,10 @@ package strhercules.chickens.blockentity;
 
 import strhercules.chickens.integration.mekanism.MekanismChemicalHelper;
 import net.minecraft.core.Direction;
-import net.neoforged.neoforge.energy.IEnergyStorage;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
@@ -15,83 +16,72 @@ public final class MachineCapabilityWrappers {
     private MachineCapabilityWrappers() {
     }
 
-    public static IEnergyStorage energy(IEnergyStorage delegate, MachineSideConfig config,
+    public static EnergyHandler energy(EnergyHandler delegate, MachineSideConfig config,
             @Nullable Direction side) {
-        return new IEnergyStorage() {
+        return new EnergyHandler() {
             @Override
-            public int receiveEnergy(int maxReceive, boolean simulate) {
+            public long getAmountAsLong() {
+                return delegate.getAmountAsLong();
+            }
+
+            @Override
+            public long getCapacityAsLong() {
+                return delegate.getCapacityAsLong();
+            }
+
+            @Override
+            public int insert(int amount, TransactionContext transaction) {
                 return config.allows(side, MachineSideConfig.Channel.ENERGY, true)
-                        ? delegate.receiveEnergy(maxReceive, simulate) : 0;
+                        ? delegate.insert(amount, transaction) : 0;
             }
 
             @Override
-            public int extractEnergy(int maxExtract, boolean simulate) {
+            public int extract(int amount, TransactionContext transaction) {
                 return config.allows(side, MachineSideConfig.Channel.ENERGY, false)
-                        ? delegate.extractEnergy(maxExtract, simulate) : 0;
-            }
-
-            @Override
-            public int getEnergyStored() {
-                return delegate.getEnergyStored();
-            }
-
-            @Override
-            public int getMaxEnergyStored() {
-                return delegate.getMaxEnergyStored();
-            }
-
-            @Override
-            public boolean canExtract() {
-                return config.allows(side, MachineSideConfig.Channel.ENERGY, false) && delegate.canExtract();
-            }
-
-            @Override
-            public boolean canReceive() {
-                return config.allows(side, MachineSideConfig.Channel.ENERGY, true) && delegate.canReceive();
+                        ? delegate.extract(amount, transaction) : 0;
             }
         };
     }
 
-    public static IFluidHandler fluid(IFluidHandler delegate, MachineSideConfig config,
-            @Nullable Direction side) {
-        return new IFluidHandler() {
+    public static ResourceHandler<FluidResource> fluid(ResourceHandler<FluidResource> delegate,
+            MachineSideConfig config, @Nullable Direction side) {
+        return new ResourceHandler<>() {
             @Override
-            public int getTanks() {
-                return delegate.getTanks();
+            public int size() {
+                return delegate.size();
             }
 
             @Override
-            public FluidStack getFluidInTank(int tank) {
-                return delegate.getFluidInTank(tank);
+            public FluidResource getResource(int index) {
+                return delegate.getResource(index);
             }
 
             @Override
-            public int getTankCapacity(int tank) {
-                return delegate.getTankCapacity(tank);
+            public long getAmountAsLong(int index) {
+                return delegate.getAmountAsLong(index);
             }
 
             @Override
-            public boolean isFluidValid(int tank, FluidStack stack) {
+            public long getCapacityAsLong(int index, FluidResource resource) {
+                return delegate.getCapacityAsLong(index, resource);
+            }
+
+            @Override
+            public boolean isValid(int index, FluidResource resource) {
                 return config.allows(side, MachineSideConfig.Channel.FLUIDS, true)
-                        && delegate.isFluidValid(tank, stack);
+                        && delegate.isValid(index, resource);
             }
 
             @Override
-            public int fill(FluidStack resource, FluidAction action) {
+            public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
                 return config.allows(side, MachineSideConfig.Channel.FLUIDS, true)
-                        ? delegate.fill(resource, action) : 0;
+                        ? delegate.insert(index, resource, amount, transaction) : 0;
             }
 
             @Override
-            public FluidStack drain(FluidStack resource, FluidAction action) {
+            public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
                 return config.allows(side, MachineSideConfig.Channel.FLUIDS, false)
-                        ? delegate.drain(resource, action) : FluidStack.EMPTY;
-            }
-
-            @Override
-            public FluidStack drain(int maxDrain, FluidAction action) {
-                return config.allows(side, MachineSideConfig.Channel.FLUIDS, false)
-                        ? delegate.drain(maxDrain, action) : FluidStack.EMPTY;
+                        ? delegate.extract(index, resource, amount, transaction) : 0;
             }
         };
     }

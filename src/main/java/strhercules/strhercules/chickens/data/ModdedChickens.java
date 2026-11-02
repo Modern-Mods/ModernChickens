@@ -13,10 +13,10 @@ import strhercules.chickens.item.LiquidEggItem;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
@@ -88,8 +88,8 @@ final class ModdedChickens {
         return byName.get(name.toLowerCase(Locale.ROOT));
     }
 
-    private static ResourceLocation texture(String path) {
-        return ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/" + path + ".png");
+    private static Identifier texture(String path) {
+        return Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/" + path + ".png");
     }
 
     private static Map<String, ChickensRegistryItem> buildRegistryIndex() {
@@ -111,13 +111,13 @@ final class ModdedChickens {
                 continue;
             }
 
-            Optional<ItemStack> layItem = def.layItemSupplier().get();
+            Optional<ItemStackTemplate> layItem = def.layItemSupplier().get();
             if (layItem.isEmpty()) {
                 PENDING.add(def.id());
                 LOGGER.debug("Deferring {} because no lay item was found", def.entityName());
                 continue;
             }
-            ItemStack layStack = layItem.get();
+            ItemStackTemplate layStack = layItem.get();
 
             ChickensRegistryItem parent1 = resolveParent(byName, def.parent1());
             if (def.parent1() != null && parent1 == null) {
@@ -184,10 +184,10 @@ final class ModdedChickens {
         }
     }
 
-    private static boolean isResourceLayItem(ItemStack layStack) {
-        return !(layStack.getItem() instanceof LiquidEggItem)
-                && !(layStack.getItem() instanceof ChemicalEggItem)
-                && !(layStack.getItem() instanceof GasEggItem);
+    private static boolean isResourceLayItem(ItemStackTemplate layStack) {
+        return !(layStack.item().value() instanceof LiquidEggItem)
+                && !(layStack.item().value() instanceof ChemicalEggItem)
+                && !(layStack.item().value() instanceof GasEggItem);
     }
 
     private static List<Definition> buildDefinitions() {
@@ -195,22 +195,22 @@ final class ModdedChickens {
 
         // Vanilla/More Chickens extras
         list.add(new Definition(500, "pShardChicken", "pshard_chicken",
-                () -> Optional.of(new ItemStack(Items.PRISMARINE_SHARD)),
+                () -> Optional.of(new ItemStackTemplate(Items.PRISMARINE_SHARD)),
                 0x3aa6a4, 0x6fd6d4, SpawnType.NONE,
                 "WaterChicken", "SandChicken", null));
 
         list.add(new Definition(501, "pCrystalChicken", "pcrystal_chicken",
-                () -> Optional.of(new ItemStack(Items.PRISMARINE_CRYSTALS)),
+                () -> Optional.of(new ItemStackTemplate(Items.PRISMARINE_CRYSTALS)),
                 0x46b9c7, 0x94e5f2, SpawnType.NONE,
                 "pShardChicken", "GlowstoneChicken", null));
 
         list.add(new Definition(502, "soulSandChicken", "soulsand_chicken",
-                () -> Optional.of(new ItemStack(Blocks.SOUL_SAND)),
+                () -> Optional.of(new ItemStackTemplate(Blocks.SOUL_SAND.asItem())),
                 0x5b3b2a, 0x362113, SpawnType.HELL,
                 null, null, null));
 
         list.add(new Definition(503, "obsidianChicken", "obsidian_chicken",
-                () -> Optional.of(new ItemStack(Blocks.OBSIDIAN)),
+                () -> Optional.of(new ItemStackTemplate(Blocks.OBSIDIAN.asItem())),
                 0x221934, 0x5b3d7a, SpawnType.NONE,
                 "WaterChicken", "LavaChicken", null));
 
@@ -574,7 +574,7 @@ final class ModdedChickens {
         // Flux Networks → fluxnetworks:flux_dust | Applied Fluix → best-effort registry search for applied_fluix*
         // Applied Generators → appgen:ember_crystal
         list.add(new Definition(565, "amethystChicken", "amethyst_chicken",
-                () -> Optional.of(new ItemStack(Items.AMETHYST_SHARD)),
+                () -> Optional.of(new ItemStackTemplate(Items.AMETHYST_SHARD)),
                 0x9a5ce0, 0xdab6ff, SpawnType.NONE,
                 "QuartzChicken", "PurpleChicken", null));
 
@@ -714,11 +714,11 @@ final class ModdedChickens {
 
         // Boss-tier chickens crafted via the Avian Dousing Machine special infusions.
         list.add(new Definition(591, "witherChicken", "wither_chicken",
-                () -> Optional.of(new ItemStack(Items.NETHER_STAR)),
+                () -> Optional.of(new ItemStackTemplate(Items.NETHER_STAR)),
                 0x1b1b1b, 0xababab, SpawnType.NONE,
                 null, null, null));
         list.add(new Definition(590, "dragonChicken", "dragon_chicken",
-                () -> Optional.of(new ItemStack(Items.DRAGON_EGG)),
+                () -> Optional.of(new ItemStackTemplate(Items.DRAGON_EGG)),
                 0x4b2a7c, 0x9f7be0, SpawnType.NONE,
                 "witherChicken", "uraniumChicken", null));
 
@@ -893,26 +893,26 @@ final class ModdedChickens {
 
         // chickenNosto – obtenido por right-click con una tarta (pie)
         list.add(new Definition(624, "chickenNosto", "chicken_nosto",
-                () -> Optional.of(new ItemStack(Items.CAKE)),
+                () -> Optional.of(new ItemStackTemplate(Items.CAKE)),
                 0xf5c27f, 0xfff0c8, SpawnType.NONE,
                 "YellowChicken", "BrownChicken", null));
 
         // americanChicken – obtenido por right-click con un grass_block (enseñanza)
         list.add(new Definition(625, "americanChicken", "american_chicken",
-                () -> Optional.of(new ItemStack(Blocks.GRASS_BLOCK)),
+                () -> Optional.of(new ItemStackTemplate(Blocks.GRASS_BLOCK.asItem())),
                 0x59b83a, 0x8b5c2a, SpawnType.NONE,
                 "GreenChicken", "BrownChicken", null));
 
         // Vanilla extras
         // Fragmentos del silencio (Warden shards)
         list.add(new Definition(626, "echoShardChicken", "echo_shard_chicken",
-                () -> Optional.of(new ItemStack(Items.ECHO_SHARD)),
+                () -> Optional.of(new ItemStackTemplate(Items.ECHO_SHARD)),
                 0x00c8c8, 0x004444, SpawnType.NONE,
                 "obsidianChicken", "CyanChicken", null));
 
         // Cristales del End (End Crystal)
         list.add(new Definition(627, "endCrystalChicken", "end_crystal_chicken",
-                () -> Optional.of(new ItemStack(Items.END_CRYSTAL)),
+                () -> Optional.of(new ItemStackTemplate(Items.END_CRYSTAL)),
                 0xcc00cc, 0xff66ff, SpawnType.NONE,
                 "EnderChicken", "pCrystalChicken", null));
 
@@ -920,7 +920,7 @@ final class ModdedChickens {
         list.add(new Definition(628, "doorChicken", "door_chicken",
                 combine(
                         tag("c:wooden_doors", "c:doors"),
-                        () -> Optional.of(new ItemStack(Items.OAK_DOOR))),
+                        () -> Optional.of(new ItemStackTemplate(Items.OAK_DOOR))),
                 0x9a6c3a, 0xc89a5a, SpawnType.NONE,
                 "LogChicken", "IronChicken",
                 tagDrop("c:wooden_doors", "c:doors")));
@@ -928,7 +928,7 @@ final class ModdedChickens {
 
         // Dirt chicken – teaching mechanic: right-click vanilla chicken with Dirt
         list.add(new Definition(629, "dirtChicken", "dirt_chicken",
-                () -> Optional.of(new ItemStack(Blocks.DIRT)),
+                () -> Optional.of(new ItemStackTemplate(Blocks.DIRT.asItem())),
                 0x8b5c2a, 0x5c3d1e, SpawnType.NONE,
                 "americanChicken", "ClayChicken", null));
 
@@ -1379,6 +1379,71 @@ final class ModdedChickens {
                 0x16171c, 0x4e4f60, SpawnType.NONE,
                 "engineeringProcessorChicken", "ae2FluixChicken", null));
 
+        list.add(new Definition(846, "breezeChicken", "breezechicken",
+                item("minecraft:breeze_rod"),
+                0xbfe3f5, 0x7ec8e3, SpawnType.NONE,
+                "WhiteChicken", "EnderChicken", null));
+
+        list.add(new Definition(847, "resinBrickChicken", "resin_brick_chicken",
+                item("minecraft:resin_brick"),
+                0xc8642b, 0xe88a4a, SpawnType.NONE,
+                "ClayChicken", "OrangeChicken", null));
+
+        list.add(new Definition(848, "spruceDoorChicken", "spruce_door_chicken",
+                item("minecraft:spruce_door"),
+                0x6a5030, 0x8a6b42, SpawnType.NONE,
+                "doorChicken", "SpruceLogChicken", null));
+
+        list.add(new Definition(849, "birchDoorChicken", "birch_door_chicken",
+                item("minecraft:birch_door"),
+                0xc8b77a, 0xe9debb, SpawnType.NONE,
+                "doorChicken", "BirchLogChicken", null));
+
+        list.add(new Definition(850, "jungleDoorChicken", "jungle_door_chicken",
+                item("minecraft:jungle_door"),
+                0x9a6c46, 0xc4936a, SpawnType.NONE,
+                "doorChicken", "JungleLogChicken", null));
+
+        list.add(new Definition(851, "acaciaDoorChicken", "acacia_door_chicken",
+                item("minecraft:acacia_door"),
+                0xa75f3c, 0xc98558, SpawnType.NONE,
+                "doorChicken", "AcaciaLogChicken", null));
+
+        list.add(new Definition(852, "darkOakDoorChicken", "dark_oak_door_chicken",
+                item("minecraft:dark_oak_door"),
+                0x4c3319, 0x6b4a2a, SpawnType.NONE,
+                "doorChicken", "DarkOakLogChicken", null));
+
+        list.add(new Definition(853, "mangroveDoorChicken", "mangrove_door_chicken",
+                item("minecraft:mangrove_door"),
+                0x70302e, 0x93504a, SpawnType.NONE,
+                "doorChicken", "MangroveLogChicken", null));
+
+        list.add(new Definition(854, "cherryDoorChicken", "cherry_door_chicken",
+                item("minecraft:cherry_door"),
+                0xdfaaa4, 0xf5cfcb, SpawnType.NONE,
+                "doorChicken", "CherryLogChicken", null));
+
+        list.add(new Definition(855, "bambooDoorChicken", "bamboo_door_chicken",
+                item("minecraft:bamboo_door"),
+                0xbfab51, 0xdcc86a, SpawnType.NONE,
+                "doorChicken", "BambooBlockChicken", null));
+
+        list.add(new Definition(856, "crimsonDoorChicken", "crimson_door_chicken",
+                item("minecraft:crimson_door"),
+                0x72364f, 0x9a5472, SpawnType.NONE,
+                "doorChicken", "CrimsonStemChicken", null));
+
+        list.add(new Definition(857, "warpedDoorChicken", "warped_door_chicken",
+                item("minecraft:warped_door"),
+                0x2c7e78, 0x3fa59d, SpawnType.NONE,
+                "doorChicken", "WarpedStemChicken", null));
+
+        list.add(new Definition(858, "paleOakDoorChicken", "pale_oak_door_chicken",
+                item("minecraft:pale_oak_door"),
+                0xd8d0ce, 0xf0eae8, SpawnType.NONE,
+                "doorChicken", "PaleOakLogChicken", null));
+
         return list;
     }
 
@@ -1392,10 +1457,10 @@ final class ModdedChickens {
      *
      * @param tagNames one or more tag names tried in order (e.g. "c:ingots/copper", "forge:ingots/copper")
      */
-    private static Supplier<Optional<ItemStack>> tagDrop(String... tagNames) {
+    private static Supplier<Optional<ItemStackTemplate>> tagDrop(String... tagNames) {
         return () -> {
             for (String tagName : tagNames) {
-                Optional<ItemStack> resolved = AlmostUnifiedCompat.resolvePreferred(tagName);
+                Optional<ItemStackTemplate> resolved = AlmostUnifiedCompat.resolvePreferred(tagName);
                 if (resolved.isPresent()) {
                     return resolved;
                 }
@@ -1404,7 +1469,7 @@ final class ModdedChickens {
         };
     }
 
-    private static Supplier<Optional<ItemStack>> oreTag(String category, String material) {
+    private static Supplier<Optional<ItemStackTemplate>> oreTag(String category, String material) {
         String keyword = categoryKeyword(category);
         return combine(
                 tag("forge:" + category + "/" + material, "c:" + category + "/" + material),
@@ -1412,14 +1477,14 @@ final class ModdedChickens {
                 searchRegistryExact(material));
     }
 
-    private static Supplier<Optional<ItemStack>> tag(String... tagNames) {
+    private static Supplier<Optional<ItemStackTemplate>> tag(String... tagNames) {
         return tag(1, tagNames);
     }
 
-    private static Supplier<Optional<ItemStack>> tag(int count, String... tagNames) {
+    private static Supplier<Optional<ItemStackTemplate>> tag(int count, String... tagNames) {
         return () -> {
             for (String tagName : tagNames) {
-                Optional<ItemStack> stack = stackFromTag(count, tagName);
+                Optional<ItemStackTemplate> stack = stackFromTag(count, tagName);
                 if (stack.isPresent()) {
                     return stack;
                 }
@@ -1428,32 +1493,32 @@ final class ModdedChickens {
         };
     }
 
-    private static Optional<ItemStack> stackFromTag(int count, String tagName) {
-        ResourceLocation id = ResourceLocation.parse(tagName);
+    private static Optional<ItemStackTemplate> stackFromTag(int count, String tagName) {
+        Identifier id = Identifier.parse(tagName);
         TagKey<Item> tag = TagKey.create(Registries.ITEM, id);
-        Optional<ItemStack> fromHolderSet = BuiltInRegistries.ITEM.getTag(tag)
+        Optional<ItemStackTemplate> fromHolderSet = BuiltInRegistries.ITEM.get(tag)
                 .flatMap(set -> set.stream().findFirst())
                 .map(Holder::value)
-                .map(item -> new ItemStack(item, count));
+                .map(item -> new ItemStackTemplate(item, count));
         if (fromHolderSet.isPresent()) {
             return fromHolderSet;
         }
         for (Item item : BuiltInRegistries.ITEM) {
             if (item.builtInRegistryHolder().is(tag)) {
-                return Optional.of(new ItemStack(item, count));
+                return Optional.of(new ItemStackTemplate(item, count));
             }
         }
         return Optional.empty();
     }
 
-    private static Supplier<Optional<ItemStack>> item(String... itemIds) {
+    private static Supplier<Optional<ItemStackTemplate>> item(String... itemIds) {
         return item(1, itemIds);
     }
 
-    private static Supplier<Optional<ItemStack>> item(int count, String... itemIds) {
+    private static Supplier<Optional<ItemStackTemplate>> item(int count, String... itemIds) {
         return () -> {
             for (String itemId : itemIds) {
-                Optional<ItemStack> stack = stackFromItem(count, itemId);
+                Optional<ItemStackTemplate> stack = stackFromItem(count, itemId);
                 if (stack.isPresent()) {
                     return stack;
                 }
@@ -1462,16 +1527,16 @@ final class ModdedChickens {
         };
     }
 
-    private static Optional<ItemStack> stackFromItem(int count, String itemId) {
-        ResourceLocation id = ResourceLocation.parse(itemId);
+    private static Optional<ItemStackTemplate> stackFromItem(int count, String itemId) {
+        Identifier id = Identifier.parse(itemId);
         return BuiltInRegistries.ITEM.getOptional(id)
-                .map(item -> new ItemStack(item, count));
+                .map(item -> new ItemStackTemplate(item, count));
     }
 
-    private static Supplier<Optional<ItemStack>> searchRegistry(@Nullable String keyword, String material) {
+    private static Supplier<Optional<ItemStackTemplate>> searchRegistry(@Nullable String keyword, String material) {
         return () -> {
             for (Item item : BuiltInRegistries.ITEM) {
-                ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+                Identifier key = BuiltInRegistries.ITEM.getKey(item);
                 if (key == null) {
                     continue;
                 }
@@ -1482,36 +1547,35 @@ final class ModdedChickens {
                 if (!path.contains(material)) {
                     continue;
                 }
-                return Optional.of(new ItemStack(item));
+                return Optional.of(new ItemStackTemplate(item));
             }
             return Optional.empty();
         };
     }
 
-    private static Supplier<Optional<ItemStack>> searchRegistryExact(String material) {
+    private static Supplier<Optional<ItemStackTemplate>> searchRegistryExact(String material) {
         return () -> {
             for (Item item : BuiltInRegistries.ITEM) {
-                ResourceLocation key = BuiltInRegistries.ITEM.getKey(item);
+                Identifier key = BuiltInRegistries.ITEM.getKey(item);
                 if (key == null) {
                     continue;
                 }
                 String path = key.getPath();
                 if (path.equals(material)) {
-                    return Optional.of(new ItemStack(item));
+                    return Optional.of(new ItemStackTemplate(item));
                 }
             }
             return Optional.empty();
         };
     }
 
-    private static Supplier<Optional<ItemStack>> liquidEgg(int id) {
+    private static Supplier<Optional<ItemStackTemplate>> liquidEgg(int id) {
         return () -> {
             LiquidEggRegistryItem entry = LiquidEggRegistry.findById(id);
             if (entry == null) {
                 return Optional.empty();
             }
-            ItemStack stack = LiquidEggItem.createFor(entry);
-            return stack.isEmpty() ? Optional.empty() : Optional.of(stack);
+            return Optional.of(LiquidEggItem.templateFor(entry));
         };
     }
 
@@ -1528,10 +1592,10 @@ final class ModdedChickens {
     }
 
     @SafeVarargs
-    private static Supplier<Optional<ItemStack>> combine(Supplier<Optional<ItemStack>>... suppliers) {
+    private static Supplier<Optional<ItemStackTemplate>> combine(Supplier<Optional<ItemStackTemplate>>... suppliers) {
         return () -> {
-            for (Supplier<Optional<ItemStack>> supplier : suppliers) {
-                Optional<ItemStack> stack = supplier.get();
+            for (Supplier<Optional<ItemStackTemplate>> supplier : suppliers) {
+                Optional<ItemStackTemplate> stack = supplier.get();
                 if (stack.isPresent()) {
                     return stack;
                 }
@@ -1543,32 +1607,33 @@ final class ModdedChickens {
     private record Definition(int id,
                               String entityName,
                               String texturePath,
-                              Supplier<Optional<ItemStack>> layItemSupplier,
+                              Supplier<Optional<ItemStackTemplate>> layItemSupplier,
                               int bgColor,
                               int fgColor,
                               SpawnType spawnType,
                               @Nullable String parent1,
                               @Nullable String parent2,
-                              @Nullable Supplier<Optional<ItemStack>> dropItemSupplier) {
+                              @Nullable Supplier<Optional<ItemStackTemplate>> dropItemSupplier) {
     }
 
-    private static Optional<ChickensRegistryItem> findByLayItem(Collection<ChickensRegistryItem> chickens, ItemStack stack) {
-        if (stack.isEmpty()) {
-            return Optional.empty();
-        }
+    private static Optional<ChickensRegistryItem> findByLayItem(Collection<ChickensRegistryItem> chickens, ItemStackTemplate stack) {
         for (ChickensRegistryItem chicken : chickens) {
-            if (ItemStack.isSameItemSameComponents(chicken.createLayItem(), stack)) {
+            if (isSameItemSameComponents(chicken.layItemTemplate(), stack)) {
                 return Optional.of(chicken);
             }
-            if (ItemStack.isSameItemSameComponents(chicken.createDropItem(), stack)) {
+            if (isSameItemSameComponents(chicken.dropItemTemplate(), stack)) {
                 return Optional.of(chicken);
             }
         }
         return Optional.empty();
     }
 
-    private static String describeItem(ItemStack stack) {
-        ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
+    private static boolean isSameItemSameComponents(ItemStackTemplate first, ItemStackTemplate second) {
+        return first.item().equals(second.item()) && first.components().equals(second.components());
+    }
+
+    private static String describeItem(ItemStackTemplate stack) {
+        Identifier key = BuiltInRegistries.ITEM.getKey(stack.item().value());
         return key != null ? key.toString() : stack.toString();
     }
 }

@@ -28,7 +28,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 
 import javax.annotation.Nullable;
@@ -44,7 +46,7 @@ public class NestBlockEntity extends BlockEntity implements WorldlyContainer, Me
     public static final int SEED_SLOT = 1;
     public static final int INVENTORY_SIZE = 2;
     public static final TagKey<Item> NEST_SEEDS = TagKey.create(
-            Registries.ITEM, ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "nest_seeds"));
+            Registries.ITEM, Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "nest_seeds"));
     private static final int[] ACCESSIBLE_SLOTS = new int[] { ROOSTER_SLOT, SEED_SLOT };
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(INVENTORY_SIZE, ItemStack.EMPTY);
@@ -62,7 +64,7 @@ public class NestBlockEntity extends BlockEntity implements WorldlyContainer, Me
      * aura fuel while roosters are present.
      */
     public static void serverTick(Level level, BlockPos pos, BlockState state, NestBlockEntity nest) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         nest.tickServer(level);
@@ -270,7 +272,7 @@ public class NestBlockEntity extends BlockEntity implements WorldlyContainer, Me
         if (index < 0 || index >= INVENTORY_SIZE) {
             return;
         }
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             items.set(index, stack.copy());
             return;
         }
@@ -374,19 +376,19 @@ public class NestBlockEntity extends BlockEntity implements WorldlyContainer, Me
     // ---------------------------------------------------------------------
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        tag.putInt("SeedTicks", seedTicksRemaining);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        output.putInt("SeedTicks", seedTicksRemaining);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        seedTicksRemaining = tag.getInt("SeedTicks");
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        seedTicksRemaining = input.getIntOr("SeedTicks", 0);
     }
 
     // ---------------------------------------------------------------------
@@ -405,22 +407,18 @@ public class NestBlockEntity extends BlockEntity implements WorldlyContainer, Me
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     private void notifyBlockUpdate() {
         Level level = getLevel();
-        if (level == null || level.isClientSide) {
+        if (level == null || level.isClientSide()) {
             return;
         }
         BlockState state = level.getBlockState(worldPosition);

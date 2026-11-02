@@ -8,34 +8,29 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.GasEggRegistry;
 import strhercules.chickens.LiquidEggRegistry;
 import strhercules.chickens.LiquidEggRegistryItem;
+import strhercules.chickens.client.render.ChickensChickenRenderState.OverlayInfo;
 import strhercules.chickens.entity.ChickensChicken;
 import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.item.ChemicalEggItem;
 import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.item.LiquidEggItem;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.ChickenModel;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.model.animal.chicken.ChickenModel;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.entity.LivingEntityRenderer;
 import net.minecraft.client.renderer.entity.RenderLayerParent;
-import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.entity.layers.RenderLayer;
+import net.minecraft.client.renderer.entity.state.ChickenRenderState;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
-import net.minecraft.util.FastColor;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Mth;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.animal.Chicken;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -44,69 +39,42 @@ import java.util.Optional;
  * Render layer that mirrors ModernFluidCows' overlay: it replays the chicken model using the bound
  * fluid's atlas sprite and tint, letting animated textures supply the liquid motion naturally.
  */
-public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, ChickenModel<Chicken>> {
+public final class LiquidChickenOverlayLayer extends RenderLayer<ChickenRenderState, ChickenModel> {
     private static final Map<Integer, Optional<LiquidEggRegistryItem>> LIQUID_CACHE = new HashMap<>();
+    private static final int OVERLAY_ALPHA = Math.round(0.8F * 255.0F);
 
-    private final ChickenModel<Chicken> overlayModel;
+    private final ChickenModel adultModel;
+    private final ChickenModel babyModel;
 
-    public LiquidChickenOverlayLayer(RenderLayerParent<Chicken, ChickenModel<Chicken>> parent,
-                                     ChickenModel<Chicken> overlayModel) {
+    public LiquidChickenOverlayLayer(RenderLayerParent<ChickenRenderState, ChickenModel> parent,
+                                     ChickenModel adultModel, ChickenModel babyModel) {
         super(parent);
-        this.overlayModel = overlayModel;
+        this.adultModel = adultModel;
+        this.babyModel = babyModel;
     }
 
     @Override
-    public void render(PoseStack poseStack,
-                       MultiBufferSource buffer,
-                       int packedLight,
-                       Chicken chicken,
-                       float limbSwing,
-                       float limbSwingAmount,
-                       float partialTick,
-                       float ageInTicks,
-                       float netHeadYaw,
-                       float headPitch) {
-        if (!(chicken instanceof ChickensChicken modChicken) || chicken.isInvisible()) {
+    public void submit(PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords,
+                       ChickenRenderState state, float yRot, float xRot) {
+        if (!(state instanceof ChickensChickenRenderState chickenState) || state.isInvisible
+                || chickenState.overlay == null) {
             return;
         }
+        OverlayInfo overlay = chickenState.overlay;
+        ChickenModel model = state.isBaby ? babyModel : adultModel;
+        submitNodeCollector.submitModel(model, state, poseStack,
+                RenderTypes.entityTranslucent(TextureAtlas.LOCATION_BLOCKS), lightCoords,
+                LivingEntityRenderer.getOverlayCoords(state, 0.0F),
+                ARGB.color(OVERLAY_ALPHA, overlay.tint()), overlay.sprite(), state.outlineColor, null);
+    }
 
-        ChickensRegistryItem description = ChickensRegistry.getByType(modChicken.getChickenType());
+    @Nullable
+    public static OverlayInfo extractOverlay(ChickensChicken chicken) {
+        ChickensRegistryItem description = ChickensRegistry.getByType(chicken.getChickenType());
         if (description == null) {
-            return;
+            return null;
         }
-
-        OverlayInfo overlay = resolveOverlay(modChicken, description);
-        if (overlay == null) {
-            return;
-        }
-
-        TextureAtlasSprite sprite = Minecraft.getInstance()
-                .getModelManager()
-                .getAtlas(TextureAtlas.LOCATION_BLOCKS)
-                .getSprite(overlay.texture());
-        if (sprite == null) {
-            return;
-        }
-
-        int tint = overlay.tint();
-        int red = (tint >> 16) & 0xFF;
-        int green = (tint >> 8) & 0xFF;
-        int blue = tint & 0xFF;
-        float alpha = 0.8F;
-        int packedColor = FastColor.ARGB32.color(
-                Math.round(alpha * 255.0F),
-                red,
-                green,
-                blue);
-
-        // Keep the overlay model in sync with the parent renderer so limb poses and animations line up.
-        ChickenModel<Chicken> parentModel = this.getParentModel();
-        parentModel.copyPropertiesTo(overlayModel);
-        overlayModel.prepareMobModel(chicken, limbSwing, limbSwingAmount, partialTick);
-        overlayModel.setupAnim(chicken, limbSwing, limbSwingAmount, ageInTicks, netHeadYaw, headPitch);
-
-        var vertexConsumer = sprite.wrap(buffer.getBuffer(RenderType.entityTranslucentCull(TextureAtlas.LOCATION_BLOCKS)));
-        overlayModel.renderToBuffer(poseStack, vertexConsumer, packedLight, OverlayTexture.NO_OVERLAY, packedColor);
+        return resolveOverlay(description);
     }
 
     private static LiquidEggRegistryItem resolveLiquid(ChickensRegistryItem description) {
@@ -121,7 +89,7 @@ public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, Chicke
     }
 
     @Nullable
-    private static OverlayInfo resolveOverlay(ChickensChicken chicken, ChickensRegistryItem description) {
+    private static OverlayInfo resolveOverlay(ChickensRegistryItem description) {
         ItemStack layStack = description.createLayItem();
         if (layStack.isEmpty()) {
             return null;
@@ -135,29 +103,20 @@ public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, Chicke
             if (fluidStack.isEmpty()) {
                 return null;
             }
-            Fluid fluid = fluidStack.getFluid();
-            IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(fluid);
-            FluidState state = fluid.defaultFluidState();
-            ResourceLocation texture = extensions.getStillTexture(state, chicken.level(), chicken.blockPosition());
-            if (texture == null) {
-                texture = extensions.getFlowingTexture(state, chicken.level(), chicken.blockPosition());
-            }
-            if (texture == null) {
-                return null;
-            }
-            int tint = extensions.getTintColor(state, chicken.level(), chicken.blockPosition());
-            return new OverlayInfo(texture, brightenTint(tint));
+            return new OverlayInfo(ClientFluids.stillSprite(fluidStack.getFluid()),
+                    brightenTint(ClientFluids.tint(fluidStack)));
         }
         int id = ChickenItemHelper.getChickenType(layStack);
         if (layStack.getItem() instanceof ChemicalEggItem) {
             ChemicalEggRegistryItem chemical = ChemicalEggRegistry.findById(id);
             if (chemical != null) {
-                return new OverlayInfo(chemical.getTexture(), brightenTint(chemical.getEggColor()));
+                return new OverlayInfo(ClientFluids.blockSprite(chemical.getTexture()),
+                        brightenTint(chemical.getEggColor()));
             }
         } else if (layStack.getItem() instanceof GasEggItem) {
             ChemicalEggRegistryItem gas = GasEggRegistry.findById(id);
             if (gas != null) {
-                return new OverlayInfo(gas.getTexture(), brightenTint(gas.getEggColor()));
+                return new OverlayInfo(ClientFluids.blockSprite(gas.getTexture()), brightenTint(gas.getEggColor()));
             }
         }
         return null;
@@ -177,8 +136,7 @@ public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, Chicke
             if (liquid != null) {
                 FluidStack fluidStack = liquid.createFluidStack();
                 if (!fluidStack.isEmpty()) {
-                    int tint = IClientFluidTypeExtensions.of(fluidStack.getFluid()).getTintColor(fluidStack);
-                    return brightenTint(tint);
+                    return brightenTint(ClientFluids.tint(fluidStack));
                 }
             }
         } else {
@@ -214,8 +172,5 @@ public final class LiquidChickenOverlayLayer extends RenderLayer<Chicken, Chicke
                 clearCaches();
             }
         };
-    }
-
-    private record OverlayInfo(ResourceLocation texture, int tint) {
     }
 }

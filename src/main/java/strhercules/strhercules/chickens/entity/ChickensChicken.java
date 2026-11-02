@@ -18,7 +18,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -31,9 +30,9 @@ import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.SpawnGroupData;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.InteractionHand;
@@ -50,6 +49,8 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -292,7 +293,7 @@ public class ChickensChicken extends Chicken {
 
         this.flap += this.flapping * 2.0F;
 
-        if (!this.level().isClientSide && this.isAlive() && !this.isBaby() && !this.isChickenJockey()) {
+        if (!this.level().isClientSide() && this.isAlive() && !this.isBaby() && !this.isChickenJockey()) {
             this.tickResourceLaying();
         }
     }
@@ -345,11 +346,7 @@ public class ChickensChicken extends Chicken {
         }
         ItemStack prepared = stack.copy();
         imprintFluxEggCharge(prepared);
-        Level level = this.level();
-        if (level == null) {
-            // Defensive guard for edge cases where the entity is deserialised before
-            // the world reference is restored (e.g., during chunk rebuilds).
-            this.spawnAtLocation(prepared, 0.0F);
+        if (!(this.level() instanceof ServerLevel level)) {
             return;
         }
         // Try to offload the item stack into any henhouse before spawning it
@@ -357,7 +354,7 @@ public class ChickensChicken extends Chicken {
         ItemStack leftover = HenhouseBlockEntity.pushItemStack(prepared, level, this.position());
         if (!leftover.isEmpty()) {
             imprintFluxEggCharge(leftover);
-            this.spawnAtLocation(leftover, 0.0F);
+            this.spawnAtLocation(level, leftover, 0.0F);
         }
     }
 
@@ -404,7 +401,7 @@ public class ChickensChicken extends Chicken {
         if (childDescription == null) {
             return null;
         }
-        ChickensChicken child = ModEntityTypes.CHICKENS_CHICKEN.get().create(level);
+        ChickensChicken child = ModEntityTypes.CHICKENS_CHICKEN.get().create(level, EntitySpawnReason.BREEDING);
         if (child == null) {
             return null;
         }
@@ -465,14 +462,14 @@ public class ChickensChicken extends Chicken {
         // Upgrade items are the Robot Chicken's only food. The threshold is
         // rolled on the first feeding and then persisted with the entity.
         if (!this.isRobotChicken() && this.isSmartChicken() && isRobotUpgrade(held)) {
-            if (!level.isClientSide) {
+            if (!level.isClientSide()) {
                 this.feedRobotUpgrade(held, player);
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
 
         // ── 1. Teaching: transform a vanilla/smart chicken into a breed ──────
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             ChickensRegistryItem targetBreed = resolveTeachingTarget(held);
             if (targetBreed != null) {
                 // Only transform if this mob is currently a SmartChicken (type == SmartChicken id)
@@ -498,7 +495,7 @@ public class ChickensChicken extends Chicken {
         boolean isCreativeCatcher = held.is(ModRegistry.CREATIVE_CATCHER.get());
         if (isNormalCatcher || isCreativeCatcher) {
             ChickensRegistryItem description = this.getChickenDescription();
-            if (description != null && !level.isClientSide) {
+            if (description != null && !level.isClientSide()) {
                 ChickenItem chickenItem = (ChickenItem) (this.isRobotChicken()
                         ? ModRegistry.ROBOT_CHICKEN_ITEM.get()
                         : ModRegistry.CHICKEN_ITEM.get());
@@ -569,12 +566,12 @@ public class ChickensChicken extends Chicken {
             }
             imprintFluxEggCharge(drop);
             drop.grow(this.random.nextInt(1 + this.getLooting(level, source)));
-            this.spawnAtLocation(drop, 0.0F);
+            this.spawnAtLocation(level, drop, 0.0F);
         }
         if (this.isOnFire()) {
-            this.spawnAtLocation(new ItemStack(net.minecraft.world.item.Items.COOKED_CHICKEN), 0.0F);
+            this.spawnAtLocation(level, new ItemStack(net.minecraft.world.item.Items.COOKED_CHICKEN), 0.0F);
         } else {
-            this.spawnAtLocation(new ItemStack(net.minecraft.world.item.Items.CHICKEN), 0.0F);
+            this.spawnAtLocation(level, new ItemStack(net.minecraft.world.item.Items.CHICKEN), 0.0F);
         }
         LavaChickenGameplay.dropForModernChicken(this, source);
         super.dropCustomDeathLoot(level, source, recentlyHit);
@@ -582,8 +579,8 @@ public class ChickensChicken extends Chicken {
 
     private int getLooting(ServerLevel level, net.minecraft.world.damagesource.DamageSource source) {
         if (source.getEntity() instanceof Player player) {
-            return level.registryAccess().registry(Registries.ENCHANTMENT)
-                    .flatMap(registry -> registry.getHolder(Enchantments.LOOTING))
+            return level.registryAccess().lookup(Registries.ENCHANTMENT)
+                    .flatMap(registry -> registry.get(Enchantments.LOOTING))
                     .map(player.getMainHandItem()::getEnchantmentLevel)
                     .orElse(0);
         }
@@ -591,7 +588,7 @@ public class ChickensChicken extends Chicken {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt(TAG_TYPE, this.getChickenType());
         tag.putBoolean(TAG_ANALYSED, this.getStatsAnalyzed());
@@ -604,28 +601,22 @@ public class ChickensChicken extends Chicken {
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
-        this.setChickenType(tag.getInt(TAG_TYPE));
-        this.setStatsAnalyzed(tag.getBoolean(TAG_ANALYSED));
-        this.setGrowth(getStatusValue(tag, TAG_GROWTH));
-        this.setGain(getStatusValue(tag, TAG_GAIN));
-        this.setStrength(getStatusValue(tag, TAG_STRENGTH));
-        this.setRobotUpgradesRequired(tag.contains(TAG_ROBOT_UPGRADES_REQUIRED)
-                ? tag.getInt(TAG_ROBOT_UPGRADES_REQUIRED) : 0);
-        this.setRobotUpgradesGiven(tag.contains(TAG_ROBOT_UPGRADES_GIVEN)
-                ? tag.getInt(TAG_ROBOT_UPGRADES_GIVEN) : 0);
-        this.setRobotChicken(tag.getBoolean(TAG_ROBOT_CHICKEN));
+        this.setChickenType(tag.getIntOr(TAG_TYPE, 0));
+        this.setStatsAnalyzed(tag.getBooleanOr(TAG_ANALYSED, false));
+        this.setGrowth(tag.getIntOr(TAG_GROWTH, 1));
+        this.setGain(tag.getIntOr(TAG_GAIN, 1));
+        this.setStrength(tag.getIntOr(TAG_STRENGTH, 1));
+        this.setRobotUpgradesRequired(tag.getIntOr(TAG_ROBOT_UPGRADES_REQUIRED, 0));
+        this.setRobotUpgradesGiven(tag.getIntOr(TAG_ROBOT_UPGRADES_GIVEN, 0));
+        this.setRobotChicken(tag.getBooleanOr(TAG_ROBOT_CHICKEN, false));
         this.updateLayProgress();
-    }
-
-    private static int getStatusValue(CompoundTag tag, String key) {
-        return tag.contains(key) ? tag.getInt(key) : 1;
     }
 
     @Nullable
     @Override
-    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, MobSpawnType spawnType,
+    public SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty, EntitySpawnReason spawnType,
             @Nullable SpawnGroupData spawnData) {
         spawnData = super.finalizeSpawn(level, difficulty, spawnType, spawnData);
         if (spawnData instanceof GroupData groupData) {
@@ -647,7 +638,7 @@ public class ChickensChicken extends Chicken {
         if (this.random.nextInt(5) == 0) {
             this.setAge(-24000);
         }
-        if (!level.isClientSide() && (spawnType == MobSpawnType.NATURAL || spawnType == MobSpawnType.CHUNK_GENERATION)) {
+        if (!level.isClientSide() && (spawnType == EntitySpawnReason.NATURAL || spawnType == EntitySpawnReason.CHUNK_GENERATION)) {
             ChickensRegistryItem descriptor = ChickensRegistry.getByType(this.getChickenType());
             if (descriptor != null) {
                 ChickensSpawnDebug.broadcastSpawn(level.getLevel(), this.blockPosition(), descriptor);
@@ -675,7 +666,7 @@ public class ChickensChicken extends Chicken {
         return Chicken.createAttributes();
     }
 
-    public static boolean checkSpawnRules(net.minecraft.world.entity.EntityType<ChickensChicken> type, LevelAccessor level, MobSpawnType reason, BlockPos pos, RandomSource random) {
+    public static boolean checkSpawnRules(net.minecraft.world.entity.EntityType<ChickensChicken> type, LevelAccessor level, EntitySpawnReason reason, BlockPos pos, RandomSource random) {
         Holder<Biome> biome = level.getBiome(pos);
         SpawnType spawnType = ChickensRegistry.getSpawnType(biome);
         boolean netherEnabled = ChickensSpawnManager.hasPlan(SpawnType.HELL);

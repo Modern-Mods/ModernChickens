@@ -7,7 +7,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import java.util.List;
  * elements, and the client transforms them into tooltip components.
  */
 public final class HudOverlayHelper implements IData {
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
     public static final IData.Type<HudOverlayHelper> TYPE = () -> ID;
 
     public static final StreamCodec<RegistryFriendlyByteBuf, HudOverlayHelper> STREAM_CODEC = new StreamCodec<>() {

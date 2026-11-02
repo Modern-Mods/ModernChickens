@@ -21,14 +21,14 @@ public final class LavaChickenFireBlock extends Block {
     public static final MapCodec<LavaChickenFireBlock> CODEC = simpleCodec(LavaChickenFireBlock::new);
     private static final int LIFETIME_TICKS = 30;
 
-    public LavaChickenFireBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.COLOR_RED)
-                .noCollission()
+                .noCollision()
                 .noOcclusion()
                 .replaceable()
                 .strength(0.0F)
-                .sound(SoundType.WOOL));
+                .sound(SoundType.WOOL);
     }
 
     public LavaChickenFireBlock(BlockBehaviour.Properties properties) {
@@ -43,7 +43,7 @@ public final class LavaChickenFireBlock extends Block {
     @Override
     public void onPlace(BlockState state, net.minecraft.world.level.Level level, BlockPos pos,
             BlockState oldState, boolean movedByPiston) {
-        if (!level.isClientSide && !oldState.is(this)) {
+        if (!level.isClientSide() && !oldState.is(this)) {
             level.scheduleTick(pos, this, LIFETIME_TICKS);
         }
     }

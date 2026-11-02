@@ -164,7 +164,7 @@ public class AvianFluxConverterMenu extends AbstractContainerMenu implements Sid
     }
 
     private boolean isServerSide() {
-        return converter != null && converter.getLevel() != null && !converter.getLevel().isClientSide;
+        return converter != null && converter.getLevel() != null && !converter.getLevel().isClientSide();
     }
 
     private int getServerEnergy() {

@@ -11,7 +11,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -39,8 +39,13 @@ public final class IncubatorCategory implements IRecipeCategory<ChickensJeiRecip
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -57,19 +62,20 @@ public final class IncubatorCategory implements IRecipeCategory<ChickensJeiRecip
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.IncubatorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.IncubatorRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         Component energy = Component.translatable("tooltip.chickens.incubator.cost", recipe.energyCost());
         Component hint = Component.translatable("tooltip.chickens.incubator");
         int color = 0xFF7F7F7F;
-        graphics.drawString(Minecraft.getInstance().font, energy, 8, 6, color, false);
+        graphics.text(Minecraft.getInstance().font, energy, 8, 6, color, false);
         drawWrapped(graphics, hint, 8, 48, 132, color);
     }
 
-    private static void drawWrapped(GuiGraphics graphics, Component text, int x, int y, int width, int color) {
+    private static void drawWrapped(GuiGraphicsExtractor graphics, Component text, int x, int y, int width, int color) {
         var font = Minecraft.getInstance().font;
         for (var line : font.split(text, width)) {
-            graphics.drawString(font, line, x, y, color, false);
+            graphics.text(font, line, x, y, color, false);
             y += font.lineHeight;
         }
     }

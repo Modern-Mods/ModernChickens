@@ -1,14 +1,12 @@
 package strhercules.chickens.client.render.blockentity;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import strhercules.chickens.ChemicalEggRegistry;
 import strhercules.chickens.ChemicalEggRegistryItem;
 import strhercules.chickens.GasEggRegistry;
 import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
+import strhercules.chickens.client.render.ClientFluids;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
@@ -28,18 +26,18 @@ public final class AvianDousingMachineBlockEntityRenderer
     }
 
     @Override
-    protected void renderStoredContents(AvianDousingMachineBlockEntity machine, Level level, TextureAtlas atlas,
-            VertexConsumer consumer, PoseStack.Pose pose, int packedLight, int packedOverlay) {
+    protected void extractStoredContents(AvianDousingMachineBlockEntity machine, Level level,
+            AvianMachineRenderState state) {
         TankContents chemical = resolveChemicalContents(machine);
         TankContents fluid = resolveFluidContents(machine.getFluid(), machine.getLiquidAmount(),
-                machine.getLiquidCapacity(), level, machine);
-        renderTankContents(atlas, consumer, pose, chemical, TANK_MIN, TANK_MID, packedLight, packedOverlay);
-        renderTankContents(atlas, consumer, pose, fluid, TANK_MID, TANK_MAX, packedLight, packedOverlay);
+                machine.getLiquidCapacity());
+        addTank(state, chemical, TANK_MIN, TANK_MID);
+        addTank(state, fluid, TANK_MID, TANK_MAX);
     }
 
     @Nullable
     private static TankContents resolveChemicalContents(AvianDousingMachineBlockEntity machine) {
-        ResourceLocation chemicalId = machine.getChemicalId();
+        Identifier chemicalId = machine.getChemicalId();
         if (chemicalId == null || machine.getChemicalAmount() <= 0) {
             return null;
         }
@@ -49,7 +47,7 @@ public final class AvianDousingMachineBlockEntityRenderer
         }
         return chemical == null
                 ? null
-                : new TankContents(chemical.getTexture(), chemical.getEggColor(),
+                : new TankContents(ClientFluids.blockSprite(chemical.getTexture()), chemical.getEggColor(),
                         machine.getChemicalAmount(), machine.getChemicalCapacity());
     }
 }

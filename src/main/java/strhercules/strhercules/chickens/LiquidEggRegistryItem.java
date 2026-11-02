@@ -117,7 +117,7 @@ public final class LiquidEggRegistryItem {
     public Component getDisplayName() {
         FluidStack stack = createFluidStack();
         if (!stack.isEmpty()) {
-            return stack.getDisplayName();
+            return stack.getHoverName();
         }
         Block block = getLiquidBlock();
         if (block != null) {

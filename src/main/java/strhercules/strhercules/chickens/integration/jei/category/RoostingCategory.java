@@ -13,9 +13,9 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -23,7 +23,7 @@ import net.minecraft.world.item.ItemStack;
  * with an animated arrow between the coop's chicken and its drop.
  */
 public class RoostingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.RoostingRecipe> {
-    private static final ResourceLocation JEI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier JEI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/jei.png");
     private static final int BG_WIDTH = 140;
     private static final int BG_HEIGHT = 54;
@@ -52,8 +52,13 @@ public class RoostingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -76,8 +81,9 @@ public class RoostingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.RoostingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.RoostingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         int panelX = (BG_WIDTH - rowPanel.getWidth()) / 2;
         int panelY = 18;
         rowPanel.draw(graphics, panelX, panelY);

@@ -5,6 +5,7 @@ import strhercules.chickens.blockentity.MechanicalNestBlockEntity;
 import strhercules.chickens.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
@@ -35,13 +36,13 @@ public final class MechanicalNestBlock extends HorizontalDirectionalBlock implem
     public static final MapCodec<MechanicalNestBlock> CODEC = simpleCodec(MechanicalNestBlock::new);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public MechanicalNestBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.METAL)
                 .strength(3.0F, 6.0F)
                 .sound(SoundType.METAL)
                 .noOcclusion()
-                .lightLevel(state -> state.getValue(LIT) ? 9 : 0));
+                .lightLevel(state -> state.getValue(LIT) ? 9 : 0);
     }
 
     public MechanicalNestBlock(BlockBehaviour.Properties properties) {
@@ -64,7 +65,7 @@ public final class MechanicalNestBlock extends HorizontalDirectionalBlock implem
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.MECHANICAL_NEST.get()) {
+        if (level.isClientSide() || type != ModBlockEntities.MECHANICAL_NEST.get()) {
             return null;
         }
         return (lvl, pos, blockState, blockEntity) -> {
@@ -82,27 +83,20 @@ public final class MechanicalNestBlock extends HorizontalDirectionalBlock implem
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown()) {
-            if (!level.isClientSide && nest.pullRoosterOut(player)) {
+            if (!level.isClientSide() && nest.pullRoosterOut(player)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(nest, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof MechanicalNestBlockEntity nest) {
-                Containers.dropContents(level, pos, nest.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override

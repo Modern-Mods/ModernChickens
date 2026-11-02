@@ -10,10 +10,13 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.Item.TooltipContext;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.core.component.DataComponentPatch;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Flux-infused egg that stores a configurable Redstone Flux charge per stack.
@@ -44,6 +47,18 @@ public class FluxEggItem extends Item {
      * starts charged to the provided capacity so automated farms can drop the
      * item straight into energy consumers.
      */
+    public static ItemStackTemplate template(int capacity) {
+        int scaled = scaledCapacity(capacity);
+        int safeCapacity = Math.max(getMinimumCapacity(), scaled);
+        CompoundTag tag = new CompoundTag();
+        tag.putInt(TAG_CAPACITY, safeCapacity);
+        tag.putInt(TAG_ENERGY, Mth.clamp(scaled, 0, safeCapacity));
+        DataComponentPatch patch = DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
+                .build();
+        return new ItemStackTemplate(ModRegistry.FLUX_EGG.get(), patch);
+    }
+
     public static ItemStack create(int capacity) {
         ItemStack stack = new ItemStack(ModRegistry.FLUX_EGG.get());
         int scaled = scaledCapacity(capacity);
@@ -100,7 +115,7 @@ public class FluxEggItem extends Item {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (data.contains(TAG_ENERGY)) {
             CompoundTag tag = data.copyTag();
-            return Mth.clamp(tag.getInt(TAG_ENERGY), 0, getCapacity(stack));
+            return Mth.clamp(tag.getIntOr(TAG_ENERGY, 0), 0, getCapacity(stack));
         }
         return getMinimumCapacity();
     }
@@ -109,17 +124,18 @@ public class FluxEggItem extends Item {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (data.contains(TAG_CAPACITY)) {
             CompoundTag tag = data.copyTag();
-            int capacity = tag.getInt(TAG_CAPACITY);
+            int capacity = tag.getIntOr(TAG_CAPACITY, 0);
             return Math.max(getMinimumCapacity(), capacity);
         }
         return getMinimumCapacity();
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
         int stored = getStoredEnergy(stack);
         int capacity = getCapacity(stack);
-        tooltip.add(Component.translatable("item.chickens.flux_egg.tooltip", stored, capacity).withStyle(ChatFormatting.GRAY));
+        tooltip.accept(Component.translatable("item.chickens.flux_egg.tooltip", stored, capacity).withStyle(ChatFormatting.GRAY));
     }
 
     @Override

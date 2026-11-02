@@ -412,7 +412,7 @@ public class AvianDousingMachineMenu extends AbstractContainerMenu implements Si
     }
 
     private boolean isServerSide() {
-        return machine != null && machine.getLevel() != null && !machine.getLevel().isClientSide;
+        return machine != null && machine.getLevel() != null && !machine.getLevel().isClientSide();
     }
 
     private boolean hasClientSpecial() {

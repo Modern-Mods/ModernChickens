@@ -1,19 +1,20 @@
 package strhercules.chickens.client.render;
 
+import com.mojang.blaze3d.vertex.PoseStack;
 import strhercules.chickens.entity.Rooster;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.MobRenderer;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
 /**
  * Renderer for the rooster entity. Uses the ported {@link RoosterModel} so the
  * legacy Hatchery rooster texture maps correctly onto the geometry.
  */
-public class RoosterRenderer extends MobRenderer<Rooster, RoosterModel> {
-    private static final ResourceLocation ROOSTER_TEXTURE = ResourceLocation.fromNamespaceAndPath("chickens",
+public class RoosterRenderer extends MobRenderer<Rooster, RoosterRenderState, RoosterModel> {
+    private static final Identifier ROOSTER_TEXTURE = Identifier.fromNamespaceAndPath("chickens",
             "textures/entity/rooster.png");
-    private static final ResourceLocation ROBOT_ROOSTER_TEXTURE = ResourceLocation.fromNamespaceAndPath("chickens",
+    private static final Identifier ROBOT_ROOSTER_TEXTURE = Identifier.fromNamespaceAndPath("chickens",
             "textures/entity/robot_rooster.png");
 
     public RoosterRenderer(EntityRendererProvider.Context context) {
@@ -21,16 +22,29 @@ public class RoosterRenderer extends MobRenderer<Rooster, RoosterModel> {
     }
 
     @Override
-    public ResourceLocation getTextureLocation(Rooster rooster) {
-        return rooster.isRobotRooster() ? ROBOT_ROOSTER_TEXTURE : ROOSTER_TEXTURE;
+    public RoosterRenderState createRenderState() {
+        return new RoosterRenderState();
     }
 
     @Override
-    protected float getBob(Rooster rooster, float partialTicks) {
-        // Mirror the vanilla ChickenRenderer bobbing logic so the rooster's
-        // flap animation feels identical to standard chickens.
-        float flap = Mth.lerp(partialTicks, rooster.oFlap, rooster.flap);
-        float speed = Mth.lerp(partialTicks, rooster.oFlapSpeed, rooster.flapSpeed);
-        return (Mth.sin(flap) + 1.0F) * speed;
+    public void extractRenderState(Rooster rooster, RoosterRenderState state, float partialTicks) {
+        super.extractRenderState(rooster, state, partialTicks);
+        // Mirror the vanilla ChickenRenderer flap logic so the rooster's
+        // wing animation feels identical to standard chickens.
+        state.flap = Mth.lerp(partialTicks, rooster.oFlap, rooster.flap);
+        state.flapSpeed = Mth.lerp(partialTicks, rooster.oFlapSpeed, rooster.flapSpeed);
+        state.robot = rooster.isRobotRooster();
+    }
+
+    @Override
+    public Identifier getTextureLocation(RoosterRenderState state) {
+        return state.robot ? ROBOT_ROOSTER_TEXTURE : ROOSTER_TEXTURE;
+    }
+
+    @Override
+    protected void scale(RoosterRenderState state, PoseStack poseStack) {
+        if (state.isBaby) {
+            poseStack.scale(0.5F, 0.5F, 0.5F);
+        }
     }
 }

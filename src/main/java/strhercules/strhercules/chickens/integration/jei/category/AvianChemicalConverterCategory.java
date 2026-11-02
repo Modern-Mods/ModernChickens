@@ -13,7 +13,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -43,8 +43,13 @@ public final class AvianChemicalConverterCategory
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -69,13 +74,14 @@ public final class AvianChemicalConverterCategory
 
     @Override
     public void draw(ChickensJeiRecipeTypes.AvianChemicalConverterRecipe recipe, IRecipeSlotsView recipeSlotsView,
-            GuiGraphics graphics, double mouseX, double mouseY) {
+            GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        background.draw(graphics);
         ChemicalEggRegistryItem entry = recipe.entry();
         Component amount = Component.translatable("gui.chickens.avian_chemical_converter.amount", entry.getVolume());
         Component idLine = Component.translatable("gui.chickens.avian_chemical_converter.chemical",
                 entry.getChemicalId().toString());
         int textColor = 0xFF7F7F7F;
-        graphics.drawString(Minecraft.getInstance().font, amount, 4, 4, textColor, false);
-        graphics.drawString(Minecraft.getInstance().font, idLine, 4, 14, textColor, false);
+        graphics.text(Minecraft.getInstance().font, amount, 4, 4, textColor, false);
+        graphics.text(Minecraft.getInstance().font, idLine, 4, 14, textColor, false);
     }
 }

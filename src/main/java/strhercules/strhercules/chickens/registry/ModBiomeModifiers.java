@@ -7,10 +7,10 @@ import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.registries.RegisterEvent;
 import net.neoforged.neoforge.registries.RegisterEvent.RegisterHelper;
 import net.neoforged.neoforge.registries.NeoForgeRegistries.Keys;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public final class ModBiomeModifiers {
-    private static final ResourceLocation SPAWN_ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_spawns");
+    private static final Identifier SPAWN_ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_spawns");
 
     private ModBiomeModifiers() {
     }

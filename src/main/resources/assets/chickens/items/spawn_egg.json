@@ -1,0 +1,10 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "chickens:item/spawn_egg",
+    "tints": [
+      { "type": "chickens:chicken", "kind": "background" },
+      { "type": "chickens:chicken", "kind": "foreground" }
+    ]
+  }
+}

@@ -4,7 +4,7 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.blockentity.HenhouseBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.Tags;
@@ -17,7 +17,7 @@ import snownee.jade.api.IServerDataProvider;
 enum HenhouseDataProvider implements IServerDataProvider<BlockAccessor> {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "henhouse");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "henhouse");
 
     @Override
     public void appendServerData(CompoundTag data, BlockAccessor accessor) {
@@ -35,7 +35,7 @@ enum HenhouseDataProvider implements IServerDataProvider<BlockAccessor> {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 

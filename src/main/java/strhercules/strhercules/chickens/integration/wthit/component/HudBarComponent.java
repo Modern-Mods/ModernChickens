@@ -1,10 +1,10 @@
 package strhercules.chickens.integration.wthit.component;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.Util;
+import net.minecraft.util.Util;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
@@ -45,7 +45,7 @@ public final class HudBarComponent implements ITooltipComponent {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int x, int y, DeltaTracker delta) {
+    public void render(GuiGraphicsExtractor graphics, int x, int y, DeltaTracker delta) {
         // Border
         graphics.fill(x, y, x + WIDTH, y + HEIGHT, BORDER_COLOR);
         // Background
@@ -53,31 +53,25 @@ public final class HudBarComponent implements ITooltipComponent {
         // Textured fill
         if (sprite != null && ratio > 0.0F) {
             int fillWidth = (int) ((WIDTH - 2) * ratio);
-            RenderSystem.enableBlend();
-            float red = ((tint >> 16) & 0xFF) / 255.0F;
-            float green = ((tint >> 8) & 0xFF) / 255.0F;
-            float blue = (tint & 0xFF) / 255.0F;
-            RenderSystem.setShaderColor(red, green, blue, 1.0F);
             int drawn = 0;
             while (drawn < fillWidth) {
                 int segment = Math.min(sprite.contents().width(), fillWidth - drawn);
-                graphics.blit(x + 1 + drawn, y + 1, 0, segment, HEIGHT - 2, sprite);
+                graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, x + 1 + drawn, y + 1, segment,
+                        HEIGHT - 2, tint);
                 drawn += segment;
             }
-            RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
-            RenderSystem.disableBlend();
         }
         renderScrollingText(graphics, x, y);
     }
 
-    private void renderScrollingText(GuiGraphics graphics, int x, int y) {
+    private void renderScrollingText(GuiGraphicsExtractor graphics, int x, int y) {
         Font font = Minecraft.getInstance().font;
         int areaWidth = WIDTH - 6;
         int baseX = x + 3;
         int textY = y + (HEIGHT - font.lineHeight) / 2;
         int textWidth = font.width(text);
         if (textWidth <= areaWidth) {
-            graphics.drawString(font, text, baseX + (areaWidth - textWidth) / 2, textY, TEXT_COLOR, false);
+            graphics.text(font, text, baseX + (areaWidth - textWidth) / 2, textY, TEXT_COLOR, false);
             return;
         }
         // Scroll the text back and forth similar to Mekanism's HUD
@@ -92,7 +86,7 @@ public final class HudBarComponent implements ITooltipComponent {
         }
         int drawX = baseX - offset;
         graphics.enableScissor(baseX, y + 1, baseX + areaWidth, y + HEIGHT - 1);
-        graphics.drawString(font, text, drawX, textY, TEXT_COLOR, false);
+        graphics.text(font, text, drawX, textY, TEXT_COLOR, false);
         graphics.disableScissor();
     }
 }

@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -15,8 +16,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -33,17 +33,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.level.block.Mirror;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.tags.ItemTags;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * RF-powered machine that incubates chicken spawn eggs into their itemified
@@ -51,19 +50,19 @@ import java.util.List;
  * exposing facing/lit properties, preserving inventory data on break, and
  * offering comparator support for automation chains.
  */
-public class IncubatorBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class IncubatorBlock extends HorizontalDirectionalBlock implements EntityBlock, BlockItemTooltip {
     public static final MapCodec<IncubatorBlock> CODEC = simpleCodec(IncubatorBlock::new);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public IncubatorBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.METAL)
                 .strength(3.5F, 8.0F)
                 .sound(SoundType.METAL)
                 .requiresCorrectToolForDrops()
                 .noOcclusion()
-                .lightLevel(state -> state.getValue(LIT) ? 9 : 0));
+                .lightLevel(state -> state.getValue(LIT) ? 9 : 0);
     }
 
     public IncubatorBlock(BlockBehaviour.Properties properties) {
@@ -87,7 +86,7 @@ public class IncubatorBlock extends HorizontalDirectionalBlock implements Entity
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         if (type != ModBlockEntities.INCUBATOR.get()) {
@@ -106,22 +105,15 @@ public class IncubatorBlock extends HorizontalDirectionalBlock implements Entity
         if (!(blockEntity instanceof IncubatorBlockEntity incubator)) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(incubator, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof IncubatorBlockEntity incubator) {
-                Containers.dropContents(level, pos, incubator);
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override
@@ -156,10 +148,10 @@ public class IncubatorBlock extends HorizontalDirectionalBlock implements Entity
         player.awardStat(Stats.BLOCK_MINED.get(this));
         player.causeFoodExhaustion(0.005F);
         if (canHarvest(tool)) {
-            if (!level.isClientSide && !player.isCreative()) {
+            if (!level.isClientSide() && !player.isCreative()) {
                 ItemStack drop = new ItemStack(this);
                 if (blockEntity instanceof IncubatorBlockEntity incubator) {
-                    incubator.saveToItem(drop, level.registryAccess());
+                    MachineBlockHelper.saveToItem(drop, incubator, level.registryAccess());
                     var customName = incubator.getCustomName();
                     if (customName != null) {
                         drop.set(DataComponents.CUSTOM_NAME, customName);
@@ -188,23 +180,23 @@ public class IncubatorBlock extends HorizontalDirectionalBlock implements Entity
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.chickens.incubator"));
+    public void appendItemTooltip(ItemStack stack, Consumer<Component> tooltip) {
+        tooltip.accept(Component.translatable("tooltip.chickens.incubator"));
         int capacity = Math.max(1, ChickensConfigHolder.get().getIncubatorEnergyCapacity());
         int energy = 0;
         int cost = Math.max(1, ChickensConfigHolder.get().getIncubatorEnergyCost());
-        CustomData data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
-        if (!data.isEmpty()) {
-            CompoundTag tag = data.copyTag();
+        TypedEntityData<BlockEntityType<?>> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (data != null) {
+            CompoundTag tag = data.copyTagWithoutId();
             if (tag.contains("Energy")) {
-                energy = Math.max(0, tag.getInt("Energy"));
+                energy = Math.max(0, tag.getIntOr("Energy", 0));
             }
             if (tag.contains("EnergyCost")) {
-                cost = Math.max(1, tag.getInt("EnergyCost"));
+                cost = Math.max(1, tag.getIntOr("EnergyCost", 0));
             }
         }
-        tooltip.add(Component.translatable("tooltip.chickens.incubator.energy", energy, capacity));
-        tooltip.add(Component.translatable("tooltip.chickens.incubator.cost", cost));
+        tooltip.accept(Component.translatable("tooltip.chickens.incubator.energy", energy, capacity));
+        tooltip.accept(Component.translatable("tooltip.chickens.incubator.cost", cost));
     }
 
     @Override
@@ -213,7 +205,7 @@ public class IncubatorBlock extends HorizontalDirectionalBlock implements Entity
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof IncubatorBlockEntity incubator) {
             return incubator.getComparatorOutput();

@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "F": {
-      "item": "chickens:flux_egg"
-    },
-    "I": {
-      "item": "minecraft:iron_ingot"
-    },
-    "R": {
-      "item": "chickens:roost"
-    }
+    "F": "chickens:flux_egg",
+    "I": "minecraft:iron_ingot",
+    "R": "chickens:roost"
   },
   "pattern": [
     "IFI",
@@ -18,7 +12,6 @@
     "IFI"
   ],
   "result": {
-    "count": 1,
     "id": "chickens:mechanical_roost"
   }
 }

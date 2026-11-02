@@ -7,13 +7,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.particles.SimpleParticleType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageType;
@@ -50,8 +51,8 @@ import java.util.UUID;
 /** Optional Mekanism radiation integration. This class has no Mekanism imports. */
 public final class MekanismRadiationCompat {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensMekanismRadiation");
-    private static final ResourceLocation RADIATION_PARTICLE_ID =
-            ResourceLocation.fromNamespaceAndPath("mekanism", "radiation");
+    private static final Identifier RADIATION_PARTICLE_ID =
+            Identifier.fromNamespaceAndPath("mekanism", "radiation");
 
     private static final int EMISSION_INTERVAL = 20;
     private static final double EGG_MAGNITUDE = 0.00002D;
@@ -210,12 +211,12 @@ public final class MekanismRadiationCompat {
         if (particle == null) {
             return;
         }
-        int count = 1 + serverLevel.random.nextInt(2);
+        int count = 1 + serverLevel.getRandom().nextInt(2);
         for (int i = 0; i < count; i++) {
             serverLevel.sendParticles(particle,
-                    pos.getX() + 0.2D + serverLevel.random.nextDouble() * 0.6D,
-                    pos.getY() + 0.8D + serverLevel.random.nextDouble() * 0.6D,
-                    pos.getZ() + 0.2D + serverLevel.random.nextDouble() * 0.6D,
+                    pos.getX() + 0.2D + serverLevel.getRandom().nextDouble() * 0.6D,
+                    pos.getY() + 0.8D + serverLevel.getRandom().nextDouble() * 0.6D,
+                    pos.getZ() + 0.2D + serverLevel.getRandom().nextDouble() * 0.6D,
                     1, 0D, 0D, 0D, 0D);
         }
     }
@@ -374,11 +375,13 @@ public final class MekanismRadiationCompat {
 
     private static boolean emitInventoryRadiation(Player player) {
         int radioactiveCount = 0;
-        for (ItemStack stack : player.getInventory().items) {
-            radioactiveCount += radioactiveCount(stack);
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            radioactiveCount += radioactiveCount(inventory.getItem(slot));
         }
-        for (ItemStack stack : player.getArmorSlots()) {
-            radioactiveCount += radioactiveCount(stack);
+        for (EquipmentSlot armorSlot : new EquipmentSlot[] { EquipmentSlot.FEET, EquipmentSlot.LEGS,
+                EquipmentSlot.CHEST, EquipmentSlot.HEAD }) {
+            radioactiveCount += radioactiveCount(player.getItemBySlot(armorSlot));
         }
         radioactiveCount += radioactiveCount(player.getItemBySlot(EquipmentSlot.OFFHAND));
         if (radioactiveCount > 0) {
@@ -407,12 +410,12 @@ public final class MekanismRadiationCompat {
         if (particle == null) {
             return;
         }
-        int count = 1 + level.random.nextInt(2);
+        int count = 1 + level.getRandom().nextInt(2);
         for (int i = 0; i < count; i++) {
             level.sendParticles(particle,
-                    entity.getX() - 0.3D + level.random.nextDouble() * 0.6D,
-                    entity.getY() + 0.2D + level.random.nextDouble() * 0.8D,
-                    entity.getZ() - 0.3D + level.random.nextDouble() * 0.6D,
+                    entity.getX() - 0.3D + level.getRandom().nextDouble() * 0.6D,
+                    entity.getY() + 0.2D + level.getRandom().nextDouble() * 0.8D,
+                    entity.getZ() - 0.3D + level.getRandom().nextDouble() * 0.6D,
                     1, 0D, 0D, 0D, 0D);
         }
     }
@@ -470,7 +473,7 @@ public final class MekanismRadiationCompat {
     @Nullable
     private static SimpleParticleType getRadiationParticle() {
         if (radiationParticle == null) {
-            if (BuiltInRegistries.PARTICLE_TYPE.get(RADIATION_PARTICLE_ID) instanceof SimpleParticleType particle) {
+            if (BuiltInRegistries.PARTICLE_TYPE.getValue(RADIATION_PARTICLE_ID) instanceof SimpleParticleType particle) {
                 radiationParticle = particle;
             }
         }

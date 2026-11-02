@@ -1,16 +1,17 @@
 package strhercules.chickens.spawn;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
+import strhercules.chickens.ChickensMod;
 import strhercules.chickens.SpawnType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.FileToIdConverter;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimpleJsonResourceReloadListener;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.neoforged.neoforge.event.AddReloadListenerEvent;
+import net.neoforged.neoforge.event.AddServerReloadListenersEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -22,18 +23,17 @@ import java.util.Optional;
  * Loads optional spawn plan overrides from datapacks so pack makers can tune weights and brood sizes
  * without editing the code or global configuration file.
  */
-public final class SpawnPlanDataLoader extends SimpleJsonResourceReloadListener {
+public final class SpawnPlanDataLoader extends SimpleJsonResourceReloadListener<JsonElement> {
     private static final Logger LOGGER = LoggerFactory.getLogger("ChickensSpawnPlans");
-    private static final Gson GSON = new GsonBuilder().setLenient().create();
     private static final String DIRECTORY = "chickens/spawn_plans";
     private static final Map<SpawnType, SpawnPlanOverride> OVERRIDES = new EnumMap<>(SpawnType.class);
 
     private SpawnPlanDataLoader() {
-        super(GSON, DIRECTORY);
+        super(ExtraCodecs.JSON, FileToIdConverter.json(DIRECTORY));
     }
 
-    public static void onAddReloadListeners(AddReloadListenerEvent event) {
-        event.addListener(new SpawnPlanDataLoader());
+    public static void onAddReloadListeners(AddServerReloadListenersEvent event) {
+        event.addListener(Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "spawn_plans"), new SpawnPlanDataLoader());
     }
 
     public static Optional<SpawnPlanOverride> getOverride(SpawnType spawnType) {
@@ -41,9 +41,9 @@ public final class SpawnPlanDataLoader extends SimpleJsonResourceReloadListener 
     }
 
     @Override
-    protected void apply(Map<ResourceLocation, JsonElement> entries, ResourceManager resourceManager, ProfilerFiller profiler) {
+    protected void apply(Map<Identifier, JsonElement> entries, ResourceManager resourceManager, ProfilerFiller profiler) {
         Map<SpawnType, SpawnPlanOverride> parsed = new EnumMap<>(SpawnType.class);
-        for (Map.Entry<ResourceLocation, JsonElement> entry : entries.entrySet()) {
+        for (Map.Entry<Identifier, JsonElement> entry : entries.entrySet()) {
             try {
                 JsonObject object = entry.getValue().getAsJsonObject();
                 SpawnPlanOverride override = parseOverride(object);

@@ -10,8 +10,8 @@ import strhercules.chickens.registry.ModEntityTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.util.RandomSource;
-import net.minecraft.util.random.WeightedEntry;
-import net.minecraft.util.random.WeightedRandomList;
+import net.minecraft.util.random.Weighted;
+import net.minecraft.util.random.WeightedList;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.ServerLevelAccessor;
@@ -50,9 +50,8 @@ public final class ChickensSpawnManager {
             "whitechicken", SpawnBiomeRule.LAND,
             "logchicken", SpawnBiomeRule.LAND,
             "flintchicken", SpawnBiomeRule.LAND,
-            "snowballchicken", SpawnBiomeRule.LAND,
+            "snowballchicken", SpawnBiomeRule.ICY,
             "sandchicken", SpawnBiomeRule.SAND,
-            "icechicken", SpawnBiomeRule.ICY,
             "quartzchicken", SpawnBiomeRule.NETHER,
             "soulsandchicken", SpawnBiomeRule.SOUL_SAND_VALLEY,
             "enderchicken", SpawnBiomeRule.END);
@@ -76,11 +75,11 @@ public final class ChickensSpawnManager {
                 continue;
             }
 
-            List<WeightedEntry.Wrapper<ChickensRegistryItem>> weighted = new ArrayList<>();
+            List<Weighted<ChickensRegistryItem>> weighted = new ArrayList<>();
             for (ChickensRegistryItem chicken : candidates) {
                 int weight = spawnWeightFor(chicken);
                 if (weight > 0) {
-                    weighted.add(WeightedEntry.wrap(chicken, weight));
+                    weighted.add(new Weighted<>(chicken, weight));
                 }
             }
             if (weighted.isEmpty()) {
@@ -119,16 +118,16 @@ public final class ChickensSpawnManager {
 
             MobSpawnSettings.SpawnerData spawner = new MobSpawnSettings.SpawnerData(
                     ModEntityTypes.CHICKENS_CHICKEN.get(),
-                    spawnWeight,
                     minBrood,
                     maxBrood);
 
             rebuilt.put(spawnType, new SpawnPlan(
                     spawnType,
                     spawner,
+                    spawnWeight,
                     charge,
                     energy,
-                    WeightedRandomList.create(weighted)));
+                    WeightedList.of(weighted)));
         }
 
         PLANS.clear();
@@ -200,7 +199,7 @@ public final class ChickensSpawnManager {
 
     private static boolean hasVanillaChickens(Holder<Biome> biome) {
         return biome.value().getMobSettings().getMobs(MobCategory.CREATURE).unwrap().stream()
-                .anyMatch(spawn -> spawn.type == EntityType.CHICKEN);
+                .anyMatch(spawn -> spawn.value().type() == EntityType.CHICKEN);
     }
 
     /** Picks the chicken for a spawn at an exact position, honouring each chicken's biome rule. */
@@ -208,7 +207,7 @@ public final class ChickensSpawnManager {
             BlockPos pos, RandomSource random) {
         SpawnType biomeType = ChickensRegistry.getSpawnType(biome);
         boolean vanillaChickenBiome = hasVanillaChickens(biome);
-        List<WeightedEntry.Wrapper<ChickensRegistryItem>> weighted = new ArrayList<>();
+        List<Weighted<ChickensRegistryItem>> weighted = new ArrayList<>();
         for (ChickensRegistryItem chicken : ChickensRegistry.getItems()) {
             if (!isSpawnable(chicken)) {
                 continue;
@@ -222,13 +221,13 @@ public final class ChickensSpawnManager {
                 allowed = rule.matches(level, biome, pos);
             }
             if (allowed) {
-                weighted.add(WeightedEntry.wrap(chicken, spawnWeightFor(chicken)));
+                weighted.add(new Weighted<>(chicken, spawnWeightFor(chicken)));
             }
         }
         if (weighted.isEmpty()) {
             return Optional.empty();
         }
-        return WeightedRandomList.create(weighted).getRandom(random).map(WeightedEntry.Wrapper::data);
+        return WeightedList.of(weighted).getRandom(random);
     }
 
     public static Optional<SpawnPlan> planFor(SpawnType type) {
@@ -257,15 +256,16 @@ public final class ChickensSpawnManager {
      */
     public record SpawnPlan(SpawnType spawnType,
                             MobSpawnSettings.SpawnerData spawnerData,
+                            int spawnWeight,
                             double spawnCharge,
                             double energyBudget,
-                            WeightedRandomList<WeightedEntry.Wrapper<ChickensRegistryItem>> chickens) {
+                            WeightedList<ChickensRegistryItem> chickens) {
         public Optional<ChickensRegistryItem> pick(RandomSource random) {
-            return chickens.getRandom(random).map(WeightedEntry.Wrapper::data);
+            return chickens.getRandom(random);
         }
 
         public MobCategory category() {
-            return spawnerData.type.getCategory();
+            return spawnerData.type().getCategory();
         }
     }
 }

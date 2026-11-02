@@ -1,8 +1,14 @@
 package strhercules.chickens.block;
 
+import com.mojang.logging.LogUtils;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.Nameable;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.level.storage.TagValueOutput;
+import org.slf4j.Logger;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.tags.ItemTags;
@@ -18,6 +24,8 @@ import javax.annotation.Nullable;
  * should behave consistently when broken.
  */
 final class MachineBlockHelper {
+    private static final Logger LOGGER = LogUtils.getLogger();
+
     private MachineBlockHelper() {
     }
 
@@ -35,8 +43,17 @@ final class MachineBlockHelper {
      * Inventory contents are handled elsewhere by the block entities, so only
      * the block itself is dropped here.
      */
+    static void saveToItem(ItemStack stack, BlockEntity blockEntity, HolderLookup.Provider registries) {
+        try (ProblemReporter.ScopedCollector reporter = new ProblemReporter.ScopedCollector(blockEntity.problemPath(), LOGGER)) {
+            TagValueOutput output = TagValueOutput.createWithContext(reporter, registries);
+            blockEntity.saveCustomOnly(output);
+            BlockItem.setBlockEntityData(stack, blockEntity.getType(), output);
+        }
+        stack.applyComponents(blockEntity.collectComponents());
+    }
+
     static void dropMachine(Level level, BlockPos pos, Block block, @Nullable BlockEntity blockEntity, Player player) {
-        if (level.isClientSide || player.isCreative()) {
+        if (level.isClientSide() || player.isCreative()) {
             return;
         }
         ItemStack drop = new ItemStack(block);

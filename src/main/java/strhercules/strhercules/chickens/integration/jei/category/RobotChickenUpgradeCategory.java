@@ -14,14 +14,14 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 public final class RobotChickenUpgradeCategory
         implements IRecipeCategory<ChickensJeiRecipeTypes.RobotChickenUpgradeRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "textures/gui/laying.png");
     private final IDrawable background;
     private final IDrawable icon;
@@ -46,8 +46,13 @@ public final class RobotChickenUpgradeCategory
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -68,10 +73,11 @@ public final class RobotChickenUpgradeCategory
 
     @Override
     public void draw(ChickensJeiRecipeTypes.RobotChickenUpgradeRecipe recipe,
-            IRecipeSlotsView recipeSlotsView, GuiGraphics graphics, double mouseX, double mouseY) {
+            IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 38, 21);
         Component requirement = Component.translatable("gui.chickens.robot_chicken.requirement",
                 recipe.minimumUpgrades(), recipe.maximumUpgrades());
-        graphics.drawString(Minecraft.getInstance().font, requirement, 2, 5, 0xFF7F7F7F, false);
+        graphics.text(Minecraft.getInstance().font, requirement, 2, 5, 0xFF7F7F7F, false);
     }
 }

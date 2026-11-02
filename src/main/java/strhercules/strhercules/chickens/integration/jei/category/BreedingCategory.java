@@ -13,17 +13,17 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.RecipeType;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Visualises chicken breeding pairs, including the legacy chance text so
  * players can judge how likely a specific offspring is.
  */
 public class BreedingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.BreedingRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/breeding.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/breeding_icon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/breeding.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/breeding_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -47,8 +47,13 @@ public class BreedingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -67,10 +72,11 @@ public class BreedingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.BreedingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.BreedingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 37, 5);
         Component message = Component.translatable("gui.breeding.time", recipe.chancePercent());
-        graphics.drawString(Minecraft.getInstance().font, message, 32, 25, 0xFF7F7F7F, false);
+        graphics.text(Minecraft.getInstance().font, message, 32, 25, 0xFF7F7F7F, false);
     }
 }

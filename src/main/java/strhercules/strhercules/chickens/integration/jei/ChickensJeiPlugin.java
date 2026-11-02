@@ -43,14 +43,14 @@ import strhercules.chickens.blockentity.AvianDousingMachineBlockEntity;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.helpers.IGuiHelper;
-import mezz.jei.api.ingredients.subtypes.IIngredientSubtypeInterpreter;
+import mezz.jei.api.ingredients.subtypes.ISubtypeInterpreter;
 import mezz.jei.api.registration.ISubtypeRegistration;
 import mezz.jei.api.registration.IRecipeCatalystRegistration;
 import mezz.jei.api.registration.IRecipeCategoryRegistration;
 import mezz.jei.api.registration.IRecipeRegistration;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -72,10 +72,10 @@ import java.util.stream.Stream;
 
 @JeiPlugin
 public class ChickensJeiPlugin implements IModPlugin {
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "jei_plugin");
+    private static final Identifier UID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "jei_plugin");
 
     @Override
-    public ResourceLocation getPluginUid() {
+    public Identifier getPluginUid() {
         return UID;
     }
 
@@ -83,9 +83,9 @@ public class ChickensJeiPlugin implements IModPlugin {
     public void registerItemSubtypes(ISubtypeRegistration registration) {
         // Every egg and spawn egg stores its chicken or liquid id in the stack, so JEI has to tell them apart.
         // Without a subtype each variant counts as the same ingredient and all recipes show up mixed together.
-        IIngredientSubtypeInterpreter<ItemStack> byStoredType = (stack, context) -> {
+        ISubtypeInterpreter<ItemStack> byStoredType = (stack, context) -> {
             int type = ChickenItemHelper.getChickenType(stack);
-            return type == 0 ? IIngredientSubtypeInterpreter.NONE : Integer.toString(type);
+            return type == 0 ? null : Integer.toString(type);
         };
         registration.registerSubtypeInterpreter(ModRegistry.SPAWN_EGG.get(), byStoredType);
         registration.registerSubtypeInterpreter(ModRegistry.COLORED_EGG.get(), byStoredType);
@@ -94,7 +94,7 @@ public class ChickensJeiPlugin implements IModPlugin {
         registration.registerSubtypeInterpreter(ModRegistry.GAS_EGG.get(), byStoredType);
         registration.registerSubtypeInterpreter(ModRegistry.CHICKEN_ITEM.get(), (stack, context) -> {
             if (!(stack.getItem() instanceof ChickenItem)) {
-                return IIngredientSubtypeInterpreter.NONE;
+                return null;
             }
             if (ChickenItemHelper.isRobotRooster(stack)) {
                 return "robot_rooster";
@@ -104,7 +104,7 @@ public class ChickensJeiPlugin implements IModPlugin {
             }
             ChickensRegistryItem chicken = ChickenItemHelper.resolve(stack);
             if (chicken == null) {
-                return IIngredientSubtypeInterpreter.NONE;
+                return null;
             }
             return chicken.getId() + (ChickenItemHelper.isRobotChicken(stack) ? ":robot" : "");
         });
@@ -349,13 +349,8 @@ public class ChickensJeiPlugin implements IModPlugin {
     }
 
     private static List<ChickensJeiRecipeTypes.AvianDousingRecipe> buildCustomDousingRecipes(ChickenItem chickenItem) {
-        Level level = Minecraft.getInstance().level;
-        if (level == null) {
-            return List.of();
-        }
-
         List<ChickensJeiRecipeTypes.AvianDousingRecipe> list = new ArrayList<>();
-        for (var holder : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.AVIAN_DOUSING.get())) {
+        for (var holder : ReceivedDousingRecipes.get()) {
             ChickensJeiRecipeTypes.AvianDousingRecipe entry = createCustomDousingRecipe(holder.value(), chickenItem);
             if (entry != null) {
                 list.add(entry);
@@ -390,7 +385,7 @@ public class ChickensJeiPlugin implements IModPlugin {
                 reagent = stack;
             }
             case FLUID -> {
-                Fluid target = BuiltInRegistries.FLUID.get(recipe.reagentId());
+                Fluid target = BuiltInRegistries.FLUID.getValue(recipe.reagentId());
                 if (target == null || target == Fluids.EMPTY) {
                     return null;
                 }
@@ -516,7 +511,7 @@ public class ChickensJeiPlugin implements IModPlugin {
                     chickenItem.createFor(americanChicken)));
         }
 
-        for (Map.Entry<ResourceLocation, String> entry : ChickenTeachingRegistry.namespacedTargets().entrySet()) {
+        for (Map.Entry<Identifier, String> entry : ChickenTeachingRegistry.namespacedTargets().entrySet()) {
             ChickensRegistryItem target = ChickensRegistry.getByEntityName(entry.getValue());
             Optional<Item> trigger = BuiltInRegistries.ITEM.getOptional(entry.getKey());
             if (trigger.isPresent() && target != null && target.isEnabled()) {

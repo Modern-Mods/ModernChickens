@@ -8,8 +8,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
@@ -28,12 +26,15 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.Optional;
 import java.util.Objects;
 
 /**
@@ -249,7 +250,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
     }
 
     protected void runServerTick(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         flushPendingOutput();
@@ -290,7 +291,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
                 if (!pendingOutput.isEmpty()) {
                     return;
                 }
-                if (!spawnChickenItem(level.random)) {
+                if (!spawnChickenItem(level.getRandom())) {
                     return;
                 }
                 consumeSeeds();
@@ -339,7 +340,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             // Use the tier-aware fixed duration instead of the generic formula.
             timeUntilNextDrop = fixedTarget;
         } else {
-            RandomSource random = level.random;
+            RandomSource random = level.getRandom();
             for (ChickenContainerEntry entry : chickenData) {
                 if (entry != null) {
                     timeUntilNextDrop = Math.max(timeUntilNextDrop, entry.getLayTime(random));
@@ -415,7 +416,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             }
             if (slot < chickenData.length) {
                 Level level = getLevel();
-                if (level != null && level.isClientSide) {
+                if (level != null && level.isClientSide()) {
                     // Cache the generated entry client-side so renderers keep working before the next server sync.
                     chickenData[slot] = entry;
                 }
@@ -487,7 +488,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             chickenData[slot] = newEntry;
             if (!skipNextTimerReset) {
                 Level level = getLevel();
-                if (level != null && !level.isClientSide) {
+                if (level != null && !level.isClientSide()) {
                     resetTimer(level);
                 }
             }
@@ -558,9 +559,15 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
         }
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        dropBufferedOutput();
+        super.preRemoveSideEffects(pos, state);
+    }
+
     /** Drops the persisted overflow stack when the container itself is removed. */
     public void dropBufferedOutput() {
-        if (pendingOutput.isEmpty() || level == null || level.isClientSide) {
+        if (pendingOutput.isEmpty() || level == null || level.isClientSide()) {
             return;
         }
         dropLegalStack(pendingOutput);
@@ -720,7 +727,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             }
             // Client menus must mirror the authoritative stack received from
             // the server even if their local block-entity state is stale.
-            if (level != null && level.isClientSide) {
+            if (level != null && level.isClientSide()) {
                 upgradeItems.set(upgradeSlot, stack.copy());
                 return;
             }
@@ -740,7 +747,7 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             setChanged();
             return;
         }
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             // Menu packets carry the authoritative virtual count. Do not clamp
             // it against a client upgrade state that may be one packet behind.
             items.set(index, stack.copy());
@@ -831,33 +838,33 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-        super.saveAdditional(tag, registries);
-        sideConfig.save(tag);
-        saveItems(tag, registries);
-        saveUpgrades(tag, registries);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        saveItems(output);
+        saveUpgrades(output);
         if (!pendingOutput.isEmpty()) {
-            tag.put("PendingOutput", saveVirtualStack(pendingOutput, registries));
+            saveVirtualStack(output.child("PendingOutput"), pendingOutput);
         }
-        tag.putInt("TimeUntilNextDrop", timeUntilNextDrop);
-        tag.putInt("TimeElapsed", timeElapsed);
-        tag.putInt("Progress", progress);
+        output.putInt("TimeUntilNextDrop", timeUntilNextDrop);
+        output.putInt("TimeElapsed", timeElapsed);
+        output.putInt("Progress", progress);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-        super.loadAdditional(tag, registries);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, registries);
-        loadUpgrades(tag, registries);
-        loadVirtualItemCounts(tag);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        loadUpgrades(input);
+        loadVirtualItemCounts(input);
         clampLoadedItems();
-        pendingOutput = tag.contains("PendingOutput", net.minecraft.nbt.Tag.TAG_COMPOUND)
-                ? loadVirtualStack(tag.getCompound("PendingOutput"), registries)
-                : ItemStack.EMPTY;
-        timeUntilNextDrop = tag.getInt("TimeUntilNextDrop");
-        timeElapsed = tag.getInt("TimeElapsed");
-        progress = tag.getInt("Progress");
+        pendingOutput = input.child("PendingOutput")
+                .map(AbstractChickenContainerBlockEntity::loadVirtualStack)
+                .orElse(ItemStack.EMPTY);
+        timeUntilNextDrop = input.getIntOr("TimeUntilNextDrop", 0);
+        timeElapsed = input.getIntOr("TimeElapsed", 0);
+        progress = input.getIntOr("Progress", 0);
         skipNextTimerReset = true;
         markChickenDataDirty();
     }
@@ -876,17 +883,13 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-        loadAdditional(tag, registries);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            net.minecraft.core.HolderLookup.Provider registries) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, registries);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     private void notifyBlockUpdate(Level level) {
@@ -924,9 +927,9 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
         return stack.isEmpty() ? 0 : serializedStackSize(stack);
     }
 
-    private void saveItems(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
+    private void saveItems(ValueOutput output) {
         NonNullList<ItemStack> serialized = NonNullList.withSize(items.size(), ItemStack.EMPTY);
-        ListTag virtualCounts = new ListTag();
+        ValueOutput.ValueOutputList virtualCounts = output.childrenList("VirtualItemCounts");
         for (int index = 0; index < items.size(); index++) {
             ItemStack stack = items.get(index);
             if (stack.isEmpty()) {
@@ -936,25 +939,18 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
             int serializedCount = Math.min(count, serializedStackSize(stack));
             serialized.set(index, stack.copyWithCount(serializedCount));
             if (count > serializedCount) {
-                CompoundTag entry = new CompoundTag();
+                ValueOutput entry = virtualCounts.addChild();
                 entry.putInt("Slot", index);
                 entry.putInt("Count", count);
-                virtualCounts.add(entry);
             }
         }
-        ContainerHelper.saveAllItems(tag, serialized, registries);
-        tag.put("VirtualItemCounts", virtualCounts);
+        ContainerHelper.saveAllItems(output, serialized);
     }
 
-    private void loadVirtualItemCounts(CompoundTag tag) {
-        if (!tag.contains("VirtualItemCounts", Tag.TAG_LIST)) {
-            return;
-        }
-        ListTag list = tag.getList("VirtualItemCounts", Tag.TAG_COMPOUND);
-        for (int index = 0; index < list.size(); index++) {
-            CompoundTag entry = list.getCompound(index);
-            int slot = entry.getInt("Slot");
-            int count = entry.getInt("Count");
+    private void loadVirtualItemCounts(ValueInput input) {
+        for (ValueInput entry : input.childrenListOrEmpty("VirtualItemCounts")) {
+            int slot = entry.getIntOr("Slot", 0);
+            int count = entry.getIntOr("Count", 0);
             if (slot < 0 || slot >= items.size() || count <= 0 || items.get(slot).isEmpty()) {
                 continue;
             }
@@ -970,37 +966,31 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
                 // slot packets. Preserve the server's virtual count until those
                 // authoritative slot updates arrive instead of clamping it to a
                 // stale pre-upgrade capacity.
-                int maxStackSize = level != null && level.isClientSide
+                int maxStackSize = level != null && level.isClientSide()
                         ? MAX_VIRTUAL_STACK_SIZE : getMaxStackSizeForSlot(index, stack);
                 stack.setCount(Math.min(stack.getCount(), maxStackSize));
             }
         }
     }
 
-    protected static CompoundTag saveVirtualStack(ItemStack stack,
-            net.minecraft.core.HolderLookup.Provider registries) {
+    protected static void saveVirtualStack(ValueOutput output, ItemStack stack) {
         int count = stack.getCount();
-        CompoundTag tag = (CompoundTag) stack.copyWithCount(Math.min(count, serializedStackSize(stack)))
-                .save(registries);
+        output.store(ItemStack.MAP_CODEC, stack.copyWithCount(Math.min(count, serializedStackSize(stack))));
         if (count > serializedStackSize(stack)) {
-            tag.putInt("VirtualCount", count);
+            output.putInt("VirtualCount", count);
         }
-        return tag;
     }
 
-    protected static ItemStack loadVirtualStack(CompoundTag tag,
-            net.minecraft.core.HolderLookup.Provider registries) {
-        CompoundTag stackTag = tag.copy();
-        stackTag.remove("VirtualCount");
-        ItemStack stack = ItemStack.parse(registries, stackTag).orElse(ItemStack.EMPTY);
-        if (!stack.isEmpty() && tag.contains("VirtualCount", Tag.TAG_INT)) {
-            stack.setCount(tag.getInt("VirtualCount"));
+    protected static ItemStack loadVirtualStack(ValueInput input) {
+        ItemStack stack = input.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY);
+        if (!stack.isEmpty() && input.getInt("VirtualCount").isPresent()) {
+            stack.setCount(input.getIntOr("VirtualCount", 0));
         }
         return stack;
     }
 
     protected final void dropLegalStack(ItemStack stack) {
-        if (level == null || level.isClientSide || stack.isEmpty()) {
+        if (level == null || level.isClientSide() || stack.isEmpty()) {
             return;
         }
         ItemStack remaining = stack.copy();
@@ -1011,28 +1001,28 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
         }
     }
 
-    private void saveUpgrades(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-        ListTag list = new ListTag();
+    private void saveUpgrades(ValueOutput output) {
+        ValueOutput.ValueOutputList list = output.childrenList("Upgrades");
         for (int index = 0; index < upgradeItems.size(); index++) {
             ItemStack stack = upgradeItems.get(index);
             if (stack.isEmpty()) {
                 continue;
             }
-            CompoundTag entry = (CompoundTag) stack.save(registries);
+            ValueOutput entry = list.addChild();
+            entry.store(ItemStack.MAP_CODEC, stack);
             entry.putByte("Slot", (byte) index);
-            list.add(entry);
         }
-        tag.put("Upgrades", list);
     }
 
-    private void loadUpgrades(CompoundTag tag, net.minecraft.core.HolderLookup.Provider registries) {
-        if (!tag.contains("Upgrades", Tag.TAG_LIST)) {
+    private void loadUpgrades(ValueInput input) {
+        Optional<ValueInput.ValueInputList> stored = input.childrenList("Upgrades");
+        if (stored.isEmpty()) {
             // Some block-entity packets are partial. Keep the client menu's
             // already-synchronised upgrade stacks when no upgrade payload was
             // included instead of making its slots and layout disappear.
             return;
         }
-        ListTag list = tag.getList("Upgrades", Tag.TAG_COMPOUND);
+        ValueInput.ValueInputList list = stored.get();
         if (list.isEmpty()) {
             for (int index = 0; index < upgradeItems.size(); index++) {
                 upgradeItems.set(index, ItemStack.EMPTY);
@@ -1041,15 +1031,12 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
         }
         NonNullList<ItemStack> loaded = NonNullList.withSize(upgradeItems.size(), ItemStack.EMPTY);
         int validEntries = 0;
-        for (int index = 0; index < list.size(); index++) {
-            CompoundTag entry = list.getCompound(index);
-            int slot = entry.getByte("Slot");
+        for (ValueInput entry : list) {
+            int slot = entry.getByteOr("Slot", (byte) 0);
             if (slot < 0 || slot >= upgradeItems.size()) {
                 continue;
             }
-            CompoundTag stackTag = entry.copy();
-            stackTag.remove("Slot");
-            ItemStack stack = ItemStack.parse(registries, stackTag).orElse(ItemStack.EMPTY);
+            ItemStack stack = entry.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY);
             if (!stack.isEmpty() && canPlaceUpgrade(slot, stack)) {
                 stack.setCount(Math.min(stack.getCount(), getUpgradeMaxStackSize(slot)));
                 loaded.set(slot, stack);
@@ -1103,16 +1090,16 @@ public abstract class AbstractChickenContainerBlockEntity extends BlockEntity
      * Populates the client-side tooltip with generic container information.
      */
     public void appendTooltip(List<Component> tooltip, CompoundTag data) {
-        if (data.contains("HasChickens") && !data.getBoolean("HasChickens")) {
+        if (data.contains("HasChickens") && !data.getBooleanOr("HasChickens", false)) {
             tooltip.add(Component.translatable("tooltip.chickens.container.empty"));
             return;
         }
         if (data.contains("Progress")) {
-            int percent = Math.round(data.getFloat("Progress") * 100.0F);
+            int percent = Math.round(data.getFloatOr("Progress", 0.0F) * 100.0F);
             tooltip.add(Component.translatable("tooltip.chickens.container.progress", percent));
         }
-        int requiredSeeds = data.getInt("RequiredSeeds");
-        if (requiredSeeds > 0 && (!data.contains("HasSeeds") || !data.getBoolean("HasSeeds"))) {
+        int requiredSeeds = data.getIntOr("RequiredSeeds", 0);
+        if (requiredSeeds > 0 && (!data.contains("HasSeeds") || !data.getBooleanOr("HasSeeds", false))) {
             tooltip.add(Component.translatable("tooltip.chickens.container.no_seeds", requiredSeeds));
         }
     }

@@ -1,7 +1,7 @@
 package strhercules.chickens;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -17,14 +17,14 @@ import java.util.Map;
  */
 public final class LiquidEggRegistry {
     private static final Map<Integer, LiquidEggRegistryItem> ITEMS = new HashMap<>();
-    private static final Map<ResourceLocation, LiquidEggRegistryItem> BY_FLUID = new HashMap<>();
+    private static final Map<Identifier, LiquidEggRegistryItem> BY_FLUID = new HashMap<>();
 
     private LiquidEggRegistry() {
     }
 
     public static void register(LiquidEggRegistryItem liquidEgg) {
         ITEMS.put(liquidEgg.getId(), liquidEgg);
-        ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(liquidEgg.getFluid());
+        Identifier fluidId = BuiltInRegistries.FLUID.getKey(liquidEgg.getFluid());
         if (fluidId != null) {
             BY_FLUID.put(fluidId, liquidEgg);
         }
@@ -39,7 +39,7 @@ public final class LiquidEggRegistry {
     }
 
     @Nullable
-    public static LiquidEggRegistryItem findByFluid(ResourceLocation fluidId) {
+    public static LiquidEggRegistryItem findByFluid(Identifier fluidId) {
         return BY_FLUID.get(fluidId);
     }
 }

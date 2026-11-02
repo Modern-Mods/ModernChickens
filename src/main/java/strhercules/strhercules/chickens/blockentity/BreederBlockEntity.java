@@ -21,6 +21,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerData;
@@ -92,7 +93,7 @@ public class BreederBlockEntity extends AbstractChickenContainerBlockEntity {
         if (!ChickenItemHelper.isChicken(stack) || ChickenItemHelper.isRooster(stack) || stack.isEmpty()) {
             return null;
         }
-        ChickensChicken parent = ModEntityTypes.CHICKENS_CHICKEN.get().create(level);
+        ChickensChicken parent = ModEntityTypes.CHICKENS_CHICKEN.get().create(level, EntitySpawnReason.COMMAND);
         if (parent == null) {
             return null;
         }
@@ -335,14 +336,14 @@ public class BreederBlockEntity extends AbstractChickenContainerBlockEntity {
     @Override
     public void appendTooltip(List<Component> tooltip, CompoundTag data) {
         if (data.contains("LeftChickenId") && data.contains("RightChickenId")) {
-            ChickensRegistryItem left = ChickensRegistry.getByType(data.getInt("LeftChickenId"));
-            ChickensRegistryItem right = ChickensRegistry.getByType(data.getInt("RightChickenId"));
+            ChickensRegistryItem left = ChickensRegistry.getByType(data.getIntOr("LeftChickenId", 0));
+            ChickensRegistryItem right = ChickensRegistry.getByType(data.getIntOr("RightChickenId", 0));
             if (left != null && right != null) {
                 tooltip.add(Component.translatable("tooltip.chickens.breeder.parents", left.getDisplayName(),
                         right.getDisplayName()));
             }
         }
-        tooltip.add(Component.translatable("tooltip.chickens.breeder.seeds", data.getInt("SeedCount")));
+        tooltip.add(Component.translatable("tooltip.chickens.breeder.seeds", data.getIntOr("SeedCount", 0)));
         super.appendTooltip(tooltip, data);
     }
 }

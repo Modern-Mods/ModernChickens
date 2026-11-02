@@ -4,6 +4,7 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.recipe.DousingRecipe;
 import strhercules.chickens.recipe.VariantIngredient;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.neoforged.bus.api.IEventBus;
@@ -22,14 +23,10 @@ public final class ModRecipeTypes {
             DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, ChickensMod.MOD_ID);
 
     public static final DeferredHolder<RecipeType<?>, RecipeType<DousingRecipe>> AVIAN_DOUSING =
-            RECIPE_TYPES.register("avian_dousing", () -> new RecipeType<>() {
-                @Override
-                public String toString() {
-                    return ChickensMod.MOD_ID + ":avian_dousing";
-                }
-            });
+            RECIPE_TYPES.register("avian_dousing",
+                    () -> RecipeType.simple(Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "avian_dousing")));
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<DousingRecipe>> AVIAN_DOUSING_SERIALIZER =
-            RECIPE_SERIALIZERS.register("avian_dousing", DousingRecipe.Serializer::new);
+            RECIPE_SERIALIZERS.register("avian_dousing", () -> DousingRecipe.SERIALIZER);
 
     public static final DeferredHolder<IngredientType<?>, IngredientType<VariantIngredient>> VARIANT_INGREDIENT =
             INGREDIENT_TYPES.register("variant", () -> new IngredientType<>(VariantIngredient.CODEC));

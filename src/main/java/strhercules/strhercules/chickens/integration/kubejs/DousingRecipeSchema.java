@@ -19,9 +19,9 @@ public interface DousingRecipeSchema {
             .functionNames("input", "chicken");
 
     RecipeKey<List<CustomObjectRecipeComponent.Value>> REAGENT = new CustomObjectRecipeComponent(List.of(
-            new CustomObjectRecipeComponent.Key("type", StringComponent.STRING.instance()),
-            new CustomObjectRecipeComponent.Key("id", StringComponent.ID.instance()),
-            new CustomObjectRecipeComponent.Key("amount", NumberComponent.POSITIVE_INT.instance(), true)
+            new CustomObjectRecipeComponent.Key("type", StringComponent.STRING),
+            new CustomObjectRecipeComponent.Key("id", StringComponent.ID),
+            new CustomObjectRecipeComponent.Key("amount", NumberComponent.POSITIVE_INT, true)
     )).inputKey("reagent");
 
     RecipeKey<Integer> ENERGY = NumberComponent.NON_NEGATIVE_INT

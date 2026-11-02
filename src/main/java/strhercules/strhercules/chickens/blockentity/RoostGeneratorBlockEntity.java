@@ -24,11 +24,15 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -120,7 +124,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
 
     @Override
     protected void runServerTick(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         syncWithConfig();
@@ -134,7 +138,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
             return;
         }
 
-        rollFluctuationIfNeeded(level.random);
+        rollFluctuationIfNeeded(level.getRandom());
         int generation = getGenerationPerTick();
         applyGeneration(generation);
         pushEnergyToNeighbors(level);
@@ -377,7 +381,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
 
     /** Returns the signed current FE/t after efficiency, Exciter, Stabilizer, and Governor effects. */
     public int getGenerationPerTick() {
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             return clientGeneration;
         }
         return safeInt(getNetGenerationPerTick());
@@ -389,7 +393,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
 
     /** Returns the non-negative FE/t export ceiling for this tick. */
     public int getMaxOutputPerTick() {
-        if (level != null && level.isClientSide) {
+        if (level != null && level.isClientSide()) {
             return clientMaxOutput;
         }
         double generation = getNetGenerationPerTick();
@@ -407,7 +411,7 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
         return governorReduction() * ChickensConfigHolder.get().getRoostGeneratorGovernorConversion();
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig(), direction);
     }
 
@@ -454,23 +458,15 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
             if (!sideConfig().allows(direction, MachineSideConfig.Channel.ENERGY, false)) {
                 continue;
             }
-            IEnergyStorage target = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler target = level.getCapability(Capabilities.Energy.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (target == null) {
                 continue;
             }
-            int available = energyStorage.extractEnergy(Integer.MAX_VALUE, true);
-            if (available <= 0) {
+            if (energyStorage.getEnergyStored() <= 0) {
                 return;
             }
-            int accepted = target.receiveEnergy(available, true);
-            if (accepted <= 0) {
-                continue;
-            }
-            int extracted = energyStorage.extractEnergy(accepted, false);
-            if (extracted > 0) {
-                target.receiveEnergy(extracted, false);
-            }
+            EnergyHandlerUtil.move(energyStorage, target, Integer.MAX_VALUE, null);
         }
     }
 
@@ -602,22 +598,22 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        tag.putInt("Energy", getEnergyStored());
-        tag.putInt("FluctuationTicks", fluctuationTicks);
-        tag.putDouble("Fluctuation", fluctuation);
-        tag.putBoolean("HasFluctuationRoll", hasFluctuationRoll);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        output.putInt("Energy", getEnergyStored());
+        output.putInt("FluctuationTicks", fluctuationTicks);
+        output.putDouble("Fluctuation", fluctuation);
+        output.putBoolean("HasFluctuationRoll", hasFluctuationRoll);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
         syncWithConfig();
-        energyStorage.setEnergy(Mth.clamp(tag.getInt("Energy"), 0, capacity));
-        fluctuationTicks = Math.max(0, tag.getInt("FluctuationTicks"));
-        fluctuation = Double.isFinite(tag.getDouble("Fluctuation")) ? tag.getDouble("Fluctuation") : 0.0D;
-        hasFluctuationRoll = tag.getBoolean("HasFluctuationRoll");
+        energyStorage.setEnergy(Mth.clamp(input.getIntOr("Energy", 0), 0, capacity));
+        fluctuationTicks = Math.max(0, input.getIntOr("FluctuationTicks", 0));
+        fluctuation = Double.isFinite(input.getDoubleOr("Fluctuation", 0.0D)) ? input.getDoubleOr("Fluctuation", 0.0D) : 0.0D;
+        hasFluctuationRoll = input.getBooleanOr("HasFluctuationRoll", false);
     }
 
     private static int safeInt(double value) {
@@ -633,42 +629,47 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
         return (int) Math.round(value);
     }
 
-    private final class MachineEnergyStorage extends EnergyStorage {
+    private final class MachineEnergyStorage extends StoredEnergyHandler {
+        private final SnapshotJournal<Integer> budgetJournal = new SnapshotJournal<>() {
+            @Override
+            protected Integer createSnapshot() {
+                return extractedThisTick;
+            }
+
+            @Override
+            protected void revertToSnapshot(Integer snapshot) {
+                extractedThisTick = snapshot;
+            }
+        };
+
         MachineEnergyStorage() {
             super(1_000_000, 0, Integer.MAX_VALUE);
         }
 
         @Override
-        public int receiveEnergy(int amount, boolean simulate) {
-            return 0;
+        protected int maxExtract() {
+            return Math.max(0, getMaxOutputPerTick() - extractedThisTick);
         }
 
         @Override
-        public int extractEnergy(int amount, boolean simulate) {
+        protected void onEnergyChanged() {
+            setChanged();
+        }
+
+        @Override
+        public int extract(int amount, TransactionContext transaction) {
             if (amount <= 0 || energy <= 0) {
                 return 0;
             }
             if (level != null) {
                 prepareOutputBudget(level.getGameTime());
             }
-            int availableThisTick = Math.max(0, getMaxOutputPerTick() - extractedThisTick);
-            int extracted = Math.min(Math.min(amount, availableThisTick), energy);
-            if (!simulate && extracted > 0) {
-                energy -= extracted;
+            int extracted = super.extract(amount, transaction);
+            if (extracted > 0) {
+                budgetJournal.updateSnapshots(transaction);
                 extractedThisTick += extracted;
-                setChanged();
             }
             return extracted;
-        }
-
-        @Override
-        public boolean canReceive() {
-            return false;
-        }
-
-        @Override
-        public boolean canExtract() {
-            return getMaxOutputPerTick() > 0;
         }
 
         void addEnergy(int amount) {
@@ -681,10 +682,6 @@ public class RoostGeneratorBlockEntity extends AbstractChickenContainerBlockEnti
             if (amount > 0) {
                 energy = Math.max(0, energy - amount);
             }
-        }
-
-        void setEnergy(int value) {
-            energy = Mth.clamp(value, 0, capacity);
         }
 
         void setLimits(int newCapacity) {

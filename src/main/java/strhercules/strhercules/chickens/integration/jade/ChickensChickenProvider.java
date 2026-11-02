@@ -4,7 +4,7 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.config.ChickensConfigHolder;
 import strhercules.chickens.entity.ChickensChicken;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -17,7 +17,7 @@ import snownee.jade.api.config.IPluginConfig;
 enum ChickensChickenProvider implements IEntityComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_chicken");
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_chicken");
 
     @Override
     public void appendTooltip(ITooltip tooltip, EntityAccessor accessor, IPluginConfig config) {
@@ -44,7 +44,7 @@ enum ChickensChickenProvider implements IEntityComponentProvider {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 }

@@ -1,9 +1,13 @@
 package strhercules.chickens.datagen.providers;
 
 import strhercules.chickens.recipe.DousingRecipe;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.core.NonNullList;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
@@ -11,70 +15,51 @@ import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.data.recipes.ShapedRecipeBuilder;
 import net.minecraft.data.recipes.ShapelessRecipeBuilder;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.ItemTags;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraft.world.item.crafting.ShapelessRecipe;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.world.item.crafting.Recipe;
 import net.neoforged.neoforge.common.conditions.ICondition;
 
+import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ChickensRecipeProvider extends RecipeProvider {
 
     private static final String MODID = "chickens";
 
-    public ChickensRecipeProvider(PackOutput output, CompletableFuture<HolderLookup.Provider> registries) {
-        super(output, registries);
+    public ChickensRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+        super(registries, output);
     }
 
     @Override
-    protected void buildRecipes(RecipeOutput rawOutput) {
-        RecipeOutput output = new RecipeOutput() {
-            @Override
-            public void accept(ResourceLocation id, Recipe<?> recipe, AdvancementHolder advancement) {
-                rawOutput.accept(id, recipe, null);
-            }
+    protected void buildRecipes() {
+        coloredEgg("white_chicken", Items.WHITE_DYE, 0);
+        coloredEgg("yellow_chicken", Items.YELLOW_DYE, 4);
+        coloredEgg("blue_chicken", Items.BLUE_DYE, 11);
+        coloredEgg("green_chicken", Items.GREEN_DYE, 13);
+        coloredEgg("red_chicken", Items.RED_DYE, 14);
+        coloredEgg("black_chicken", Items.BLACK_DYE, 15);
 
-            @Override
-            public net.minecraft.advancements.Advancement.Builder advancement() {
-                return rawOutput.advancement();
-            }
-
-            @Override
-            public void accept(ResourceLocation id, Recipe<?> recipe, AdvancementHolder advancement, ICondition... conditions) {
-                rawOutput.accept(id, recipe, null, conditions);
-            }
-        };
-
-        coloredEgg(output, "white_chicken", Items.WHITE_DYE, 0);
-        coloredEgg(output, "yellow_chicken", Items.YELLOW_DYE, 4);
-        coloredEgg(output, "blue_chicken", Items.BLUE_DYE, 11);
-        coloredEgg(output, "green_chicken", Items.GREEN_DYE, 13);
-        coloredEgg(output, "red_chicken", Items.RED_DYE, 14);
-        coloredEgg(output, "black_chicken", Items.BLACK_DYE, 15);
-
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("chickens:flying_egg"))
+        ShapelessRecipeBuilder.shapeless(items, RecipeCategory.MISC, item("chickens:flying_egg"))
                 .requires(Items.EGG)
                 .requires(Items.ELYTRA)
                 .unlockedBy("has_elytra", has(Items.ELYTRA))
                 .save(output, id("flying_egg"));
 
-        ShapelessRecipeBuilder.shapeless(RecipeCategory.MISC, item("chickens:analyzer"))
+        ShapelessRecipeBuilder.shapeless(items, RecipeCategory.MISC, item("chickens:analyzer"))
                 .requires(Items.COMPASS)
                 .requires(Items.EGG)
                 .unlockedBy("has_compass", has(Items.COMPASS))
                 .save(output, id("analyzer"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:configurator"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:configurator"))
                 .pattern("II")
                 .pattern(" R")
                 .pattern(" S")
@@ -84,7 +69,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_iron_ingot", has(Items.IRON_INGOT))
                 .save(output, id("configurator"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:catcher"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:catcher"))
                 .pattern("E")
                 .pattern("S")
                 .pattern("F")
@@ -94,7 +79,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_egg", has(Items.EGG))
                 .save(output, id("catcher"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:roost"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:roost"))
                 .pattern("PPP")
                 .pattern("PHP")
                 .pattern("PPP")
@@ -103,7 +88,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
                 .save(output, id("roost"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:breeder"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:breeder"))
                 .pattern("PPP")
                 .pattern("PSP")
                 .pattern("HHH")
@@ -113,7 +98,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_hay_block", has(Items.HAY_BLOCK))
                 .save(output, id("breeder"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:nest"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:nest"))
                 .pattern("SPS")
                 .pattern("RHR")
                 .pattern("PPP")
@@ -124,7 +109,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_roost", has(item("chickens:roost")))
                 .save(output, id("nest"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:collector"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:collector"))
                 .pattern("PRP")
                 .pattern("PHP")
                 .pattern("PCP")
@@ -135,7 +120,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_roost", has(item("chickens:roost")))
                 .save(output, id("collector"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:incubator"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:incubator"))
                 .pattern("IFI")
                 .pattern("GBG")
                 .pattern("IRI")
@@ -147,7 +132,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_breeder", has(item("chickens:breeder")))
                 .save(output, id("incubator"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:mechanical_roost"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:mechanical_roost"))
                 .pattern("IFI")
                 .pattern("FRF")
                 .pattern("IFI")
@@ -157,7 +142,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_roost", has(item("chickens:roost")))
                 .save(output, id("mechanical_roost"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:roost_generator"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:roost_generator"))
                 .pattern("IFI")
                 .pattern("RMR")
                 .pattern("IFI")
@@ -168,7 +153,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_mechanical_roost", has(item("chickens:mechanical_roost")))
                 .save(output, id("roost_generator"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:mechanical_nest"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:mechanical_nest"))
                 .pattern("IFI")
                 .pattern("FRF")
                 .pattern("IFI")
@@ -178,19 +163,20 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_nest", has(item("chickens:nest")))
                 .save(output, id("mechanical_nest"));
 
-        henhouse(output, "henhouse", Items.OAK_PLANKS);
-        henhouse(output, "henhouse_acacia", Items.ACACIA_PLANKS);
-        henhouse(output, "henhouse_birch", Items.BIRCH_PLANKS);
-        henhouse(output, "henhouse_dark_oak", Items.DARK_OAK_PLANKS);
-        henhouse(output, "henhouse_jungle", Items.JUNGLE_PLANKS);
-        henhouse(output, "henhouse_spruce", Items.SPRUCE_PLANKS);
-        henhouse(output, "henhouse_mangrove", Items.MANGROVE_PLANKS);
-        henhouse(output, "henhouse_cherry", Items.CHERRY_PLANKS);
-        henhouse(output, "henhouse_bamboo", Items.BAMBOO_PLANKS);
-        henhouse(output, "henhouse_crimson", Items.CRIMSON_PLANKS);
-        henhouse(output, "henhouse_warped", Items.WARPED_PLANKS);
+        henhouse("henhouse", Items.OAK_PLANKS);
+        henhouse("henhouse_acacia", Items.ACACIA_PLANKS);
+        henhouse("henhouse_birch", Items.BIRCH_PLANKS);
+        henhouse("henhouse_dark_oak", Items.DARK_OAK_PLANKS);
+        henhouse("henhouse_jungle", Items.JUNGLE_PLANKS);
+        henhouse("henhouse_spruce", Items.SPRUCE_PLANKS);
+        henhouse("henhouse_mangrove", Items.MANGROVE_PLANKS);
+        henhouse("henhouse_cherry", Items.CHERRY_PLANKS);
+        henhouse("henhouse_pale_oak", Items.PALE_OAK_PLANKS);
+        henhouse("henhouse_bamboo", Items.BAMBOO_PLANKS);
+        henhouse("henhouse_crimson", Items.CRIMSON_PLANKS);
+        henhouse("henhouse_warped", Items.WARPED_PLANKS);
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:avian_fluid_converter"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:avian_fluid_converter"))
                 .pattern("GWG")
                 .pattern("BCB")
                 .pattern("ILI")
@@ -203,7 +189,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_collector", has(item("chickens:collector")))
                 .save(output, id("avian_fluid_converter"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:avian_chemical_converter"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:avian_chemical_converter"))
                 .pattern("ITI")
                 .pattern("BCB")
                 .pattern("ITI")
@@ -214,7 +200,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_collector", has(item("chickens:collector")))
                 .save(output, id("avian_chemical_converter"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:avian_flux_converter"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:avian_flux_converter"))
                 .pattern("RGR")
                 .pattern("GCG")
                 .pattern("RIR")
@@ -225,7 +211,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_collector", has(item("chickens:collector")))
                 .save(output, id("avian_flux_converter"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:avian_dousing_machine"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:avian_dousing_machine"))
                 .pattern("FBF")
                 .pattern("RCR")
                 .pattern("IGI")
@@ -238,7 +224,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_collector", has(item("chickens:collector")))
                 .save(output, id("avian_dousing_machine"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:speedupgrade"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:speedupgrade"))
                 .pattern("NEN")
                 .pattern("EDE")
                 .pattern("NEN")
@@ -248,7 +234,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(output, id("speedupgrade"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:stackupgrade"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:stackupgrade"))
                 .pattern("NSN")
                 .pattern("SDS")
                 .pattern("NSN")
@@ -258,7 +244,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_shulker_shell", has(Items.SHULKER_SHELL))
                 .save(output, id("stackupgrade"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:storagecapacity"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:storagecapacity"))
                 .pattern("NEN")
                 .pattern("ECE")
                 .pattern("NEN")
@@ -268,7 +254,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(output, id("storagecapacity"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:rangeupgrade"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:rangeupgrade"))
                 .pattern("ENE")
                 .pattern("NBN")
                 .pattern("ENE")
@@ -278,7 +264,7 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_beacon", has(Items.BEACON))
                 .save(output, id("rangeupgrade"));
 
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:rfupgrade"))
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:rfupgrade"))
                 .pattern("NEN")
                 .pattern("RDR")
                 .pattern("NEN")
@@ -289,29 +275,29 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .unlockedBy("has_netherite", has(Items.NETHERITE_INGOT))
                 .save(output, id("rfupgrade"));
 
-        rfGeneratorUpgrade(output, "rf_capacity_upgrade", item("chickens:rf_capacity_upgrade"),
+        rfGeneratorUpgrade("rf_capacity_upgrade", item("chickens:rf_capacity_upgrade"),
                 Items.IRON_BLOCK);
-        rfGeneratorUpgrade(output, "rf_efficiency_upgrade", item("chickens:rf_efficiency_upgrade"),
+        rfGeneratorUpgrade("rf_efficiency_upgrade", item("chickens:rf_efficiency_upgrade"),
                 Items.GLOWSTONE_DUST);
-        rfGeneratorUpgrade(output, "rf_output_upgrade", item("chickens:rf_output_upgrade"),
+        rfGeneratorUpgrade("rf_output_upgrade", item("chickens:rf_output_upgrade"),
                 Items.REDSTONE_BLOCK);
-        rfGeneratorUpgrade(output, "rf_exciter_upgrade", item("chickens:rf_exciter_upgrade"),
+        rfGeneratorUpgrade("rf_exciter_upgrade", item("chickens:rf_exciter_upgrade"),
                 Items.BLAZE_ROD);
-        rfGeneratorUpgrade(output, "rf_stabilizer_upgrade", item("chickens:rf_stabilizer_upgrade"),
+        rfGeneratorUpgrade("rf_stabilizer_upgrade", item("chickens:rf_stabilizer_upgrade"),
                 Items.QUARTZ_BLOCK);
-        rfGeneratorUpgrade(output, "rf_surge_upgrade", item("chickens:rf_surge_upgrade"),
+        rfGeneratorUpgrade("rf_surge_upgrade", item("chickens:rf_surge_upgrade"),
                 Items.GOLD_BLOCK);
-        rfGeneratorUpgrade(output, "rf_governor_upgrade", item("chickens:rf_governor_upgrade"),
+        rfGeneratorUpgrade("rf_governor_upgrade", item("chickens:rf_governor_upgrade"),
                 Items.AMETHYST_BLOCK);
 
-        dousingRecipe(output, "avian_dousing_dragon", "obsidianChicken", "dragonChicken",
+        dousingRecipe("avian_dousing_dragon", "obsidianChicken", "dragonChicken",
                 "minecraft:dragon_breath", 10);
-        dousingRecipe(output, "avian_dousing_wither", "soulSandChicken", "witherChicken",
+        dousingRecipe("avian_dousing_wither", "soulSandChicken", "witherChicken",
                 "minecraft:nether_star", 10);
     }
 
-    private static void henhouse(RecipeOutput output, String recipeName, Item planks) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, item("chickens:" + recipeName))
+    private void henhouse(String recipeName, Item planks) {
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, item("chickens:" + recipeName))
                 .pattern("WWW")
                 .pattern("WHW")
                 .pattern("YYY")
@@ -322,8 +308,8 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .save(output, id(recipeName));
     }
 
-    private static void rfGeneratorUpgrade(RecipeOutput output, String recipeName, Item result, Item component) {
-        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, result)
+    private void rfGeneratorUpgrade(String recipeName, Item result, Item component) {
+        ShapedRecipeBuilder.shaped(items, RecipeCategory.MISC, result)
                 .pattern("NIN")
                 .pattern("ICI")
                 .pattern("NIN")
@@ -334,43 +320,72 @@ public class ChickensRecipeProvider extends RecipeProvider {
                 .save(output, id(recipeName));
     }
 
-    private static void dousingRecipe(RecipeOutput output, String recipeName, String inputChicken,
+    private void dousingRecipe(String recipeName, String inputChicken,
             String resultChicken, String reagentId, int amount) {
         output.accept(id(recipeName), new DousingRecipe(
                 inputChicken,
                 resultChicken,
-                new DousingRecipe.Reagent(DousingRecipe.ReagentType.ITEM, ResourceLocation.parse(reagentId), amount),
+                new DousingRecipe.Reagent(DousingRecipe.ReagentType.ITEM, Identifier.parse(reagentId), amount),
                 10_000), null);
     }
 
-    private static void coloredEgg(RecipeOutput output, String recipeName, Item dye, int chickenType) {
-        ItemStack result = new ItemStack(item("chickens:colored_egg"));
-
+    private void coloredEgg(String recipeName, Item dye, int chickenType) {
         CompoundTag tag = new CompoundTag();
         tag.putInt("ChickenType", chickenType);
-        result.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
-        result.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(chickenType));
+        DataComponentPatch components = DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
+                .set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(List.of((float) chickenType), List.of(), List.of(), List.of()))
+                .build();
 
-        ShapelessRecipe recipe = new ShapelessRecipe(
-                "",
-                CraftingBookCategory.MISC,
-                result,
-                NonNullList.of(Ingredient.EMPTY, Ingredient.of(Items.EGG), Ingredient.of(dye))
-        );
-
-        output.accept(id(recipeName), recipe, null);
+        ShapelessRecipeBuilder.shapeless(items, RecipeCategory.MISC, new ItemStackTemplate(item("chickens:colored_egg"), components))
+                .requires(Items.EGG)
+                .requires(dye)
+                .unlockedBy("has_egg", has(Items.EGG))
+                .save(output, id(recipeName));
     }
 
     private static Item item(String id) {
-        ResourceLocation location = ResourceLocation.parse(id);
-        Item result = BuiltInRegistries.ITEM.get(location);
-        if (result == Items.AIR && !location.equals(ResourceLocation.withDefaultNamespace("air"))) {
+        Identifier location = Identifier.parse(id);
+        Item result = BuiltInRegistries.ITEM.getValue(location);
+        if (result == Items.AIR && !location.equals(Identifier.withDefaultNamespace("air"))) {
             throw new IllegalStateException("Item not registered at datagen time: " + id);
         }
         return result;
     }
 
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    private static ResourceKey<Recipe<?>> id(String path) {
+        return ResourceKey.create(Registries.RECIPE, Identifier.fromNamespaceAndPath(MODID, path));
+    }
+
+    public static class Runner extends RecipeProvider.Runner {
+
+        public Runner(PackOutput packOutput, CompletableFuture<HolderLookup.Provider> registries) {
+            super(packOutput, registries);
+        }
+
+        @Override
+        protected RecipeProvider createRecipeProvider(HolderLookup.Provider registries, RecipeOutput output) {
+            return new ChickensRecipeProvider(registries, new RecipeOutput() {
+                @Override
+                public void accept(ResourceKey<Recipe<?>> id, Recipe<?> recipe, AdvancementHolder advancement, ICondition... conditions) {
+                    output.accept(id, recipe, null, conditions);
+                }
+
+                @Override
+                public Advancement.Builder advancement() {
+                    return output.advancement();
+                }
+
+                @Override
+                public void includeRootAdvancement() {
+                    output.includeRootAdvancement();
+                }
+            });
+        }
+
+        @Override
+        public String getName() {
+            return "Chickens Recipes";
+        }
     }
 }

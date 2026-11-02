@@ -1,8 +1,7 @@
 package strhercules.chickens.client.render;
 
 import strhercules.chickens.ChickensMod;
-import strhercules.chickens.entity.Rooster;
-import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -10,19 +9,17 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
-
-import java.util.List;
 
 /**
  * Modern port of Hatchery's {@code ModelRooster}. The geometry and texture
  * coordinates mirror the original model so the legacy rooster texture maps
  * cleanly onto the 1.21.1 model system.
  */
-public class RoosterModel extends AgeableListModel<Rooster> {
+public class RoosterModel extends EntityModel<RoosterRenderState> {
     public static final ModelLayerLocation LAYER_LOCATION =
-            new ModelLayerLocation(ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "rooster"), "main");
+            new ModelLayerLocation(Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "rooster"), "main");
 
     private final ModelPart head;
     private final ModelPart rightLeg;
@@ -38,11 +35,8 @@ public class RoosterModel extends AgeableListModel<Rooster> {
     private final ModelPart body;
     private final ModelPart neck;
 
-    private final List<ModelPart> headParts;
-    private final List<ModelPart> bodyParts;
-
     public RoosterModel(ModelPart root) {
-        super();
+        super(root);
         this.head = root.getChild("head");
         this.rightLeg = root.getChild("right_leg");
         this.chin = root.getChild("chin");
@@ -56,10 +50,6 @@ public class RoosterModel extends AgeableListModel<Rooster> {
         this.tailTop = root.getChild("tail_top");
         this.body = root.getChild("body");
         this.neck = root.getChild("neck");
-
-        this.headParts = List.of(this.head, this.bill, this.chin, this.crest);
-        this.bodyParts = List.of(this.body, this.neck, this.rightLeg, this.leftLeg,
-                this.rightWing, this.leftWing, this.tailMain, this.tailBottom, this.tailTop);
     }
 
     /**
@@ -152,20 +142,13 @@ public class RoosterModel extends AgeableListModel<Rooster> {
     }
 
     @Override
-    protected Iterable<ModelPart> headParts() {
-        return headParts;
-    }
-
-    @Override
-    protected Iterable<ModelPart> bodyParts() {
-        return bodyParts;
-    }
-
-    @Override
-    public void setupAnim(Rooster rooster, float limbSwing, float limbSwingAmount, float ageInTicks,
-                          float netHeadYaw, float headPitch) {
-        this.head.xRot = headPitch * 0.017453292F;
-        this.head.yRot = netHeadYaw * 0.017453292F;
+    public void setupAnim(RoosterRenderState state) {
+        super.setupAnim(state);
+        float limbSwing = state.walkAnimationPos;
+        float limbSwingAmount = state.walkAnimationSpeed;
+        float flapAngle = (Mth.sin(state.flap) + 1.0F) * state.flapSpeed;
+        this.head.xRot = state.xRot * 0.017453292F;
+        this.head.yRot = state.yRot * 0.017453292F;
         this.bill.xRot = this.head.xRot;
         this.bill.yRot = this.head.yRot;
         this.chin.xRot = this.head.xRot;
@@ -175,8 +158,8 @@ public class RoosterModel extends AgeableListModel<Rooster> {
 
         this.rightLeg.xRot = Mth.cos(limbSwing * 0.6662F) * 1.4F * limbSwingAmount;
         this.leftLeg.xRot = Mth.cos(limbSwing * 0.6662F + (float) Math.PI) * 1.4F * limbSwingAmount;
-        this.rightWing.zRot = ageInTicks;
-        this.leftWing.zRot = -ageInTicks;
+        this.rightWing.zRot = flapAngle;
+        this.leftWing.zRot = -flapAngle;
     }
 }
 

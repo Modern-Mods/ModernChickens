@@ -1,6 +1,6 @@
 package strhercules.chickens;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 import java.util.Collection;
@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public final class ChemicalEggRegistry {
     private static final Map<Integer, ChemicalEggRegistryItem> ITEMS = new HashMap<>();
-    private static final Map<ResourceLocation, ChemicalEggRegistryItem> BY_CHEMICAL = new HashMap<>();
+    private static final Map<Identifier, ChemicalEggRegistryItem> BY_CHEMICAL = new HashMap<>();
 
     private ChemicalEggRegistry() {
     }
@@ -33,7 +33,7 @@ public final class ChemicalEggRegistry {
     }
 
     @Nullable
-    public static ChemicalEggRegistryItem findByChemical(ResourceLocation id) {
+    public static ChemicalEggRegistryItem findByChemical(Identifier id) {
         return BY_CHEMICAL.get(id);
     }
 

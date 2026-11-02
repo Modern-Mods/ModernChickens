@@ -7,16 +7,21 @@ import strhercules.chickens.blockentity.AbstractChickenContainerBlockEntity.Rend
 import strhercules.chickens.blockentity.RoostGeneratorBlockEntity;
 import strhercules.chickens.client.render.ChickenRenderHelper;
 import strhercules.chickens.entity.ChickensChicken;
-import net.minecraft.client.renderer.LightTexture;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderDispatcher;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.core.Direction;
+import net.minecraft.util.LightCoordsUtil;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 /** Renders the Flux Chicken at the generator's internal anchor. */
-public final class RoostGeneratorBlockEntityRenderer implements BlockEntityRenderer<RoostGeneratorBlockEntity> {
+public final class RoostGeneratorBlockEntityRenderer
+        implements BlockEntityRenderer<RoostGeneratorBlockEntity, EntityDisplayRenderState> {
     private static final float SCALE = 0.78F;
     private static final double FLOOR_OFFSET = -0.08D;
     private static final double FRONT_OFFSET = 0.08D;
@@ -24,12 +29,20 @@ public final class RoostGeneratorBlockEntityRenderer implements BlockEntityRende
     private final EntityRenderDispatcher dispatcher;
 
     public RoostGeneratorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        this.dispatcher = context.getEntityRenderer();
+        this.dispatcher = context.entityRenderer();
     }
 
     @Override
-    public void render(RoostGeneratorBlockEntity generator, float partialTicks, PoseStack poseStack,
-            MultiBufferSource buffer, int packedLight, int packedOverlay) {
+    public EntityDisplayRenderState createRenderState() {
+        return new EntityDisplayRenderState();
+    }
+
+    @Override
+    public void extractRenderState(RoostGeneratorBlockEntity generator, EntityDisplayRenderState renderState,
+            float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(generator, renderState, partialTicks, cameraPosition,
+                breakProgress);
+        renderState.entity = null;
         RenderData data = generator.getRenderData(RoostGeneratorBlockEntity.CHICKEN_SLOT);
         if (data == null || data.count() <= 0) {
             return;
@@ -40,21 +53,31 @@ public final class RoostGeneratorBlockEntityRenderer implements BlockEntityRende
             return;
         }
 
-        Direction facing = state.getValue(RoostGeneratorBlock.FACING);
+        renderState.facing = state.getValue(RoostGeneratorBlock.FACING);
         chicken.setRobotChicken(data.robotChicken());
+        ChickenRenderHelper.resetPose(chicken);
+        renderState.entity = dispatcher.extractEntity(chicken, partialTicks);
+        renderState.entity.lightCoords = LightCoordsUtil.FULL_BRIGHT;
+    }
+
+    @Override
+    public void submit(EntityDisplayRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
+            CameraRenderState camera) {
+        if (state.entity == null) {
+            return;
+        }
+        Direction facing = state.facing;
         poseStack.pushPose();
         poseStack.translate(0.5D, FLOOR_OFFSET, 0.5D);
         poseStack.mulPose(Axis.YP.rotationDegrees(-facing.toYRot()));
         poseStack.translate(0.0D, 0.0D, FRONT_OFFSET);
         poseStack.scale(SCALE, SCALE, SCALE);
-        ChickenRenderHelper.resetPose(chicken);
-        dispatcher.render(chicken, 0.0D, 0.0D, 0.0D, 180.0F, 0.0F, poseStack, buffer,
-                LightTexture.FULL_BRIGHT);
+        dispatcher.submit(state.entity, camera, 0.0D, 0.0D, 0.0D, poseStack, submitNodeCollector);
         poseStack.popPose();
     }
 
     @Override
-    public boolean shouldRenderOffScreen(RoostGeneratorBlockEntity blockEntity) {
+    public boolean shouldRenderOffScreen() {
         return true;
     }
 }

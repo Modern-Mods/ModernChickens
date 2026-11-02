@@ -2,10 +2,11 @@ package strhercules.chickens.screen;
 
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.menu.IncubatorMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 import java.util.List;
@@ -15,7 +16,7 @@ import java.util.List;
  * while overlaying a progress arrow and RF bar synced from the container data.
  */
 public class IncubatorScreen extends SideConfigurableScreen<IncubatorMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/incubator.png");
     private static final int PROGRESS_X = 68;
     private static final int PROGRESS_Y = 35;
@@ -31,44 +32,41 @@ public class IncubatorScreen extends SideConfigurableScreen<IncubatorMenu> {
     private static final int ENERGY_TEXTURE_Y = 0;
 
     public IncubatorScreen(IncubatorMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        super(menu, playerInventory, title, 176, 166);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
-        graphics.blit(GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         renderProgressArrow(graphics, x, y);
         renderEnergyBar(graphics, x, y);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, 8, 6, 0xFF404040, false);
+        graphics.text(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFF404040, false);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         renderSideConfig(graphics, mouseX, mouseY);
         renderEnergyTooltip(graphics, mouseX, mouseY);
         renderProgressTooltip(graphics, mouseX, mouseY);
-        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    private void renderProgressArrow(GuiGraphics graphics, int originX, int originY) {
+    private void renderProgressArrow(GuiGraphicsExtractor graphics, int originX, int originY) {
         int maxProgress = Math.max(1, this.menu.getMaxProgress());
         int filled = Math.min(PROGRESS_WIDTH, this.menu.getProgress() * PROGRESS_WIDTH / maxProgress);
         if (filled <= 0) {
             return;
         }
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + PROGRESS_X,
                 originY + PROGRESS_Y,
                 PROGRESS_TEXTURE_X,
@@ -79,14 +77,14 @@ public class IncubatorScreen extends SideConfigurableScreen<IncubatorMenu> {
                 256);
     }
 
-    private void renderEnergyBar(GuiGraphics graphics, int originX, int originY) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics, int originX, int originY) {
         int energy = this.menu.getEnergy();
         int capacity = Math.max(this.menu.getCapacity(), 1);
         int offset = ENERGY_BAR_HEIGHT - Math.min(ENERGY_BAR_HEIGHT, energy * ENERGY_BAR_HEIGHT / capacity);
         if (offset >= ENERGY_BAR_HEIGHT) {
             return;
         }
-        graphics.blit(GUI_TEXTURE,
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE,
                 originX + ENERGY_BAR_X,
                 originY + ENERGY_BAR_Y + offset,
                 ENERGY_TEXTURE_X,
@@ -97,18 +95,18 @@ public class IncubatorScreen extends SideConfigurableScreen<IncubatorMenu> {
                 256);
     }
 
-    private void renderEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderEnergyTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!isHoveringEnergy(mouseX, mouseY)) {
             return;
         }
         int energy = this.menu.getEnergy();
         int capacity = Math.max(this.menu.getCapacity(), 1);
-        graphics.renderTooltip(this.font,
+        graphics.setTooltipForNextFrame(this.font,
                 Component.translatable("tooltip.chickens.incubator.energy", energy, capacity),
                 mouseX, mouseY);
     }
 
-    private void renderProgressTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderProgressTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!isHoveringProgress(mouseX, mouseY)) {
             return;
         }
@@ -116,7 +114,7 @@ public class IncubatorScreen extends SideConfigurableScreen<IncubatorMenu> {
         int percent = Math.min(100, this.menu.getProgress() * 100 / max);
         Component progress = Component.translatable("tooltip.chickens.incubator.progress", percent);
         Component cost = Component.translatable("tooltip.chickens.incubator.cost", this.menu.getEnergyCost());
-        graphics.renderTooltip(this.font,
+        graphics.setTooltipForNextFrame(this.font,
                 List.of(progress.getVisualOrderText(), cost.getVisualOrderText()),
                 mouseX, mouseY);
     }

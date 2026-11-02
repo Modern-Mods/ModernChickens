@@ -14,9 +14,10 @@ import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.registry.ModRegistry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -154,10 +155,10 @@ public final class CustomChickensLoader {
             return Optional.empty();
         }
 
-        ResourceLocation texture = parseResource(definition.texture(), "texture", name);
+        Identifier texture = parseResource(definition.texture(), "texture", name);
         if (texture == null) {
             if (Boolean.TRUE.equals(definition.generatedTexture())) {
-                ResourceLocation fallback = ResourceLocation.fromNamespaceAndPath(
+                Identifier fallback = Identifier.fromNamespaceAndPath(
                         ChickensMod.MOD_ID, "textures/entity/whitechicken.png");
                 LOGGER.warn(
                         "Custom chicken '{}' will use generated texture base {} because the configured texture '{}' was invalid",
@@ -168,8 +169,8 @@ public final class CustomChickensLoader {
             }
         }
 
-        ItemStack layItem = parseItemStack(definition.layItem(), name, "lay_item");
-        if (layItem.isEmpty()) {
+        ItemStackTemplate layItem = parseItemStack(definition.layItem(), name, "lay_item");
+        if (layItem == null) {
             return Optional.empty();
         }
 
@@ -180,15 +181,15 @@ public final class CustomChickensLoader {
                 .markCustom();
 
         if (definition.itemTexture() != null && !definition.itemTexture().isEmpty()) {
-            ResourceLocation itemTexture = parseResource(definition.itemTexture(), "item_texture", name);
+            Identifier itemTexture = parseResource(definition.itemTexture(), "item_texture", name);
             if (itemTexture != null) {
                 // Remember the custom item sprite so the client can build an override model during baking.
                 chicken.setItemTexture(itemTexture);
             }
         }
 
-        ItemStack dropItem = parseOptionalItemStack(definition.dropItem(), name, "drop_item");
-        if (!dropItem.isEmpty()) {
+        ItemStackTemplate dropItem = parseOptionalItemStack(definition.dropItem(), name, "drop_item");
+        if (dropItem != null) {
             chicken.setDropItem(dropItem);
         }
 
@@ -238,43 +239,38 @@ public final class CustomChickensLoader {
         return nextId;
     }
 
-    private static ItemStack parseOptionalItemStack(@Nullable CustomItemStackDefinition definition, String name, String key) {
+    @Nullable
+    private static ItemStackTemplate parseOptionalItemStack(@Nullable CustomItemStackDefinition definition, String name, String key) {
         if (definition == null) {
-            return ItemStack.EMPTY;
+            return null;
         }
         return parseItemStack(definition, name, key);
     }
 
-    private static ItemStack parseItemStack(@Nullable CustomItemStackDefinition definition, String name, String key) {
+    @Nullable
+    private static ItemStackTemplate parseItemStack(@Nullable CustomItemStackDefinition definition, String name, String key) {
         if (definition == null || definition.item() == null || definition.item().isEmpty()) {
             LOGGER.warn("Custom chicken '{}' is missing required field '{}'; skipping", name, key);
-            return ItemStack.EMPTY;
+            return null;
         }
 
-        ResourceLocation id = ResourceLocation.tryParse(definition.item());
+        Identifier id = Identifier.tryParse(definition.item());
         if (id == null) {
             LOGGER.warn("Custom chicken '{}' has malformed item identifier '{}'", name, definition.item());
-            return ItemStack.EMPTY;
+            return null;
         }
-        Item item = BuiltInRegistries.ITEM.get(id);
+        Item item = BuiltInRegistries.ITEM.getValue(id);
         if (item == null || item == net.minecraft.world.item.Items.AIR) {
             LOGGER.warn("Custom chicken '{}' references unknown item '{}'", name, definition.item());
-            return ItemStack.EMPTY;
+            return null;
         }
 
         int count = Math.max(definition.count() != null ? definition.count() : 1, 1);
-        int maxStackSize = new ItemStack(item).getMaxStackSize();
-        if (count > maxStackSize) {
-            LOGGER.warn("Custom chicken '{}' {} count {} exceeds its stack limit {}; using {}", name, key, count,
-                    maxStackSize, maxStackSize);
-            count = maxStackSize;
-        }
-        ItemStack stack = new ItemStack(item, count);
-        if (stack.is(ModRegistry.LIQUID_EGG.get()) && definition.type() != null) {
+        if (item == ModRegistry.LIQUID_EGG.get() && definition.type() != null) {
             int type = Math.max(definition.type(), 0);
-            ChickenItemHelper.setChickenType(stack, type);
+            return ChickenItemHelper.typedTemplate(item, type).withCount(count);
         }
-        return stack;
+        return new ItemStackTemplate(item, count);
     }
 
     private static int parseColour(@Nullable String raw, int fallback, String field, String chickenName) {
@@ -318,12 +314,12 @@ public final class CustomChickensLoader {
     }
 
     @Nullable
-    private static ResourceLocation parseResource(@Nullable String raw, String field, String chickenName) {
+    private static Identifier parseResource(@Nullable String raw, String field, String chickenName) {
         if (raw == null || raw.isEmpty()) {
             LOGGER.warn("Custom chicken '{}' missing required '{}' field", chickenName, field);
             return null;
         }
-        ResourceLocation resource = ResourceLocation.tryParse(raw);
+        Identifier resource = Identifier.tryParse(raw);
         if (resource != null) {
             return resource;
         }
@@ -333,7 +329,7 @@ public final class CustomChickensLoader {
         // still resolve to legal Minecraft resource locations.
         String sanitised = sanitiseResource(raw);
         if (!sanitised.equals(raw)) {
-            ResourceLocation sanitisedResource = ResourceLocation.tryParse(sanitised);
+            Identifier sanitisedResource = Identifier.tryParse(sanitised);
             if (sanitisedResource != null) {
                 LOGGER.warn(
                         "Custom chicken '{}' normalised '{}' value '{}' to '{}' to satisfy resource naming rules",

@@ -4,7 +4,7 @@ import strhercules.chickens.entity.Rooster;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
@@ -29,7 +29,7 @@ public final class RoosterItemData {
         ChickenItemHelper.setRooster(stack, true);
         ChickenItemHelper.setRobotRooster(stack, rooster.isRobotRooster());
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> {
-            CompoundTag root = tag.contains(TAG_ROOT) ? tag.getCompound(TAG_ROOT) : new CompoundTag();
+            CompoundTag root = tag.contains(TAG_ROOT) ? tag.getCompoundOrEmpty(TAG_ROOT) : new CompoundTag();
             root.putInt(TAG_SEEDS, rooster.getSeeds());
             root.putBoolean(TAG_ROBOT_ROOSTER, rooster.isRobotRooster());
             root.putInt(TAG_VIRUS_TICKS, rooster.getVirusTicksRemaining());
@@ -40,7 +40,7 @@ public final class RoosterItemData {
             ItemStack seedStack = rooster.getItem(0);
             if (!seedStack.isEmpty()) {
                 Item item = seedStack.getItem();
-                ResourceLocation id = BuiltInRegistries.ITEM.getKey(item);
+                Identifier id = BuiltInRegistries.ITEM.getKey(item);
                 items.putString(TAG_ITEM_ID, id.toString());
                 items.putInt(TAG_ITEM_COUNT, seedStack.getCount());
             }
@@ -55,21 +55,20 @@ public final class RoosterItemData {
             rooster.setRobotRooster(ChickenItemHelper.isRobotRooster(stack));
             return;
         }
-        CompoundTag root = data.copyTag().getCompound(TAG_ROOT);
-        rooster.setRobotRooster(root.getBoolean(TAG_ROBOT_ROOSTER) || ChickenItemHelper.isRobotRooster(stack));
-        rooster.setVirusTicksRemaining(root.getInt(TAG_VIRUS_TICKS));
-        rooster.setSeeds(root.getInt(TAG_SEEDS));
+        CompoundTag root = data.copyTag().getCompoundOrEmpty(TAG_ROOT);
+        rooster.setRobotRooster(root.getBooleanOr(TAG_ROBOT_ROOSTER, false) || ChickenItemHelper.isRobotRooster(stack));
+        rooster.setVirusTicksRemaining(root.getIntOr(TAG_VIRUS_TICKS, 0));
+        rooster.setSeeds(root.getIntOr(TAG_SEEDS, 0));
         if (root.contains(TAG_ITEMS)) {
-            CompoundTag items = root.getCompound(TAG_ITEMS);
+            CompoundTag items = root.getCompoundOrEmpty(TAG_ITEMS);
             // Slot 0 is the rooster's single seed slot; fall back to empty if
             // the item data is missing or malformed.
             if (!items.isEmpty() && items.contains(TAG_ITEM_ID)) {
-                ResourceLocation id = ResourceLocation.parse(items.getString(TAG_ITEM_ID));
-                Item item = BuiltInRegistries.ITEM.get(id);
-                if (item != null) {
-                    int count = Math.max(1, Math.min(64, items.getInt(TAG_ITEM_COUNT)));
+                Identifier id = Identifier.parse(items.getStringOr(TAG_ITEM_ID, ""));
+                BuiltInRegistries.ITEM.getOptional(id).ifPresent(item -> {
+                    int count = Math.max(1, Math.min(64, items.getIntOr(TAG_ITEM_COUNT, 0)));
                     rooster.setItem(0, new ItemStack(item, count));
-                }
+                });
             }
         }
     }

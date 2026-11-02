@@ -25,25 +25,25 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.Containers;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.WorldlyContainer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.SingleRecipeInput;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.level.Level;
@@ -51,18 +51,23 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Collection;
 import java.util.EnumMap;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -98,30 +103,22 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     public static final int CHEMICAL_ENERGY_COST = 100_000;
     public static final int SPECIAL_ENERGY_COST = LIQUID_ENERGY_COST;
 
-    private static final Map<ResourceLocation, Integer> LIQUID_CHICKEN_CACHE = new HashMap<>();
-    private static final Map<ResourceLocation, Integer> CHEMICAL_CHICKEN_CACHE = new HashMap<>();
+    private static final Map<Identifier, Integer> LIQUID_CHICKEN_CACHE = new HashMap<>();
+    private static final Map<Identifier, Integer> CHEMICAL_CHICKEN_CACHE = new HashMap<>();
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private final NonNullList<ItemStack> upgradeItems = NonNullList.withSize(UPGRADE_SLOT_COUNT, ItemStack.EMPTY);
     private final MachineSideConfig sideConfig = new MachineSideConfig();
-    private final FluidTank liquidTank = new FluidTank(LIQUID_CAPACITY) {
-        @Override
-        public boolean isFluidValid(FluidStack stack) {
-            if (stack.isEmpty()) {
-                return false;
-            }
-            if (specialInfusion != SpecialInfusion.NONE) {
-                return false;
-            }
-            FluidStack stored = getFluid();
-            return stored.isEmpty() || stored.getFluid() == stack.getFluid();
+    private final MachineFluidTank liquidTank = new MachineFluidTank(LIQUID_CAPACITY, stack -> {
+        if (stack.isEmpty()) {
+            return false;
         }
-
-        @Override
-        protected void onContentsChanged() {
-            markLiquidDirty();
+        if (this.specialInfusion != SpecialInfusion.NONE) {
+            return false;
         }
-    };
+        FluidStack stored = getFluid();
+        return stored.isEmpty() || stored.getFluid() == stack.getFluid();
+    }, this::markLiquidDirty);
     private final MachineEnergyStorage energyStorage = new MachineEnergyStorage();
 
     private final Map<Direction, Object> chemicalHandlers = new EnumMap<>(Direction.class);
@@ -130,7 +127,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     private int maxReceive = ENERGY_MAX_RECEIVE;
     private int chemicalAmount;
     @Nullable
-    private ResourceLocation chemicalId;
+    private Identifier chemicalId;
     private int chemicalEntryId = -1;
     private SpecialInfusion specialInfusion = SpecialInfusion.NONE;
     private int specialAmount;
@@ -158,7 +155,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     }
 
     private void tickServer(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
 
@@ -254,7 +251,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
 
         FluidStack stored = liquidTank.getFluid();
         if (!stored.isEmpty()) {
-            ResourceLocation fluidId = stored.getFluid().builtInRegistryHolder().key().location();
+            Identifier fluidId = stored.getFluid().builtInRegistryHolder().key().identifier();
             DousingRecipe custom = findCustomRecipe(input, DousingRecipe.ReagentType.FLUID, fluidId);
             if (custom != null && stored.getAmount() >= custom.reagentAmount()) {
                 OperationPlan plan = planFor(InfusionMode.LIQUID, custom, output, custom.reagentAmount());
@@ -320,7 +317,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     private boolean hasFluidReagent(DousingRecipe recipe) {
         FluidStack stored = liquidTank.getFluid();
         return !stored.isEmpty()
-                && stored.getFluid().builtInRegistryHolder().key().location().equals(recipe.reagentId())
+                && stored.getFluid().builtInRegistryHolder().key().identifier().equals(recipe.reagentId())
                 && stored.getAmount() >= recipe.reagentAmount();
     }
 
@@ -343,7 +340,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (plan.recipe() != null) {
             switch (plan.recipe().reagentType()) {
                 case ITEM -> consumeItemReagent(plan.recipe());
-                case FLUID -> liquidTank.drain(plan.recipe().reagentAmount(), IFluidHandler.FluidAction.EXECUTE);
+                case FLUID -> liquidTank.drain(plan.recipe().reagentAmount(), false);
                 case CHEMICAL -> {
                     chemicalAmount -= plan.recipe().reagentAmount();
                     if (chemicalAmount <= 0) {
@@ -361,7 +358,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             invalidateChemicalHandlers();
             markChemicalDirty();
         } else if (plan.mode() == InfusionMode.LIQUID) {
-            liquidTank.drain(plan.liquidCost(), IFluidHandler.FluidAction.EXECUTE);
+            liquidTank.drain(plan.liquidCost(), false);
         } else if (plan.mode() == InfusionMode.SPECIAL) {
             specialAmount = 0;
             specialInfusion = SpecialInfusion.NONE;
@@ -444,7 +441,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
 
     private void markLiquidDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -453,7 +450,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
 
     private void markEnergyDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -472,7 +469,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             if (!sideConfig.allows(direction, MachineSideConfig.Channel.ENERGY, true)) {
                 continue;
             }
-            IEnergyStorage neighbor = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler neighbor = level.getCapability(Capabilities.Energy.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (neighbor == null) {
                 continue;
@@ -481,19 +478,9 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             if (space <= 0) {
                 break;
             }
-            int available = neighbor.extractEnergy(space, true);
-            if (available <= 0) {
+            if (EnergyHandlerUtil.move(neighbor, energyStorage, space, null) <= 0) {
                 continue;
             }
-            int acceptable = energyStorage.receiveEnergy(available, true);
-            if (acceptable <= 0) {
-                continue;
-            }
-            int drained = neighbor.extractEnergy(acceptable, false);
-            if (drained <= 0) {
-                continue;
-            }
-            energyStorage.receiveEnergy(drained, false);
             changed = true;
         }
         return changed;
@@ -507,19 +494,17 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             if (!sideConfig.allows(direction, MachineSideConfig.Channel.FLUIDS, true)) {
                 continue;
             }
-            IFluidHandler neighbor = level.getCapability(Capabilities.FluidHandler.BLOCK,
+            ResourceHandler<FluidResource> neighbor = level.getCapability(Capabilities.Fluid.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (neighbor == null) {
                 continue;
             }
-            FluidStack available = neighbor.drain(Math.min(TRANSFER_RATE, LIQUID_CAPACITY - liquidTank.getFluidAmount()),
-                    IFluidHandler.FluidAction.SIMULATE);
-            int accepted = liquidTank.fill(available, IFluidHandler.FluidAction.SIMULATE);
-            if (accepted <= 0) {
+            int moved = ResourceHandlerUtil.move(neighbor, liquidTank, resource -> true,
+                    Math.min(TRANSFER_RATE, LIQUID_CAPACITY - liquidTank.getFluidAmount()), null);
+            if (moved <= 0) {
                 continue;
             }
-            FluidStack drained = neighbor.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
-            return liquidTank.fill(drained, IFluidHandler.FluidAction.EXECUTE) > 0;
+            return true;
         }
         return false;
     }
@@ -553,7 +538,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
 
     private void markChemicalDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -627,7 +612,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             if (upgradeSlot < 0 || upgradeSlot >= UPGRADE_SLOT_COUNT) {
                 return;
             }
-            if (level != null && level.isClientSide) {
+            if (level != null && level.isClientSide()) {
                 upgradeItems.set(upgradeSlot, stack.copy());
                 return;
             }
@@ -739,11 +724,11 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         return new AvianDousingMachineMenu(id, inventory, this);
     }
 
-    public IFluidHandler getFluidTank(@Nullable Direction direction) {
+    public ResourceHandler<FluidResource> getFluidTank(@Nullable Direction direction) {
         return MachineCapabilityWrappers.fluid(liquidTank, sideConfig, direction);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig, direction);
     }
 
@@ -773,7 +758,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     }
 
     @Nullable
-    public ResourceLocation getChemicalId() {
+    public Identifier getChemicalId() {
         return chemicalId;
     }
 
@@ -868,9 +853,18 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         return itemReagent.isEmpty() ? 0 : itemReagentCount;
     }
 
+    @Override
+    public void preRemoveSideEffects(BlockPos pos, BlockState state) {
+        if (level != null) {
+            MekanismRadiationCompat.spillDousingRadiation(level, pos, this);
+        }
+        dropItemReagent();
+        super.preRemoveSideEffects(pos, state);
+    }
+
     /** Drops custom item reagents that are held outside the two visible slots. */
     public void dropItemReagent() {
-        if (level == null || level.isClientSide || itemReagent.isEmpty() || itemReagentCount <= 0) {
+        if (level == null || level.isClientSide() || itemReagent.isEmpty() || itemReagentCount <= 0) {
             return;
         }
         ItemStack remaining = itemReagent.copyWithCount(itemReagentCount);
@@ -892,23 +886,17 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveWithoutMetadata(provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     @Nullable
@@ -916,83 +904,64 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     public Packet<ClientGamePacketListener> getUpdatePacket() {
         return ClientboundBlockEntityDataPacket.create(this);
     }
-
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        saveUpgrades(tag, provider);
-        tag.putInt("Energy", energyStorage.getEnergyStored());
-        tag.putInt("Progress", progress);
-        tag.putString("Mode", mode.name());
-        tag.putString("SpecialInfusion", specialInfusion.name());
-        tag.putInt("SpecialAmount", specialAmount);
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        saveUpgrades(output);
+        output.putInt("Energy", energyStorage.getEnergyStored());
+        output.putInt("Progress", progress);
+        output.putString("Mode", mode.name());
+        output.putString("SpecialInfusion", specialInfusion.name());
+        output.putInt("SpecialAmount", specialAmount);
         if (!itemReagent.isEmpty() && itemReagentCount > 0) {
-            tag.put("ItemReagent", itemReagent.save(provider));
-            tag.putInt("ItemReagentCount", itemReagentCount);
+            output.store("ItemReagent", ItemStack.CODEC, itemReagent);
+            output.putInt("ItemReagentCount", itemReagentCount);
         }
 
-        CompoundTag liquid = new CompoundTag();
-        liquidTank.writeToNBT(provider, liquid);
-        tag.put("Liquid", liquid);
+        liquidTank.saveFluid(output.child("Liquid"));
 
-        tag.putInt("ChemicalAmount", chemicalAmount);
+        output.putInt("ChemicalAmount", chemicalAmount);
         if (chemicalId != null) {
-            tag.putString("ChemicalId", chemicalId.toString());
+            output.putString("ChemicalId", chemicalId.toString());
         }
-        tag.putInt("ChemicalEntry", chemicalEntryId);
+        output.putInt("ChemicalEntry", chemicalEntryId);
 
-        if (customName != null) {
-            ComponentSerialization.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), customName)
-                    .result()
-                    .ifPresent(component -> tag.put("CustomName", component));
-        }
+        output.storeNullable("CustomName", ComponentSerialization.CODEC, customName);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        loadUpgrades(tag, provider);
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        loadUpgrades(input);
         syncUpgradeLimits();
-        energyStorage.setEnergy(Mth.clamp(tag.getInt("Energy"), 0, capacity));
-        progress = Mth.clamp(tag.getInt("Progress"), 0, MAX_PROGRESS);
-        mode = parseMode(tag.getString("Mode"));
-        specialInfusion = parseSpecial(tag.getString("SpecialInfusion"));
-        specialAmount = Mth.clamp(tag.getInt("SpecialAmount"), 0, SPECIAL_LIQUID_CAPACITY);
-        itemReagent = tag.contains("ItemReagent", Tag.TAG_COMPOUND)
-                ? ItemStack.parse(provider, tag.getCompound("ItemReagent")).orElse(ItemStack.EMPTY)
-                : ItemStack.EMPTY;
-        itemReagentCount = Math.max(0, tag.getInt("ItemReagentCount"));
+        energyStorage.setEnergy(Mth.clamp(input.getIntOr("Energy", 0), 0, capacity));
+        progress = Mth.clamp(input.getIntOr("Progress", 0), 0, MAX_PROGRESS);
+        mode = parseMode(input.getStringOr("Mode", ""));
+        specialInfusion = parseSpecial(input.getStringOr("SpecialInfusion", ""));
+        specialAmount = Mth.clamp(input.getIntOr("SpecialAmount", 0), 0, SPECIAL_LIQUID_CAPACITY);
+        itemReagent = input.read("ItemReagent", ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        itemReagentCount = Math.max(0, input.getIntOr("ItemReagentCount", 0));
         if (itemReagent.isEmpty() || itemReagentCount <= 0) {
             itemReagent = ItemStack.EMPTY;
             itemReagentCount = 0;
         }
 
-        if (tag.contains("Liquid", Tag.TAG_COMPOUND)) {
-            liquidTank.readFromNBT(provider, tag.getCompound("Liquid"));
+        Optional<ValueInput> liquidInput = input.child("Liquid");
+        if (liquidInput.isPresent()) {
+            liquidTank.loadFluid(liquidInput.get());
         } else {
             liquidTank.setFluid(FluidStack.EMPTY);
         }
 
-        chemicalAmount = Mth.clamp(tag.getInt("ChemicalAmount"), 0, CHEMICAL_CAPACITY);
-        if (tag.contains("ChemicalId", Tag.TAG_STRING)) {
-            chemicalId = ResourceLocation.tryParse(tag.getString("ChemicalId"));
-        } else {
-            chemicalId = null;
-        }
-        chemicalEntryId = tag.contains("ChemicalEntry", Tag.TAG_INT) ? tag.getInt("ChemicalEntry") : -1;
+        chemicalAmount = Mth.clamp(input.getIntOr("ChemicalAmount", 0), 0, CHEMICAL_CAPACITY);
+        chemicalId = input.getString("ChemicalId").map(Identifier::tryParse).orElse(null);
+        chemicalEntryId = input.getInt("ChemicalEntry").orElse(-1);
 
-        if (tag.contains("CustomName", Tag.TAG_COMPOUND)) {
-            ComponentSerialization.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE),
-                    tag.getCompound("CustomName"))
-                    .result()
-                    .ifPresent(component -> customName = component);
-        } else {
-            customName = null;
-        }
+        customName = input.read("CustomName", ComponentSerialization.CODEC).orElse(null);
 
         invalidateChemicalHandlers();
     }
@@ -1001,7 +970,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     public void onLoad() {
         super.onLoad();
         invalidateChemicalHandlers();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, false);
         }
     }
@@ -1028,37 +997,29 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         energyStorage.setLimits(capacity, maxReceive);
     }
 
-    private void saveUpgrades(CompoundTag tag, HolderLookup.Provider provider) {
-        net.minecraft.nbt.ListTag list = new net.minecraft.nbt.ListTag();
+    private void saveUpgrades(ValueOutput output) {
+        ValueOutput.ValueOutputList list = output.childrenList("Upgrades");
         for (int slot = 0; slot < upgradeItems.size(); slot++) {
             ItemStack stack = upgradeItems.get(slot);
             if (stack.isEmpty()) {
                 continue;
             }
-            CompoundTag entry = (CompoundTag) stack.save(provider);
+            ValueOutput entry = list.addChild();
+            entry.store(ItemStack.MAP_CODEC, stack);
             entry.putByte("Slot", (byte) slot);
-            list.add(entry);
         }
-        tag.put("Upgrades", list);
     }
 
-    private void loadUpgrades(CompoundTag tag, HolderLookup.Provider provider) {
+    private void loadUpgrades(ValueInput input) {
         for (int slot = 0; slot < upgradeItems.size(); slot++) {
             upgradeItems.set(slot, ItemStack.EMPTY);
         }
-        if (!tag.contains("Upgrades", Tag.TAG_LIST)) {
-            return;
-        }
-        net.minecraft.nbt.ListTag list = tag.getList("Upgrades", Tag.TAG_COMPOUND);
-        for (int index = 0; index < list.size(); index++) {
-            CompoundTag entry = list.getCompound(index);
-            int slot = entry.getByte("Slot");
+        for (ValueInput entry : input.childrenListOrEmpty("Upgrades")) {
+            int slot = entry.getByteOr("Slot", (byte) 0);
             if (slot < 0 || slot >= upgradeItems.size()) {
                 continue;
             }
-            CompoundTag stackTag = entry.copy();
-            stackTag.remove("Slot");
-            ItemStack stack = ItemStack.parse(provider, stackTag).orElse(ItemStack.EMPTY);
+            ItemStack stack = entry.read(ItemStack.MAP_CODEC).orElse(ItemStack.EMPTY);
             if (!stack.isEmpty() && canPlaceUpgrade(slot, stack)) {
                 stack.setCount(Math.min(stack.getCount(), getUpgradeMaxStackSize(slot)));
                 upgradeItems.set(slot, stack);
@@ -1098,7 +1059,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             markChemicalDirty();
             return;
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         long amount = MekanismChemicalHelper.getStackAmount(stack);
         if (id == null) {
             return;
@@ -1114,7 +1075,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (stack == null || MekanismChemicalHelper.isStackEmpty(stack)) {
             return true;
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         if (id == null) {
             return false;
         }
@@ -1125,7 +1086,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (stack == null || MekanismChemicalHelper.isStackEmpty(stack)) {
             return MekanismChemicalHelper.emptyStack();
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(stack);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(stack);
         if (id == null) {
             return stack;
         }
@@ -1174,7 +1135,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (template == null || MekanismChemicalHelper.isStackEmpty(template)) {
             return MekanismChemicalHelper.emptyStack();
         }
-        ResourceLocation id = MekanismChemicalHelper.getStackChemicalId(template);
+        Identifier id = MekanismChemicalHelper.getStackChemicalId(template);
         long requested = MekanismChemicalHelper.getStackAmount(template);
         if (id == null || requested <= 0) {
             return MekanismChemicalHelper.emptyStack();
@@ -1206,7 +1167,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (stack.isEmpty()) {
             return null;
         }
-        ResourceLocation fluidId = stack.getFluid().builtInRegistryHolder().key().location();
+        Identifier fluidId = stack.getFluid().builtInRegistryHolder().key().identifier();
         if (fluidId == null) {
             return null;
         }
@@ -1238,7 +1199,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
             return ChickensRegistryItem.DEFAULT_LIQUID_DOUSING_COST;
         }
         ItemStack input = items.get(INPUT_SLOT);
-        ResourceLocation fluidId = stored.getFluid().builtInRegistryHolder().key().location();
+        Identifier fluidId = stored.getFluid().builtInRegistryHolder().key().identifier();
         DousingRecipe custom = findCustomRecipe(input, DousingRecipe.ReagentType.FLUID, fluidId);
         if (custom != null) {
             return custom.reagentAmount();
@@ -1251,7 +1212,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
     }
 
     @Nullable
-    private ChickensRegistryItem resolveChemicalChicken(ResourceLocation id) {
+    private ChickensRegistryItem resolveChemicalChicken(Identifier id) {
         Integer cached = CHEMICAL_CHICKEN_CACHE.get(id);
         if (cached != null) {
             ChickensRegistryItem cachedChicken = ChickensRegistry.getByType(cached);
@@ -1326,13 +1287,20 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         return null;
     }
 
+    private Collection<RecipeHolder<DousingRecipe>> dousingRecipes() {
+        if (level instanceof ServerLevel serverLevel) {
+            return serverLevel.recipeAccess().recipeMap().byType(ModRecipeTypes.AVIAN_DOUSING.get());
+        }
+        return List.of();
+    }
+
     @Nullable
     private DousingRecipe findCustomRecipe(ItemStack input, DousingRecipe.ReagentType reagentType,
-            @Nullable ResourceLocation reagentId) {
+            @Nullable Identifier reagentId) {
         if (level == null || input.isEmpty()) {
             return null;
         }
-        for (var holder : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.AVIAN_DOUSING.get())) {
+        for (var holder : dousingRecipes()) {
             DousingRecipe recipe = holder.value();
             if (recipe.reagentType() != reagentType || !recipe.matchesInput(input)) {
                 continue;
@@ -1353,7 +1321,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (level == null || input.isEmpty()) {
             return null;
         }
-        for (var holder : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.AVIAN_DOUSING.get())) {
+        for (var holder : dousingRecipes()) {
             DousingRecipe recipe = holder.value();
             if (recipe.reagentType() == DousingRecipe.ReagentType.ITEM
                     && recipe.matchesInput(input)
@@ -1373,8 +1341,8 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (input.isEmpty()) {
             return null;
         }
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
-        for (var holder : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.AVIAN_DOUSING.get())) {
+        Identifier itemId = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        for (var holder : dousingRecipes()) {
             DousingRecipe recipe = holder.value();
             if (recipe.reagentType() == DousingRecipe.ReagentType.ITEM
                     && recipe.matchesInput(input)
@@ -1389,7 +1357,7 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         if (level == null || stack.isEmpty()) {
             return false;
         }
-        for (var holder : level.getRecipeManager().getAllRecipesFor(ModRecipeTypes.AVIAN_DOUSING.get())) {
+        for (var holder : dousingRecipes()) {
             if (holder.value().matchesInput(stack)) {
                 return true;
             }
@@ -1664,37 +1632,19 @@ public class AvianDousingMachineBlockEntity extends BlockEntity implements World
         }
     }
 
-    private final class MachineEnergyStorage extends EnergyStorage {
+    private final class MachineEnergyStorage extends StoredEnergyHandler {
         MachineEnergyStorage() {
             super(ENERGY_CAPACITY, ENERGY_MAX_RECEIVE, 0);
         }
 
         @Override
-        public int receiveEnergy(int amount, boolean simulate) {
-            if (AvianDousingMachineBlockEntity.this.maxReceive <= 0) {
-                return 0;
-            }
-            int previousMax = this.maxReceive;
-            this.maxReceive = AvianDousingMachineBlockEntity.this.maxReceive;
-            int received = super.receiveEnergy(amount, simulate);
-            this.maxReceive = previousMax;
-            if (received > 0 && !simulate) {
-                markEnergyDirty();
-            }
-            return received;
+        protected int maxInsert() {
+            return AvianDousingMachineBlockEntity.this.maxReceive;
         }
 
         @Override
-        public int extractEnergy(int amount, boolean simulate) {
-            int extracted = super.extractEnergy(amount, simulate);
-            if (extracted > 0 && !simulate) {
-                markEnergyDirty();
-            }
-            return extracted;
-        }
-
-        void setEnergy(int energy) {
-            this.energy = Mth.clamp(energy, 0, getMaxEnergyStored());
+        protected void onEnergyChanged() {
+            markEnergyDirty();
         }
 
         void setLimits(int capacity, int maxReceive) {

@@ -13,9 +13,10 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -24,7 +25,7 @@ import net.minecraft.world.item.ItemStack;
  * chicken item.
  */
 public class CatchingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.CatchingRecipe> {
-    private static final ResourceLocation JEI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier JEI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/jei.png");
     private static final int BG_WIDTH = 140;
     private static final int BG_HEIGHT = 74;
@@ -54,8 +55,13 @@ public class CatchingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -78,8 +84,9 @@ public class CatchingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.CatchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.CatchingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         Component info = Component.translatable("gui.chickens.catching.info");
         int panelX = (BG_WIDTH - rowPanel.getWidth()) / 2;
         int panelY = 18;
@@ -89,10 +96,10 @@ public class CatchingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
         drawWrapped(graphics, info, 8, 48, BG_WIDTH - 16, TEXT_COLOR);
     }
 
-    private static void drawWrapped(GuiGraphics graphics, Component text, int x, int y, int width, int color) {
+    private static void drawWrapped(GuiGraphicsExtractor graphics, Component text, int x, int y, int width, int color) {
         var font = Minecraft.getInstance().font;
         for (var line : font.split(text, width)) {
-            graphics.drawString(font, line, x, y, color, false);
+            graphics.text(font, line, x, y, color, false);
             y += font.lineHeight;
         }
     }
@@ -116,10 +123,10 @@ public class CatchingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
         }
 
         @Override
-        public void draw(GuiGraphics graphics, int x, int y) {
+        public void draw(GuiGraphicsExtractor graphics, int x, int y) {
             int frame = timer.getValue();
             int v = frame * FRAME_HEIGHT;
-            graphics.blit(JEI_TEXTURE, x, y, 232, v, FRAME_WIDTH, FRAME_HEIGHT, 256, 256);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, JEI_TEXTURE, x, y, 232, v, FRAME_WIDTH, FRAME_HEIGHT, 256, 256);
         }
     }
 }

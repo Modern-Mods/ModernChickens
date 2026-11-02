@@ -1,0 +1,9 @@
+{
+  "model": {
+    "type": "minecraft:model",
+    "model": "chickens:item/chemical_egg",
+    "tints": [
+      { "type": "chickens:chicken", "kind": "chemical_egg" }
+    ]
+  }
+}

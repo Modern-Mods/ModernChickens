@@ -1,10 +1,11 @@
 package strhercules.chickens;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.neoforged.neoforge.fluids.FluidType;
 
@@ -17,13 +18,13 @@ public class ChickensRegistryItem {
 
     private final int id;
     private final String entityName;
-    private ItemStack layItem;
-    private ItemStack dropItem;
+    private ItemStackTemplate layItem;
+    private ItemStackTemplate dropItem;
     private int bgColor;
     private int fgColor;
-    private final ResourceLocation texture;
+    private final Identifier texture;
     @Nullable
-    private ResourceLocation itemTexture;
+    private Identifier itemTexture;
     private ChickensRegistryItem parent1;
     private ChickensRegistryItem parent2;
     private SpawnType spawnType;
@@ -44,15 +45,24 @@ public class ChickensRegistryItem {
     @Nullable
     private Integer spawnWeightOverride;
 
-    public ChickensRegistryItem(int id, String entityName, ResourceLocation texture, ItemStack layItem, int bgColor, int fgColor) {
+    public ChickensRegistryItem(int id, String entityName, Identifier texture, ItemStackTemplate layItem, int bgColor, int fgColor) {
         this(id, entityName, texture, layItem, bgColor, fgColor, null, null);
     }
 
-    public ChickensRegistryItem(int id, String entityName, ResourceLocation texture, ItemStack layItem, int bgColor, int fgColor,
+    public ChickensRegistryItem(int id, String entityName, Identifier texture, ItemStack layItem, int bgColor, int fgColor) {
+        this(id, entityName, texture, ItemStackTemplate.fromNonEmptyStack(layItem), bgColor, fgColor, null, null);
+    }
+
+    public ChickensRegistryItem(int id, String entityName, Identifier texture, ItemStack layItem, int bgColor, int fgColor,
+            @Nullable ChickensRegistryItem parent1, @Nullable ChickensRegistryItem parent2) {
+        this(id, entityName, texture, ItemStackTemplate.fromNonEmptyStack(layItem), bgColor, fgColor, parent1, parent2);
+    }
+
+    public ChickensRegistryItem(int id, String entityName, Identifier texture, ItemStackTemplate layItem, int bgColor, int fgColor,
             @Nullable ChickensRegistryItem parent1, @Nullable ChickensRegistryItem parent2) {
         this.id = id;
         this.entityName = entityName;
-        this.layItem = layItem.copy();
+        this.layItem = layItem;
         this.bgColor = bgColor;
         this.fgColor = fgColor;
         this.texture = texture;
@@ -61,7 +71,7 @@ public class ChickensRegistryItem {
         this.parent2 = parent2;
     }
 
-    public ChickensRegistryItem setItemTexture(ResourceLocation texture) {
+    public ChickensRegistryItem setItemTexture(Identifier texture) {
         itemTexture = texture;
         // Custom item sprites should render exactly as authored rather than
         // being recoloured by the legacy tint pipeline.
@@ -90,9 +100,13 @@ public class ChickensRegistryItem {
         return this;
     }
 
-    public ChickensRegistryItem setDropItem(ItemStack stack) {
-        dropItem = stack.copy();
+    public ChickensRegistryItem setDropItem(ItemStackTemplate stack) {
+        dropItem = stack;
         return this;
+    }
+
+    public ChickensRegistryItem setDropItem(ItemStack stack) {
+        return setDropItem(ItemStackTemplate.fromNonEmptyStack(stack));
     }
 
     public ChickensRegistryItem setSpawnType(SpawnType type) {
@@ -162,22 +176,37 @@ public class ChickensRegistryItem {
         return fgColor;
     }
 
-    public ResourceLocation getTexture() {
+    public Identifier getTexture() {
         return texture;
     }
 
     @Nullable
-    public ResourceLocation getItemTexture() {
+    public Identifier getItemTexture() {
         return itemTexture;
     }
 
+    private static ItemStack clampToStackLimit(ItemStack stack) {
+        if (stack.getCount() > stack.getMaxStackSize()) {
+            stack.setCount(stack.getMaxStackSize());
+        }
+        return stack;
+    }
+
+    public ItemStackTemplate layItemTemplate() {
+        return layItem;
+    }
+
+    public ItemStackTemplate dropItemTemplate() {
+        return dropItem != null ? dropItem : layItem;
+    }
+
     public ItemStack createLayItem() {
-        return layItem.copy();
+        return clampToStackLimit(layItem.create());
     }
 
     public ItemStack createDropItem() {
         if (dropItem != null) {
-            return dropItem.copy();
+            return clampToStackLimit(dropItem.create());
         }
         return createLayItem();
     }
@@ -216,11 +245,11 @@ public class ChickensRegistryItem {
     }
 
     public boolean isDye() {
-        return layItem.getItem() instanceof DyeItem;
+        return layItem.create().has(DataComponents.DYE);
     }
 
     public boolean isDye(Ingredient colour) {
-        return isDye() && colour.test(layItem);
+        return isDye() && colour.test(layItem.create());
     }
 
     public boolean isDye(DyeColor colour) {
@@ -230,10 +259,7 @@ public class ChickensRegistryItem {
 
     @Nullable
     public DyeColor getDyeColor() {
-        if (layItem.getItem() instanceof DyeItem dyeItem) {
-            return dyeItem.getDyeColor();
-        }
-        return null;
+        return layItem.get(DataComponents.DYE);
     }
 
     public int getId() {
@@ -277,8 +303,12 @@ public class ChickensRegistryItem {
         return enabled && (parent1 == null || parent1.isEnabled()) && (parent2 == null || parent2.isEnabled());
     }
 
+    public void setLayItem(ItemStackTemplate itemStack) {
+        layItem = itemStack;
+    }
+
     public void setLayItem(ItemStack itemStack) {
-        layItem = itemStack.copy();
+        layItem = ItemStackTemplate.fromNonEmptyStack(itemStack);
     }
 
     public void setNoParents() {

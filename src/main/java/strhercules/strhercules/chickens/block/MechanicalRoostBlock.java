@@ -6,6 +6,7 @@ import strhercules.chickens.blockentity.MechanicalRoostBlockEntity;
 import strhercules.chickens.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Containers;
 import net.minecraft.world.InteractionResult;
@@ -36,11 +37,11 @@ public class MechanicalRoostBlock extends HorizontalDirectionalBlock implements 
     public static final MapCodec<MechanicalRoostBlock> CODEC = simpleCodec(MechanicalRoostBlock::new);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public MechanicalRoostBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.METAL)
                 .strength(3.0F, 6.0F)
-                .sound(SoundType.METAL));
+                .sound(SoundType.METAL);
     }
 
     public MechanicalRoostBlock(BlockBehaviour.Properties properties) {
@@ -65,7 +66,7 @@ public class MechanicalRoostBlock extends HorizontalDirectionalBlock implements 
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.MECHANICAL_ROOST.get()) {
+        if (level.isClientSide() || type != ModBlockEntities.MECHANICAL_ROOST.get()) {
             return null;
         }
         return (lvl, pos, blockState, blockEntity) -> {
@@ -83,28 +84,20 @@ public class MechanicalRoostBlock extends HorizontalDirectionalBlock implements 
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown()) {
-            if (!level.isClientSide && roost.pullChickensOut(player)) {
+            if (!level.isClientSide() && roost.pullChickensOut(player)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(roost, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof MechanicalRoostBlockEntity roost) {
-                roost.dropBufferedOutput();
-                Containers.dropContents(level, pos, roost.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override

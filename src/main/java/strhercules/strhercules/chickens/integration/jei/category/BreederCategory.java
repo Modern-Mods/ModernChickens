@@ -14,10 +14,10 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Visualises the automated breeder machine. The layout mirrors the block GUI:
@@ -25,7 +25,7 @@ import net.minecraft.resources.ResourceLocation;
  * resulting offspring appears in the centre slot.
  */
 public class BreederCategory implements IRecipeCategory<ChickensJeiRecipeTypes.BreederRecipe> {
-    private static final ResourceLocation JEI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier JEI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/jei.png");
     private static final int BG_WIDTH = 150;
     private static final int BG_HEIGHT = 72;
@@ -53,8 +53,13 @@ public class BreederCategory implements IRecipeCategory<ChickensJeiRecipeTypes.B
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -79,8 +84,9 @@ public class BreederCategory implements IRecipeCategory<ChickensJeiRecipeTypes.B
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.BreederRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.BreederRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         int panelX = (BG_WIDTH - rowPanel.getWidth()) / 2;
         int panelY = 24;
         rowPanel.draw(graphics, panelX, panelY);

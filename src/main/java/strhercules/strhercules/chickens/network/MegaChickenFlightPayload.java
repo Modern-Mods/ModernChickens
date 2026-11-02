@@ -6,7 +6,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
@@ -14,7 +14,7 @@ import net.neoforged.neoforge.network.event.RegisterPayloadHandlersEvent;
 public record MegaChickenFlightPayload(boolean jumping, boolean diving, boolean airbraking)
         implements CustomPacketPayload {
     public static final Type<MegaChickenFlightPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken_flight"));
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken_flight"));
     public static final StreamCodec<RegistryFriendlyByteBuf, MegaChickenFlightPayload> STREAM_CODEC =
             StreamCodec.composite(ByteBufCodecs.BOOL, MegaChickenFlightPayload::jumping,
                     ByteBufCodecs.BOOL, MegaChickenFlightPayload::diving,

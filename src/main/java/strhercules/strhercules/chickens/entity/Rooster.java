@@ -1,12 +1,8 @@
 package strhercules.chickens.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -15,10 +11,11 @@ import net.minecraft.tags.ItemTags;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Container;
+import net.minecraft.world.ContainerHelper;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -29,7 +26,7 @@ import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,6 +35,8 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -81,7 +80,6 @@ public class Rooster extends Chicken implements Container, MenuProvider {
     private static final int MAX_SEEDS = 20;
 
     private static final String TAG_SEEDS = "Seeds";
-    private static final String TAG_ITEMS = "Items";
     private static final String TAG_ROBOT_ROOSTER = "RobotRooster";
     private static final String TAG_VIRUS_TICKS = "VirusTicks";
 
@@ -130,8 +128,8 @@ public class Rooster extends Chicken implements Container, MenuProvider {
     }
 
     @Override
-    protected void customServerAiStep() {
-        super.customServerAiStep();
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
         // Every few ticks, convert stored seed items into the charge consumed
         // by the mating goal.
         if (this.tickCount % 5 == 0) {
@@ -146,10 +144,10 @@ public class Rooster extends Chicken implements Container, MenuProvider {
         // Open the rooster inventory when the player interacts with an empty hand
         // or holds seeds, mirroring the legacy Hatchery behaviour.
         if (hand == InteractionHand.MAIN_HAND && (held.isEmpty() || held.is(ItemTags.CHICKEN_FOOD))) {
-            if (!level().isClientSide) {
+            if (!level().isClientSide()) {
                 player.openMenu(this, buffer -> buffer.writeVarInt(this.getId()));
             }
-            return InteractionResult.sidedSuccess(level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
         return super.mobInteract(player, hand);
     }
@@ -275,7 +273,7 @@ public class Rooster extends Chicken implements Container, MenuProvider {
         setSeeds(getSeeds() - amount);
     }
 
-    public static boolean checkSpawnRules(EntityType<Rooster> type, LevelAccessor level, MobSpawnType reason,
+    public static boolean checkSpawnRules(EntityType<Rooster> type, LevelAccessor level, EntitySpawnReason reason,
             BlockPos pos, RandomSource random) {
         return Animal.checkAnimalSpawnRules(type, level, reason, pos, random);
     }
@@ -363,7 +361,7 @@ public class Rooster extends Chicken implements Container, MenuProvider {
                 return;
             }
             child.setBaby(true);
-            child.moveTo(hen.getX(), hen.getY(), hen.getZ(), 0.0F, 0.0F);
+            child.snapTo(hen.getX(), hen.getY(), hen.getZ(), 0.0F, 0.0F);
             hen.finalizeSpawnChildFromBreeding(level, rooster, child);
             level.addFreshEntityWithPassengers(child);
             rooster.consumeSeeds(SEED_COST);
@@ -499,49 +497,24 @@ public class Rooster extends Chicken implements Container, MenuProvider {
     // ---------------------------------------------------------------------
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
-        super.addAdditionalSaveData(tag);
-        tag.putInt(TAG_SEEDS, getSeeds());
-        tag.putBoolean(TAG_ROBOT_ROOSTER, isRobotRooster());
-        tag.putInt(TAG_VIRUS_TICKS, getVirusTicksRemaining());
-        ListTag list = new ListTag();
-        for (int i = 0; i < items.size(); i++) {
-            ItemStack stack = items.get(i);
-            if (stack.isEmpty()) {
-                continue;
-            }
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.putByte("Slot", (byte) i);
-            // Persist the rooster's single-slot inventory using the modern
-            // HolderLookup-aware ItemStack encoder so registry lookups stay
-            // consistent with block entity containers.
-            HolderLookup.Provider registries = level().registryAccess();
-            stack.save(registries, itemTag);
-            list.add(itemTag);
-        }
-        tag.put(TAG_ITEMS, list);
+    public void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.putInt(TAG_SEEDS, getSeeds());
+        output.putBoolean(TAG_ROBOT_ROOSTER, isRobotRooster());
+        output.putInt(TAG_VIRUS_TICKS, getVirusTicksRemaining());
+        ContainerHelper.saveAllItems(output, items);
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
-        super.readAdditionalSaveData(tag);
-        setSeeds(tag.getInt(TAG_SEEDS));
-        setRobotRooster(tag.getBoolean(TAG_ROBOT_ROOSTER));
-        setVirusTicksRemaining(tag.getInt(TAG_VIRUS_TICKS));
-        // Rebuild the single-slot inventory so saved seed stacks survive
-        // across world reloads instead of being dropped due to a cleared list.
+    public void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        setSeeds(input.getIntOr(TAG_SEEDS, 0));
+        setRobotRooster(input.getBooleanOr(TAG_ROBOT_ROOSTER, false));
+        setVirusTicksRemaining(input.getIntOr(TAG_VIRUS_TICKS, 0));
         for (int i = 0; i < items.size(); i++) {
             items.set(i, ItemStack.EMPTY);
         }
-        ListTag list = tag.getList(TAG_ITEMS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < list.size(); i++) {
-            CompoundTag itemTag = list.getCompound(i);
-            int slot = itemTag.getByte("Slot") & 255;
-            if (slot >= 0 && slot < items.size()) {
-                HolderLookup.Provider registries = level().registryAccess();
-                items.set(slot, ItemStack.parse(registries, itemTag).orElse(ItemStack.EMPTY));
-            }
-        }
+        ContainerHelper.loadAllItems(input, items);
     }
 
     // ---------------------------------------------------------------------

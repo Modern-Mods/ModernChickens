@@ -12,7 +12,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -42,8 +42,13 @@ public final class AvianFluidConverterCategory implements IRecipeCategory<Chicke
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -64,12 +69,13 @@ public final class AvianFluidConverterCategory implements IRecipeCategory<Chicke
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.AvianFluidConverterRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.AvianFluidConverterRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         FluidStack fluid = recipe.fluid();
         if (!fluid.isEmpty()) {
             Component amount = Component.translatable("gui.chickens.avian_fluid_converter.amount", fluid.getAmount());
-            graphics.drawString(Minecraft.getInstance().font, amount, 4, 42, 0xFF7F7F7F, false);
+            graphics.text(Minecraft.getInstance().font, amount, 4, 42, 0xFF7F7F7F, false);
         }
     }
 }

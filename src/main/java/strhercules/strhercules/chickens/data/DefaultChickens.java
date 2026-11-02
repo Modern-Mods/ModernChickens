@@ -10,9 +10,9 @@ import strhercules.chickens.item.FluxEggItem;
 import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.item.LiquidEggItem;
 import strhercules.chickens.registry.ModRegistry;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import org.slf4j.Logger;
@@ -43,38 +43,38 @@ public final class DefaultChickens {
                 strhercules.chickens.ChickensRegistry.SMART_CHICKEN_ID,
                 "SmartChicken",
                 texture("SmartChicken"),
-                new ItemStack(Items.BOOK),
+                new ItemStackTemplate(Items.BOOK),
                 0xffffff, 0xffff00).setSpawnType(SpawnType.NONE);
         chickens.add(smartChicken);
 
         ChickensRegistryItem vanillaChicken = new ChickensRegistryItem(
-                33, "VanillaChicken", ResourceLocation.fromNamespaceAndPath(
+                33, "VanillaChicken", Identifier.fromNamespaceAndPath(
                         ChickensMod.MOD_ID, "textures/entity/vanilla.png"),
-                new ItemStack(Items.EGG),
+                new ItemStackTemplate(Items.EGG),
                 0xffffff, 0xffaa00).setSpawnType(SpawnType.NONE)
-                .setItemTexture(ResourceLocation.fromNamespaceAndPath(
+                .setItemTexture(Identifier.fromNamespaceAndPath(
                         ChickensMod.MOD_ID, "textures/item/chicken/vanilla.png"));
-        // vanillaChicken.setLayItem(new ItemStack(Items.EGG));
-        // vanillaChicken.setDropItem(new ItemStack(Items.EGG));
+        // vanillaChicken.setLayItem(new ItemStackTemplate(Items.EGG));
+        // vanillaChicken.setDropItem(new ItemStackTemplate(Items.EGG));
         chickens.add(vanillaChicken);
 
         // Configure the base dye chickens to lay the legacy resource items instead of modern dyes.
         ChickensRegistryItem whiteChicken = createDyeChicken(DyeColor.WHITE, "WhiteChicken");
-        whiteChicken.setLayItem(new ItemStack(Items.BONE));
-        whiteChicken.setDropItem(new ItemStack(Items.BONE));
+        whiteChicken.setLayItem(new ItemStackTemplate(Items.BONE));
+        whiteChicken.setDropItem(new ItemStackTemplate(Items.BONE));
         whiteChicken.setSpawnType(SpawnType.NORMAL);
         chickens.add(whiteChicken);
         ChickensRegistryItem yellowChicken = createDyeChicken(DyeColor.YELLOW, "YellowChicken");
         chickens.add(yellowChicken);
         ChickensRegistryItem blueChicken = createDyeChicken(DyeColor.BLUE, "BlueChicken");
-        blueChicken.setLayItem(new ItemStack(Items.LAPIS_LAZULI));
+        blueChicken.setLayItem(new ItemStackTemplate(Items.LAPIS_LAZULI));
         chickens.add(blueChicken);
         ChickensRegistryItem greenChicken = createDyeChicken(DyeColor.GREEN, "GreenChicken");
         chickens.add(greenChicken);
         ChickensRegistryItem redChicken = createDyeChicken(DyeColor.RED, "RedChicken");
         chickens.add(redChicken);
         ChickensRegistryItem blackChicken = createDyeChicken(DyeColor.BLACK, "BlackChicken");
-        blackChicken.setLayItem(new ItemStack(Items.INK_SAC));
+        blackChicken.setLayItem(new ItemStackTemplate(Items.INK_SAC));
         chickens.add(blackChicken);
 
         ChickensRegistryItem pinkChicken = createDyeChicken(DyeColor.PINK, "PinkChicken")
@@ -102,49 +102,49 @@ public final class DefaultChickens {
 
         ChickensRegistryItem flintChicken = new ChickensRegistryItem(
                 101, "FlintChicken", texture("FlintChicken"),
-                new ItemStack(Items.FLINT),
+                new ItemStackTemplate(Items.FLINT),
                 0x6b6b47, 0xa3a375)
                 .allowNaturalSpawn();
         chickens.add(flintChicken);
 
         ChickensRegistryItem quartzChicken = new ChickensRegistryItem(
                 104, "QuartzChicken", texture("QuartzChicken"),
-                new ItemStack(Items.QUARTZ),
+                new ItemStackTemplate(Items.QUARTZ),
                 0x4d0000, 0x1a0000).setSpawnType(SpawnType.HELL)
                 .allowNaturalSpawn();
         chickens.add(quartzChicken);
 
         ChickensRegistryItem logChicken = new ChickensRegistryItem(
                 108, "LogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.OAK_LOG),
+                new ItemStackTemplate(Blocks.OAK_LOG.asItem()),
                 0x98846d, 0x528358)
                 .allowNaturalSpawn();
         chickens.add(logChicken);
 
         ChickensRegistryItem sandChicken = new ChickensRegistryItem(
                 105, "SandChicken", texture("SandChicken"),
-                new ItemStack(Blocks.SAND),
+                new ItemStackTemplate(Blocks.SAND.asItem()),
                 0xece5b1, 0xa7a06c);
         chickens.add(sandChicken);
 
         ChickensRegistryItem stringChicken = new ChickensRegistryItem(
                 303, "StringChicken", texture("StringChicken"),
-                new ItemStack(Items.STRING),
+                new ItemStackTemplate(Items.STRING),
                 0x331a00, 0x800000,
                 blackChicken, logChicken
-        ).setDropItem(new ItemStack(Items.SPIDER_EYE));
+        ).setDropItem(new ItemStackTemplate(Items.SPIDER_EYE));
         chickens.add(stringChicken);
 
         ChickensRegistryItem glowstoneChicken = new ChickensRegistryItem(
                 202, "GlowstoneChicken", texture("GlowstoneChicken"),
-                new ItemStack(Items.GLOWSTONE_DUST),
+                new ItemStackTemplate(Items.GLOWSTONE_DUST),
                 0xffff66, 0xffff00,
                 quartzChicken, yellowChicken);
         chickens.add(glowstoneChicken);
 
         ChickensRegistryItem gunpowderChicken = new ChickensRegistryItem(
                 100, "GunpowderChicken", texture("GunpowderChicken"),
-                new ItemStack(Items.GUNPOWDER),
+                new ItemStackTemplate(Items.GUNPOWDER),
                 0x999999, 0x404040,
                 sandChicken, flintChicken)
                 .allowNaturalSpawn();
@@ -152,7 +152,7 @@ public final class DefaultChickens {
 
         ChickensRegistryItem redstoneChicken = new ChickensRegistryItem(
                 201, "RedstoneChicken", texture("RedstoneChicken"),
-                new ItemStack(Items.REDSTONE),
+                new ItemStackTemplate(Items.REDSTONE),
                 0xe60000, 0x800000,
                 redChicken,
                 sandChicken);
@@ -161,58 +161,58 @@ public final class DefaultChickens {
         ChickensRegistryItem redstoneFluxChicken = new ChickensRegistryItem(
                 404, "RedstoneFluxChicken", texture("RedstoneFluxChicken"),
                 // Pre-charge the egg so freshly bred birds immediately output RF.
-                FluxEggItem.create(FluxEggItem.BASE_CAPACITY),
+                FluxEggItem.template(FluxEggItem.BASE_CAPACITY),
                 0xff3c3c, 0xffb347,
                 redstoneChicken,
                 glowstoneChicken);
-        redstoneFluxChicken.setDropItem(FluxEggItem.create(FluxEggItem.BASE_CAPACITY));
+        redstoneFluxChicken.setDropItem(FluxEggItem.template(FluxEggItem.BASE_CAPACITY));
         applyItemTextureOverride(redstoneFluxChicken);
         chickens.add(redstoneFluxChicken);
 
         ChickensRegistryItem glassChicken = new ChickensRegistryItem(
                 106, "GlassChicken", texture("GlassChicken"),
-                new ItemStack(Blocks.GLASS),
+                new ItemStackTemplate(Blocks.GLASS.asItem()),
                 0xffffff, 0xeeeeff,
                 quartzChicken, redstoneChicken);
         chickens.add(glassChicken);
 
         ChickensRegistryItem ironChicken = new ChickensRegistryItem(
                 203, "IronChicken", texture("IronChicken"),
-                new ItemStack(Items.IRON_INGOT),
+                new ItemStackTemplate(Items.IRON_INGOT),
                 0xffffcc, 0xffcccc,
                 flintChicken, whiteChicken);
         chickens.add(ironChicken);
 
         ChickensRegistryItem coalChicken = new ChickensRegistryItem(
                 204, "CoalChicken", texture("CoalChicken"),
-                new ItemStack(Items.COAL),
+                new ItemStackTemplate(Items.COAL),
                 0x262626, 0x000000,
                 flintChicken, logChicken);
         chickens.add(coalChicken);
 
         ChickensRegistryItem brownChicken = createDyeChicken(DyeColor.BROWN, "BrownChicken");
         brownChicken.setParentsNew(redChicken, greenChicken);
-        brownChicken.setLayItem(new ItemStack(Items.COCOA_BEANS));
+        brownChicken.setLayItem(new ItemStackTemplate(Items.COCOA_BEANS));
         chickens.add(brownChicken);
 
          ChickensRegistryItem goldChicken = new ChickensRegistryItem(
                 300, "GoldChicken", texture("GoldChicken"),
-                new ItemStack(Items.GOLD_INGOT),
+                new ItemStackTemplate(Items.GOLD_INGOT),
                 0xcccc00, 0xffff80,
                 ironChicken, yellowChicken);
         chickens.add(goldChicken);
 
         ChickensRegistryItem cherryLogChicken = new ChickensRegistryItem(
-                706, "CherryLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.CHERRY_LOG),
+                706, "CherryLogChicken", texture("CherryLogChicken"),
+                new ItemStackTemplate(Blocks.CHERRY_LOG.asItem()),
                 0xd9a0a0, 0xb06060,
                 logChicken, pinkChicken);
         chickens.add(cherryLogChicken);
 
         LiquidEggRegistryItem waterLiquid = LiquidEggRegistry.findById(0);
-        ItemStack waterEgg = waterLiquid != null
-                ? LiquidEggItem.createFor(waterLiquid)
-                : new ItemStack(ModRegistry.LIQUID_EGG.get());
+        ItemStackTemplate waterEgg = waterLiquid != null
+                ? LiquidEggItem.templateFor(waterLiquid)
+                : new ItemStackTemplate(ModRegistry.LIQUID_EGG.get());
         ChickensRegistryItem waterChicken = new ChickensRegistryItem(
                 206, "WaterChicken", texture("WaterChicken"),
                 // Attach the liquid egg id directly so chickens lay the
@@ -225,24 +225,23 @@ public final class DefaultChickens {
 
         ChickensRegistryItem iceChicken = new ChickensRegistryItem(
                 710, "IceChicken", texture("SnowballChicken"),
-                new ItemStack(Items.BLUE_ICE),
+                new ItemStackTemplate(Items.BLUE_ICE),
                 0x99d6ff, 0x4db8ff,
-                waterChicken, smartChicken).setSpawnType(SpawnType.SNOW)
-                .allowNaturalSpawn();
+                waterChicken, smartChicken).setSpawnType(SpawnType.SNOW);
         chickens.add(iceChicken);
 
         ChickensRegistryItem snowballChicken = new ChickensRegistryItem(
                 102, "SnowballChicken", texture("SnowballChicken"),
-                new ItemStack(Items.SNOWBALL),
+                new ItemStackTemplate(Items.SNOWBALL),
                 0x33bbff, 0x0088cc,
                 whiteChicken, iceChicken).setSpawnType(SpawnType.SNOW)
                 .allowNaturalSpawn();
         chickens.add(snowballChicken);
 
         LiquidEggRegistryItem lavaLiquid = LiquidEggRegistry.findById(1);
-        ItemStack lavaEgg = lavaLiquid != null
-                ? LiquidEggItem.createFor(lavaLiquid)
-                : new ItemStack(ModRegistry.LIQUID_EGG.get());
+        ItemStackTemplate lavaEgg = lavaLiquid != null
+                ? LiquidEggItem.templateFor(lavaLiquid)
+                : new ItemStackTemplate(ModRegistry.LIQUID_EGG.get());
         ChickensRegistryItem lavaChicken = new ChickensRegistryItem(
                 103, "LavaChicken", texture("LavaChicken"),
                 // The lava variant uses the second registered liquid id.
@@ -255,49 +254,49 @@ public final class DefaultChickens {
 
         ChickensRegistryItem clayChicken = new ChickensRegistryItem(
                 200, "ClayChicken", texture("ClayChicken"),
-                new ItemStack(Items.CLAY_BALL),
+                new ItemStackTemplate(Items.CLAY_BALL),
                 0xcccccc, 0xbfbfbf,
                 snowballChicken, sandChicken);
         chickens.add(clayChicken);
 
         ChickensRegistryItem leatherChicken = new ChickensRegistryItem(
                 107, "LeatherChicken", texture("LeatherChicken"),
-                new ItemStack(Items.LEATHER),
+                new ItemStackTemplate(Items.LEATHER),
                 0xA7A06C, 0x919191,
                 stringChicken, brownChicken);
         chickens.add(leatherChicken);
 
         ChickensRegistryItem netherwartChicken = new ChickensRegistryItem(
                 207, "NetherwartChicken", texture("NetherwartChicken"),
-                new ItemStack(Items.NETHER_WART),
+                new ItemStackTemplate(Items.NETHER_WART),
                 0x800000, 0x331a00,
                 brownChicken, glowstoneChicken);
         chickens.add(netherwartChicken);
 
         ChickensRegistryItem diamondChicken = new ChickensRegistryItem(
                 301, "DiamondChicken", texture("DiamondChicken"),
-                new ItemStack(Items.DIAMOND),
+                new ItemStackTemplate(Items.DIAMOND),
                 0x99ccff, 0xe6f2ff,
                 glassChicken, goldChicken);
         chickens.add(diamondChicken);
 
         ChickensRegistryItem blazeChicken = new ChickensRegistryItem(
                 302, "BlazeChicken", texture("BlazeChicken"),
-                new ItemStack(Items.BLAZE_ROD),
+                new ItemStackTemplate(Items.BLAZE_ROD),
                 0xffff66, 0xff3300,
                 goldChicken, lavaChicken);
         chickens.add(blazeChicken);
 
         ChickensRegistryItem slimeChicken = new ChickensRegistryItem(
                 205, "SlimeChicken", texture("SlimeChicken"),
-                new ItemStack(Items.SLIME_BALL),
+                new ItemStackTemplate(Items.SLIME_BALL),
                 0x009933, 0x99ffbb,
                 clayChicken, greenChicken);
         chickens.add(slimeChicken);
 
         ChickensRegistryItem enderChicken = new ChickensRegistryItem(
                 401, "EnderChicken", texture("EnderChicken"),
-                new ItemStack(Items.ENDER_PEARL),
+                new ItemStackTemplate(Items.ENDER_PEARL),
                 0x001a00, 0x001a33,
                 diamondChicken, netherwartChicken).setSpawnType(SpawnType.END)
                 .allowNaturalSpawn();
@@ -305,21 +304,21 @@ public final class DefaultChickens {
 
         ChickensRegistryItem ghastChicken = new ChickensRegistryItem(
                 402, "GhastChicken", texture("GhastChicken"),
-                new ItemStack(Items.GHAST_TEAR),
+                new ItemStackTemplate(Items.GHAST_TEAR),
                 0xffffcc, 0xffffff,
                 whiteChicken, blazeChicken);
         chickens.add(ghastChicken);
 
         ChickensRegistryItem emeraldChicken = new ChickensRegistryItem(
                 400, "EmeraldChicken", texture("EmeraldChicken"),
-                new ItemStack(Items.EMERALD),
+                new ItemStackTemplate(Items.EMERALD),
                 0x00cc00, 0x003300,
                 diamondChicken, greenChicken);
         chickens.add(emeraldChicken);
 
         ChickensRegistryItem magmaChicken = new ChickensRegistryItem(
                 403, "MagmaChicken", texture("MagmaChicken"),
-                new ItemStack(Items.MAGMA_CREAM),
+                new ItemStackTemplate(Items.MAGMA_CREAM),
                 0x1a0500, 0x000000,
                 slimeChicken, blazeChicken);
         chickens.add(magmaChicken);
@@ -330,67 +329,74 @@ public final class DefaultChickens {
         // parents are LogChicken + the dye chicken that matches the wood's hue.
 
         ChickensRegistryItem spruceLogChicken = new ChickensRegistryItem(
-                700, "SpruceLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.SPRUCE_LOG),
+                700, "SpruceLogChicken", texture("SpruceLogChicken"),
+                new ItemStackTemplate(Blocks.SPRUCE_LOG.asItem()),
                 0x6b4f2a, 0x3d2b15,
                 logChicken, brownChicken);
         chickens.add(spruceLogChicken);
 
         ChickensRegistryItem birchLogChicken = new ChickensRegistryItem(
-                701, "BirchLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.BIRCH_LOG),
+                701, "BirchLogChicken", texture("BirchLogChicken"),
+                new ItemStackTemplate(Blocks.BIRCH_LOG.asItem()),
                 0xe8ddb5, 0xc8b87c,
                 logChicken, whiteChicken);
         chickens.add(birchLogChicken);
 
         ChickensRegistryItem jungleLogChicken = new ChickensRegistryItem(
-                702, "JungleLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.JUNGLE_LOG),
+                702, "JungleLogChicken", texture("JungleLogChicken"),
+                new ItemStackTemplate(Blocks.JUNGLE_LOG.asItem()),
                 0x7a5c2e, 0x4a3010,
                 logChicken, brownChicken);
         chickens.add(jungleLogChicken);
 
         ChickensRegistryItem acaciaLogChicken = new ChickensRegistryItem(
-                703, "AcaciaLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.ACACIA_LOG),
+                703, "AcaciaLogChicken", texture("AcaciaLogChicken"),
+                new ItemStackTemplate(Blocks.ACACIA_LOG.asItem()),
                 0xba6430, 0x7a3210,
                 logChicken, redChicken);
         chickens.add(acaciaLogChicken);
 
         ChickensRegistryItem darkOakLogChicken = new ChickensRegistryItem(
-                704, "DarkOakLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.DARK_OAK_LOG),
+                704, "DarkOakLogChicken", texture("DarkOakLogChicken"),
+                new ItemStackTemplate(Blocks.DARK_OAK_LOG.asItem()),
                 0x3b2910, 0x1e1408,
                 logChicken, blackChicken);
         chickens.add(darkOakLogChicken);
 
         ChickensRegistryItem mangroveLogChicken = new ChickensRegistryItem(
-                705, "MangroveLogChicken", texture("LogChicken"),
-                new ItemStack(Blocks.MANGROVE_LOG),
+                705, "MangroveLogChicken", texture("MangroveLogChicken"),
+                new ItemStackTemplate(Blocks.MANGROVE_LOG.asItem()),
                 0x7a2020, 0x4a1010,
                 logChicken, redChicken);
         chickens.add(mangroveLogChicken);
 
         ChickensRegistryItem bambooBlockChicken = new ChickensRegistryItem(
-                707, "BambooBlockChicken", texture("LogChicken"),
-                new ItemStack(Blocks.BAMBOO_BLOCK),
+                707, "BambooBlockChicken", texture("BambooBlockChicken"),
+                new ItemStackTemplate(Blocks.BAMBOO_BLOCK.asItem()),
                 0x7a9a3a, 0x4a6a1a,
                 logChicken, greenChicken);
         chickens.add(bambooBlockChicken);
 
         ChickensRegistryItem crimsonStemChicken = new ChickensRegistryItem(
-                708, "CrimsonStemChicken", texture("LogChicken"),
-                new ItemStack(Blocks.CRIMSON_STEM),
+                708, "CrimsonStemChicken", texture("CrimsonStemChicken"),
+                new ItemStackTemplate(Blocks.CRIMSON_STEM.asItem()),
                 0x7a1040, 0x4a0820,
                 logChicken, purpleChicken).setSpawnType(SpawnType.HELL);
         chickens.add(crimsonStemChicken);
 
         ChickensRegistryItem warpedStemChicken = new ChickensRegistryItem(
-                709, "WarpedStemChicken", texture("LogChicken"),
-                new ItemStack(Blocks.WARPED_STEM),
+                709, "WarpedStemChicken", texture("WarpedStemChicken"),
+                new ItemStackTemplate(Blocks.WARPED_STEM.asItem()),
                 0x1a7a6a, 0x0a4a3a,
                 logChicken, greenChicken).setSpawnType(SpawnType.HELL);
         chickens.add(warpedStemChicken);
+
+        ChickensRegistryItem paleOakLogChicken = new ChickensRegistryItem(
+                711, "PaleOakLogChicken", texture("PaleOakLogChicken"),
+                new ItemStackTemplate(Blocks.PALE_OAK_LOG.asItem()),
+                0xe3dcd5, 0xb5aca3,
+                logChicken, grayChicken);
+        chickens.add(paleOakLogChicken);
 
         Map<String, ChickensRegistryItem> byName = new HashMap<>();
         for (ChickensRegistryItem chicken : chickens) {
@@ -403,7 +409,7 @@ public final class DefaultChickens {
         // is after the modded chickens since it relies on a chicken registered in there
         ChickensRegistryItem netheriteChicken = new ChickensRegistryItem(
                 306, "NetheriteChicken", texture("netheritechicken"),
-                new ItemStack(Items.NETHERITE_INGOT),
+                new ItemStackTemplate(Items.NETHERITE_INGOT),
                 0xd6d4d4, 0x31292a,
                 witherChicken, blazeChicken).setLayCoefficient(0.25f);
         chickens.add(netheriteChicken);
@@ -423,10 +429,10 @@ public final class DefaultChickens {
             if (chicken == smartChicken || chicken == vanillaChicken || chicken.isCustom()) {
                 continue;
             }
-            ItemStack layItem = chicken.createLayItem();
-            if (layItem.getItem() instanceof LiquidEggItem
-                    || layItem.getItem() instanceof ChemicalEggItem
-                    || layItem.getItem() instanceof GasEggItem) {
+            ItemStackTemplate layItem = chicken.layItemTemplate();
+            if (layItem.item().value() instanceof LiquidEggItem
+                    || layItem.item().value() instanceof ChemicalEggItem
+                    || layItem.item().value() instanceof GasEggItem) {
                 continue;
             }
             chicken.setLayeredResourceTexture(true);
@@ -438,32 +444,32 @@ public final class DefaultChickens {
                 color.getId(),
                 name,
                 texture(name),
-                new ItemStack(DyeColorUtils.itemFor(color)),
+                new ItemStackTemplate(DyeColorUtils.itemFor(color)),
                 0xf2f2f2, color.getTextColor());
     }
 
     // Map legacy entity identifiers onto bespoke texture assets supplied with the modern pack.
-    private static final Map<String, ResourceLocation> ENTITY_TEXTURE_OVERRIDES = Map.of(
+    private static final Map<String, Identifier> ENTITY_TEXTURE_OVERRIDES = Map.of(
             "redstonefluxchicken",
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/redstone_crystal_chicken.png"));
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/redstone_crystal_chicken.png"));
 
     // Mirror the entity override onto the item sprite so inventory icons match the in-world model.
-    private static final Map<String, ResourceLocation> ITEM_TEXTURE_OVERRIDES = Map.of(
+    private static final Map<String, Identifier> ITEM_TEXTURE_OVERRIDES = Map.of(
             "redstonefluxchicken",
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/item/chicken/redstonecrystalchicken.png"));
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/item/chicken/redstonecrystalchicken.png"));
 
-    private static ResourceLocation texture(String name) {
+    private static Identifier texture(String name) {
         String path = name.toLowerCase(Locale.ROOT);
-        ResourceLocation override = ENTITY_TEXTURE_OVERRIDES.get(path);
+        Identifier override = ENTITY_TEXTURE_OVERRIDES.get(path);
         if (override != null) {
             return override;
         }
-        return ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/" + path + ".png");
+        return Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/" + path + ".png");
     }
 
     private static void applyItemTextureOverride(ChickensRegistryItem chicken) {
         String key = chicken.getEntityName().toLowerCase(Locale.ROOT);
-        ResourceLocation override = ITEM_TEXTURE_OVERRIDES.get(key);
+        Identifier override = ITEM_TEXTURE_OVERRIDES.get(key);
         if (override != null) {
             chicken.setItemTexture(override);
         }

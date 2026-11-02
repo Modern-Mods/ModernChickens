@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.permissions.Permissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,7 +55,7 @@ public final class ChickensSpawnDebug {
                 pos.getZ()).withStyle(ChatFormatting.YELLOW);
         LOGGER.info("[Chickens] {} spawned at {} {} {} ({})", chicken.getEntityName(), pos.getX(), pos.getY(), pos.getZ(), spawnType);
         for (ServerPlayer player : level.getServer().getPlayerList().getPlayers()) {
-            if (player.hasPermissions(2)) {
+            if (player.permissions().hasPermission(Permissions.COMMANDS_GAMEMASTER)) {
                 player.sendSystemMessage(message);
             }
         }

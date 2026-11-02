@@ -1,7 +1,8 @@
 package strhercules.chickens.effect;
 
 import strhercules.chickens.ChickensMod;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectCategory;
 import net.minecraft.world.entity.LivingEntity;
@@ -16,7 +17,7 @@ public final class BurningEffect extends MobEffect {
         super(MobEffectCategory.BENEFICIAL, 0xFF5A00);
         addAttributeModifier(
                 Attributes.MOVEMENT_SPEED,
-                ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "burning_speed"),
+                Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "burning_speed"),
                 0.2D,
                 AttributeModifier.Operation.ADD_MULTIPLIED_TOTAL);
     }
@@ -27,8 +28,8 @@ public final class BurningEffect extends MobEffect {
     }
 
     @Override
-    public boolean applyEffectTick(LivingEntity entity, int amplifier) {
-        if (!entity.level().isClientSide && entity instanceof Player player) {
+    public boolean applyEffectTick(ServerLevel level, LivingEntity entity, int amplifier) {
+        if (entity instanceof Player player) {
             player.heal(player.getMaxHealth() / (float) HEALING_TICKS);
         }
         return true;

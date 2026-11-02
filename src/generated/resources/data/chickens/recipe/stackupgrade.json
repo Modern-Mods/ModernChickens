@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "item": "minecraft:diamond"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
-    },
-    "S": {
-      "item": "minecraft:shulker_shell"
-    }
+    "D": "minecraft:diamond",
+    "N": "minecraft:netherite_ingot",
+    "S": "minecraft:shulker_shell"
   },
   "pattern": [
     "NSN",
@@ -18,7 +12,6 @@
     "NSN"
   ],
   "result": {
-    "count": 1,
     "id": "chickens:stackupgrade"
   }
 }

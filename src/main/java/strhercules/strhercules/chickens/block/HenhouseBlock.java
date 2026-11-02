@@ -6,6 +6,7 @@ import strhercules.chickens.integration.mekanism.MekanismRadiationCompat;
 import strhercules.chickens.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -14,8 +15,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -34,29 +33,25 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Modernised henhouse block that keeps the legacy facing and tooltip behaviour
  * while delegating the heavy lifting to {@link HenhouseBlockEntity}. The block
  * itself mostly handles user interaction and inventory drops when broken.
  */
-public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityBlock, BlockItemTooltip {
     public static final MapCodec<HenhouseBlock> CODEC = simpleCodec(HenhouseBlock::new);
-
-    public HenhouseBlock() {
-        this(MapColor.COLOR_BROWN);
-    }
 
     /**
      * Allows registry code to pick a different map colour so each wood variant
      * better matches its plank tone while reusing the same behaviour.
      */
-    public HenhouseBlock(MapColor mapColor) {
-        this(Properties.of().mapColor(mapColor).strength(2.0F, 2.5F).sound(SoundType.WOOD));
+    public static BlockBehaviour.Properties defaultProperties(MapColor mapColor) {
+        return Properties.of().mapColor(mapColor).strength(2.0F, 2.5F).sound(SoundType.WOOD);
     }
 
-    private HenhouseBlock(BlockBehaviour.Properties properties) {
+    public HenhouseBlock(BlockBehaviour.Properties properties) {
         super(properties);
         this.registerDefaultState(this.stateDefinition.any().setValue(FACING, Direction.NORTH));
     }
@@ -67,10 +62,8 @@ public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        // Reuse the legacy tooltip text so players are reminded about the
-        // automation radius and hay bale mechanic without checking a wiki.
-        tooltip.add(Component.translatable("tooltip.chickens.henhouse"));
+    public void appendItemTooltip(ItemStack stack, Consumer<Component> tooltip) {
+        tooltip.accept(Component.translatable("tooltip.chickens.henhouse"));
     }
 
     @Override
@@ -91,7 +84,7 @@ public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityB
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.HENHOUSE.get()) {
+        if (level.isClientSide() || type != ModBlockEntities.HENHOUSE.get()) {
             return null;
         }
         return (lvl, pos, blockState, blockEntity) -> {
@@ -136,7 +129,7 @@ public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityB
 
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult hit) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -148,17 +141,8 @@ public class HenhouseBlock extends HorizontalDirectionalBlock implements EntityB
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof HenhouseBlockEntity henhouse) {
-                // Drop every stored stack when the block is broken to mirror the
-                // legacy InventoryHelper behaviour.
-                Containers.dropContents(level, pos, henhouse.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override

@@ -13,7 +13,8 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -22,9 +23,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.Item.TooltipContext;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -39,31 +38,31 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Block wrapper for the chemical converter. Behaviour mirrors the fluid and
  * flux converters so the machine feels familiar while adding Mekanism chemical
  * support.
  */
-public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock implements EntityBlock, BlockItemTooltip {
     public static final MapCodec<AvianChemicalConverterBlock> CODEC = simpleCodec(AvianChemicalConverterBlock::new);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public AvianChemicalConverterBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.WOOD)
                 .strength(2.5F, 6.0F)
                 .sound(SoundType.WOOD)
                 .noOcclusion()
-                .lightLevel(state -> state.getValue(LIT) ? 7 : 0));
+                .lightLevel(state -> state.getValue(LIT) ? 7 : 0);
     }
 
     public AvianChemicalConverterBlock(BlockBehaviour.Properties properties) {
@@ -88,7 +87,7 @@ public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock impl
     @Override
     @SuppressWarnings("unchecked")
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         if (type != ModBlockEntities.AVIAN_CHEMICAL_CONVERTER.get()) {
@@ -103,22 +102,15 @@ public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock impl
         if (!(blockEntity instanceof AvianChemicalConverterBlockEntity converter)) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(converter, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof AvianChemicalConverterBlockEntity converter) {
-                Containers.dropContents(level, pos, converter.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override
@@ -153,10 +145,10 @@ public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock impl
         player.awardStat(Stats.BLOCK_MINED.get(this));
         player.causeFoodExhaustion(0.005F);
         if (MachineBlockHelper.canHarvestWith(tool)) {
-            if (!level.isClientSide && !player.isCreative()) {
+            if (!level.isClientSide() && !player.isCreative()) {
                 ItemStack drop = new ItemStack(this);
                 if (blockEntity instanceof AvianChemicalConverterBlockEntity converter) {
-                    converter.saveToItem(drop, level.registryAccess());
+                    MachineBlockHelper.saveToItem(drop, converter, level.registryAccess());
                     var customName = converter.getCustomName();
                     if (customName != null) {
                         drop.set(DataComponents.CUSTOM_NAME, customName);
@@ -181,25 +173,25 @@ public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock impl
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.chickens.avian_chemical_converter"));
+    public void appendItemTooltip(ItemStack stack, Consumer<Component> tooltip) {
+        tooltip.accept(Component.translatable("tooltip.chickens.avian_chemical_converter"));
 
         var config = ChickensConfigHolder.get();
         int capacity = Math.max(1, config.getAvianChemicalConverterCapacity(8_000));
         int amount = 0;
         Component chemicalName = Component.translatable("tooltip.chickens.avian_chemical_converter.empty");
 
-        CustomData data = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
-        if (!data.isEmpty()) {
-            CompoundTag tag = data.copyTag();
-            if (tag.contains("ChemicalTank", Tag.TAG_COMPOUND)) {
-                CompoundTag tankTag = tag.getCompound("ChemicalTank");
-                amount = tankTag.contains("Amount") ? tankTag.getInt("Amount") : amount;
+        TypedEntityData<BlockEntityType<?>> data = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (data != null) {
+            CompoundTag tag = data.copyTagWithoutId();
+            if (tag.contains("ChemicalTank")) {
+                CompoundTag tankTag = tag.getCompoundOrEmpty("ChemicalTank");
+                amount = tankTag.contains("Amount") ? tankTag.getIntOr("Amount", 0) : amount;
                 if (tankTag.contains("Capacity")) {
-                    capacity = Math.max(1, tankTag.getInt("Capacity"));
+                    capacity = Math.max(1, tankTag.getIntOr("Capacity", 0));
                 }
                 if (tankTag.contains("Chemical")) {
-                    ResourceLocation id = ResourceLocation.tryParse(tankTag.getString("Chemical"));
+                    Identifier id = Identifier.tryParse(tankTag.getStringOr("Chemical", ""));
                     ChemicalEggRegistryItem entry = id != null ? ChemicalEggRegistry.findByChemical(id) : null;
                     if (entry == null && id != null) {
                         entry = GasEggRegistry.findByChemical(id);
@@ -212,7 +204,7 @@ public class AvianChemicalConverterBlock extends HorizontalDirectionalBlock impl
                 }
             }
         }
-        tooltip.add(Component.translatable("tooltip.chickens.avian_chemical_converter.level", chemicalName, amount, capacity));
+        tooltip.accept(Component.translatable("tooltip.chickens.avian_chemical_converter.level", chemicalName, amount, capacity));
     }
 
     @Override

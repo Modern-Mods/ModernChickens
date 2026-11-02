@@ -1,8 +1,7 @@
 package strhercules.chickens.client.render;
 
 import strhercules.chickens.ChickensMod;
-import strhercules.chickens.entity.MegaChicken;
-import net.minecraft.client.model.AgeableListModel;
+import net.minecraft.client.model.EntityModel;
 import net.minecraft.client.model.geom.ModelLayerLocation;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.geom.PartPose;
@@ -11,16 +10,14 @@ import net.minecraft.client.model.geom.builders.CubeListBuilder;
 import net.minecraft.client.model.geom.builders.LayerDefinition;
 import net.minecraft.client.model.geom.builders.MeshDefinition;
 import net.minecraft.client.model.geom.builders.PartDefinition;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 
-import java.util.List;
-
 /** 3x Java model conversion of vanilla chicken geometry and UVs. */
-public final class MegaChickenModel extends AgeableListModel<MegaChicken> {
+public final class MegaChickenModel extends EntityModel<MegaChickenRenderState> {
     private static final CubeDeformation PLANAR_ELEMENT = new CubeDeformation(0.01F);
     public static final ModelLayerLocation LAYER_LOCATION = new ModelLayerLocation(
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken"), "main");
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "mega_chicken"), "main");
 
     private final ModelPart head;
     private final ModelPart beak;
@@ -34,11 +31,9 @@ public final class MegaChickenModel extends AgeableListModel<MegaChicken> {
     private final ModelPart chests;
     private final ModelPart rightChest;
     private final ModelPart leftChest;
-    private final List<ModelPart> headParts;
-    private final List<ModelPart> bodyParts;
-    private final List<ModelPart> allParts;
 
     public MegaChickenModel(ModelPart root) {
+        super(root);
         this.head = root.getChild("head");
         this.beak = root.getChild("beak");
         this.redThing = root.getChild("red_thing");
@@ -51,11 +46,6 @@ public final class MegaChickenModel extends AgeableListModel<MegaChicken> {
         this.chests = root.getChild("chests");
         this.rightChest = this.chests.getChild("right_chest");
         this.leftChest = this.chests.getChild("left_chest");
-        this.headParts = List.of(this.head, this.beak, this.redThing);
-        this.bodyParts = List.of(this.body, this.rightLeg, this.leftLeg, this.rightWing, this.leftWing,
-                this.saddle, this.chests);
-        this.allParts = List.of(this.head, this.beak, this.redThing, this.body,
-                this.rightLeg, this.leftLeg, this.rightWing, this.leftWing, this.saddle, this.chests);
     }
 
     public static LayerDefinition createBodyLayer() {
@@ -150,23 +140,17 @@ public final class MegaChickenModel extends AgeableListModel<MegaChicken> {
     }
 
     @Override
-    protected Iterable<ModelPart> headParts() {
-        return this.headParts;
-    }
+    public void setupAnim(MegaChickenRenderState state) {
+        super.setupAnim(state);
+        float limbSwing = state.walkAnimationPos;
+        float limbSwingAmount = state.walkAnimationSpeed;
+        float ageInTicks = state.bob;
+        float headPitch = state.xRot;
+        float netHeadYaw = state.yRot;
 
-    @Override
-    protected Iterable<ModelPart> bodyParts() {
-        return this.bodyParts;
-    }
-
-    @Override
-    public void setupAnim(MegaChicken chicken, float limbSwing, float limbSwingAmount,
-                           float ageInTicks, float netHeadYaw, float headPitch) {
-        this.allParts.forEach(ModelPart::resetPose);
-
-        this.saddle.visible = chicken.isTamed() && chicken.isSaddled();
-        this.rightChest.visible = chicken.isTamed() && chicken.hasRightChest();
-        this.leftChest.visible = chicken.isTamed() && chicken.hasLeftChest();
+        this.saddle.visible = state.tamed && state.saddled;
+        this.rightChest.visible = state.tamed && state.rightChest;
+        this.leftChest.visible = state.tamed && state.leftChest;
 
         this.head.xRot = headPitch * Mth.DEG_TO_RAD;
         this.head.yRot = netHeadYaw * Mth.DEG_TO_RAD;
@@ -175,7 +159,7 @@ public final class MegaChickenModel extends AgeableListModel<MegaChicken> {
         this.redThing.xRot = this.head.xRot;
         this.redThing.yRot = this.head.yRot;
 
-        boolean airborne = chicken.isFlightActive() && !chicken.onGround();
+        boolean airborne = state.airborne;
         float legSwing = airborne ? ageInTicks * 0.6662F : limbSwing * 0.6662F;
         float legSwingAmount = airborne ? 0.7F : Mth.clamp(limbSwingAmount, 0.0F, 1.0F);
         this.rightLeg.xRot = Mth.cos(legSwing) * 1.4F * legSwingAmount;

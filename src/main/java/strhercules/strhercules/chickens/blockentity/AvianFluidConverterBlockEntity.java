@@ -15,8 +15,6 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
@@ -36,17 +34,21 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.ResourceHandlerUtil;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /**
  * Fluid-driven counterpart to the Avian Flux Converter. The machine cracks
- * liquid eggs, fills an internal {@link FluidTank}, and pushes contents into
+ * liquid eggs, fills an internal {@link MachineFluidTank}, and pushes contents into
  * adjacent handlers each tick so automation can hook directly into the stored
  * fluids.
  */
@@ -58,18 +60,13 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private final MachineSideConfig sideConfig = new MachineSideConfig();
-    private final FluidTank tank = new FluidTank(DEFAULT_TANK_CAPACITY, stack -> {
+    private final MachineFluidTank tank = new MachineFluidTank(DEFAULT_TANK_CAPACITY, stack -> {
         if (stack.isEmpty()) {
             return false;
         }
         FluidStack current = getFluid();
-        return current.isEmpty() || current.isFluidEqual(stack);
-    }) {
-        @Override
-        protected void onContentsChanged() {
-            markFluidDirty();
-        }
-    };
+        return current.isEmpty() || FluidStack.isSameFluidSameComponents(current, stack);
+    }, this::markFluidDirty);
 
     private int transferRate = DEFAULT_TRANSFER_RATE;
     private boolean cachedActiveState = false;
@@ -94,7 +91,7 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
     }
 
     private void tickServer(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         boolean drained = drainLiquidEgg();
@@ -126,14 +123,14 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
             items.set(0, ItemStack.EMPTY);
             return true;
         }
-        if (!tank.getFluid().isEmpty() && !tank.getFluid().isFluidEqual(payload)) {
+        if (!tank.getFluid().isEmpty() && !FluidStack.isSameFluidSameComponents(tank.getFluid(), payload)) {
             return false;
         }
-        int accepted = tank.fill(payload, IFluidHandler.FluidAction.SIMULATE);
+        int accepted = tank.fill(payload, true);
         if (accepted < payload.getAmount()) {
             return false;
         }
-        tank.fill(payload, IFluidHandler.FluidAction.EXECUTE);
+        tank.fill(payload, false);
         items.set(0, ItemStack.EMPTY);
         return true;
     }
@@ -146,26 +143,22 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
             if (!sideConfig.allows(direction, MachineSideConfig.Channel.FLUIDS, false)) {
                 continue;
             }
-            FluidStack toDrain = tank.drain(Math.min(transferRate, tank.getFluidAmount()),
-                    IFluidHandler.FluidAction.SIMULATE);
-            if (toDrain.isEmpty()) {
+            int toDrain = Math.min(transferRate, tank.getFluidAmount());
+            if (toDrain <= 0) {
                 return;
             }
-            var target = level.getCapability(Capabilities.FluidHandler.BLOCK, worldPosition.relative(direction),
-                    direction.getOpposite());
+            ResourceHandler<FluidResource> target = level.getCapability(Capabilities.Fluid.BLOCK,
+                    worldPosition.relative(direction), direction.getOpposite());
             if (target == null) {
                 continue;
             }
-            int accepted = target.fill(toDrain, IFluidHandler.FluidAction.EXECUTE);
-            if (accepted > 0) {
-                tank.drain(accepted, IFluidHandler.FluidAction.EXECUTE);
-            }
+            ResourceHandlerUtil.move(tank, target, resource -> true, toDrain, null);
         }
     }
 
     private void markFluidDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -194,7 +187,7 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
         return Math.round(15.0F * getFluidAmount() / (float) capacity);
     }
 
-    public IFluidHandler getFluidTank(@Nullable Direction direction) {
+    public ResourceHandler<FluidResource> getFluidTank(@Nullable Direction direction) {
         return MachineCapabilityWrappers.fluid(tank, sideConfig, direction);
     }
 
@@ -248,7 +241,7 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
             stack.setCount(getMaxStackSize());
         }
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }
@@ -320,23 +313,17 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveWithoutMetadata(provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     @Nullable
@@ -346,43 +333,35 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        CompoundTag tankTag = tank.writeToNBT(provider, new CompoundTag());
-        tankTag.putInt("Capacity", tank.getCapacity());
-        tag.put("Tank", tankTag);
-        tag.putInt("TransferRate", transferRate);
-        if (customName != null) {
-            ComponentSerialization.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), customName)
-                    .result().ifPresent(component -> tag.put("CustomName", component));
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        ValueOutput tankOutput = output.child("Tank");
+        tank.saveFluid(tankOutput);
+        tankOutput.putInt("Capacity", tank.getCapacity());
+        output.putInt("TransferRate", transferRate);
+        output.storeNullable("CustomName", ComponentSerialization.CODEC, customName);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        if (tag.contains("Tank", Tag.TAG_COMPOUND)) {
-            CompoundTag tankTag = tag.getCompound("Tank");
-            tank.readFromNBT(provider, tankTag);
-            if (tankTag.contains("Capacity")) {
-                int storedCapacity = Math.max(FluidType.BUCKET_VOLUME, tankTag.getInt("Capacity"));
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        Optional<ValueInput> tankInput = input.child("Tank");
+        if (tankInput.isPresent()) {
+            ValueInput tankData = tankInput.get();
+            tank.loadFluid(tankData);
+            if (tankData.getInt("Capacity").isPresent()) {
+                int storedCapacity = Math.max(FluidType.BUCKET_VOLUME, tankData.getIntOr("Capacity", 0));
                 tank.setCapacity(storedCapacity);
             }
         } else {
             tank.setFluid(FluidStack.EMPTY);
         }
-        transferRate = Math.max(0, tag.getInt("TransferRate"));
-        if (tag.contains("CustomName", Tag.TAG_COMPOUND)) {
-            ComponentSerialization.CODEC
-                    .parse(provider.createSerializationContext(NbtOps.INSTANCE), tag.getCompound("CustomName"))
-                    .result().ifPresent(component -> customName = component);
-        } else {
-            customName = null;
-        }
+        transferRate = Math.max(0, input.getIntOr("TransferRate", 0));
+        customName = input.read("CustomName", ComponentSerialization.CODEC).orElse(null);
         syncWithConfig(false);
         cachedActiveState = false;
     }
@@ -391,7 +370,7 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
     public void onLoad() {
         super.onLoad();
         syncWithConfig(false);
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }
@@ -407,7 +386,7 @@ public class AvianFluidConverterBlockEntity extends BlockEntity implements World
         if (tank.getCapacity() != clampedCapacity) {
             tank.setCapacity(clampedCapacity);
             if (tank.getFluidAmount() > clampedCapacity) {
-                tank.drain(tank.getFluidAmount() - clampedCapacity, IFluidHandler.FluidAction.EXECUTE);
+                tank.drain(tank.getFluidAmount() - clampedCapacity, false);
             }
         }
     }

@@ -15,9 +15,9 @@ import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.registry.ModRegistry;
 import strhercules.chickens.spawn.ChickensSpawnManager;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,6 +29,7 @@ import net.neoforged.neoforge.event.TagsUpdatedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.nio.file.Files;
@@ -116,7 +117,7 @@ public final class ChickensDataLoader {
     }
 
     private static void registerLiquidEggs() {
-        Set<ResourceLocation> predefinedFluids = new HashSet<>();
+        Set<Identifier> predefinedFluids = new HashSet<>();
         int highestId = -1;
 
         for (LiquidEggDefinition definition : LiquidEggDefinition.ALL) {
@@ -214,7 +215,7 @@ public final class ChickensDataLoader {
                 registered == 0 ? " (no Mekanism gases were discoverable)" : "");
     }
 
-    private static void registerDynamicLiquidEggs(Set<ResourceLocation> excludedFluids, int highestId) {
+    private static void registerDynamicLiquidEggs(Set<Identifier> excludedFluids, int highestId) {
         int nextId = Math.max(highestId + 1, 100);
         Set<Item> encounteredBuckets = new HashSet<>();
 
@@ -222,7 +223,7 @@ public final class ChickensDataLoader {
             if (fluid == Fluids.EMPTY) {
                 continue;
             }
-            ResourceLocation fluidId = BuiltInRegistries.FLUID.getKey(fluid);
+            Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid);
             if (fluidId == null || excludedFluids.contains(fluidId)) {
                 continue;
             }
@@ -252,7 +253,7 @@ public final class ChickensDataLoader {
     }
 
     private static boolean shouldGenerateLiquidEgg(Fluid fluid,
-                                                   ResourceLocation fluidId,
+                                                   Identifier fluidId,
                                                    Set<Item> encounteredBuckets) {
         Item bucket = fluid.getBucket();
         if (bucket == null || bucket == Items.AIR) {
@@ -276,7 +277,7 @@ public final class ChickensDataLoader {
         return () -> state;
     }
 
-    private static int deriveFluidColor(Fluid fluid, ResourceLocation fluidId) {
+    private static int deriveFluidColor(Fluid fluid, Identifier fluidId) {
         int hash = Math.abs(fluidId.hashCode());
         int r = 0x40 | (hash & 0x3F);
         int g = 0x40 | ((hash >> 6) & 0x3F);
@@ -300,7 +301,7 @@ public final class ChickensDataLoader {
         return hazards;
     }
 
-    private static int allocateChemicalId(ResourceLocation chemicalId, int base, int span, Set<Integer> usedIds) {
+    private static int allocateChemicalId(Identifier chemicalId, int base, int span, Set<Integer> usedIds) {
         int seed = Math.floorMod(chemicalId.hashCode(), span);
         int candidate = base + seed;
         while (!usedIds.add(candidate)) {
@@ -310,8 +311,8 @@ public final class ChickensDataLoader {
     }
 
     private record LiquidEggDefinition(int id,
-                                       ResourceLocation fluidId,
-                                       Optional<ResourceLocation> blockId,
+                                       Identifier fluidId,
+                                       Optional<Identifier> blockId,
                                        int eggColor,
                                        int volume,
                                        EnumSet<LiquidEggRegistryItem.HazardFlag> hazards) {
@@ -419,8 +420,8 @@ public final class ChickensDataLoader {
                         EnumSet.of(LiquidEggRegistryItem.HazardFlag.TOXIC))
         );
 
-        private static ResourceLocation id(String namespace, String path) {
-            return ResourceLocation.fromNamespaceAndPath(namespace, path);
+        private static Identifier id(String namespace, String path) {
+            return Identifier.fromNamespaceAndPath(namespace, path);
         }
     }
 
@@ -442,10 +443,10 @@ public final class ChickensDataLoader {
 
             // Snapshot the code-defined items BEFORE reading props so stale cfg
             // values never silently replace what the developer wrote in DefaultChickens.
-            ItemStack codeLayItem = chicken.createLayItem();
-            ItemStack codeDropItem = chicken.createDropItem();
+            ItemStackTemplate codeLayItem = chicken.layItemTemplate();
+            ItemStackTemplate codeDropItem = chicken.dropItemTemplate();
 
-            ItemStack layItem = readItemStack(props,
+            ItemStackTemplate layItem = readItemStack(props,
                     prefix + "eggItem",
                     prefix + "eggCount",
                     prefix + "eggType",
@@ -453,24 +454,20 @@ public final class ChickensDataLoader {
             // Only apply the cfg value if it matches the code-defined item —
             // if someone manually edited the cfg to a different item, respect that;
             // otherwise always trust the code.
-            if (layItem.getItem() == codeLayItem.getItem()) {
-                ItemStack configuredLayItem = codeLayItem.copy();
-                configuredLayItem.setCount(layItem.getCount());
-                chicken.setLayItem(configuredLayItem);
+            if (layItem.item().equals(codeLayItem.item())) {
+                chicken.setLayItem(codeLayItem.withCount(layItem.count()));
             } else {
                 chicken.setLayItem(layItem);
             }
 
-            ItemStack dropItem = readItemStack(props,
+            ItemStackTemplate dropItem = readItemStack(props,
                     prefix + "dropItem",
                     prefix + "dropCount",
                     prefix + "dropType",
                     codeDropItem);
             // Same logic: only override if the cfg item differs from code.
-            if (dropItem.getItem() == codeDropItem.getItem()) {
-                ItemStack configuredDropItem = codeDropItem.copy();
-                configuredDropItem.setCount(dropItem.getCount());
-                chicken.setDropItem(configuredDropItem);
+            if (dropItem.item().equals(codeDropItem.item())) {
+                chicken.setDropItem(codeDropItem.withCount(dropItem.count()));
             } else {
                 chicken.setDropItem(dropItem);
             }
@@ -537,32 +534,25 @@ public final class ChickensDataLoader {
         }
     }
 
-    private static ItemStack readItemStack(Properties props, String itemKey, String countKey, String typeKey, ItemStack fallback) {
+    private static ItemStackTemplate readItemStack(Properties props, String itemKey, String countKey, String typeKey, ItemStackTemplate fallback) {
         String defaultItemId = getItemId(fallback);
         String itemId = readItemId(props, itemKey, defaultItemId);
-        int count = readItemCount(props, countKey, fallback.getCount());
-        ItemStack stack = decodeItemStack(itemId, count);
-        if (stack.isEmpty()) {
+        int count = readItemCount(props, countKey, fallback.count());
+        ItemStackTemplate stack = decodeItemStack(itemId, count);
+        if (stack == null) {
             // Persist defaults so the written configuration mirrors the in-game values.
             props.setProperty(itemKey, defaultItemId);
-            props.setProperty(countKey, Integer.toString(fallback.getCount()));
+            props.setProperty(countKey, Integer.toString(fallback.count()));
             if (typeKey != null) {
                 props.setProperty(typeKey, Integer.toString(readDefaultType(fallback)));
             }
-            return fallback.copy();
-        }
-
-        int maxStackSize = stack.getMaxStackSize();
-        if (stack.getCount() > maxStackSize) {
-            LOGGER.warn("Configured {} count {} exceeds its stack limit {}; using {}", itemId, stack.getCount(), maxStackSize,
-                    maxStackSize);
-            stack.setCount(maxStackSize);
+            return fallback;
         }
 
         if (requiresChickenType(stack)) {
             int defaultType = readDefaultType(fallback);
             int type = typeKey != null ? readItemType(props, itemKey, typeKey, defaultType) : defaultType;
-            ChickenItemHelper.setChickenType(stack, type);
+            stack = ChickenItemHelper.typedTemplate(stack.item().value(), type).withCount(stack.count());
             if (typeKey != null) {
                 props.setProperty(typeKey, Integer.toString(type));
             }
@@ -571,19 +561,16 @@ public final class ChickensDataLoader {
         }
 
         props.setProperty(itemKey, getItemId(stack));
-        props.setProperty(countKey, Integer.toString(stack.getCount()));
+        props.setProperty(countKey, Integer.toString(stack.count()));
         return stack;
     }
 
-    private static int readDefaultType(ItemStack fallback) {
+    private static int readDefaultType(ItemStackTemplate fallback) {
         return requiresChickenType(fallback) ? ChickenItemHelper.getChickenType(fallback) : 0;
     }
 
-    private static boolean requiresChickenType(ItemStack stack) {
-        if (stack.isEmpty()) {
-            return false;
-        }
-        Item item = stack.getItem();
+    private static boolean requiresChickenType(ItemStackTemplate stack) {
+        Item item = stack.item().value();
         return item == ModRegistry.LIQUID_EGG.get()
                 || item == ModRegistry.CHEMICAL_EGG.get()
                 || item == ModRegistry.GAS_EGG.get()
@@ -652,25 +639,26 @@ public final class ChickensDataLoader {
         }
     }
 
-    private static ItemStack decodeItemStack(String itemId, int count) {
+    @Nullable
+    private static ItemStackTemplate decodeItemStack(String itemId, int count) {
         if (itemId == null || itemId.isEmpty()) {
-            return ItemStack.EMPTY;
+            return null;
         }
-        ResourceLocation id = ResourceLocation.tryParse(itemId);
+        Identifier id = Identifier.tryParse(itemId);
         if (id == null) {
             LOGGER.warn("Malformed item identifier '{}' in configuration", itemId);
-            return ItemStack.EMPTY;
+            return null;
         }
-        Item item = BuiltInRegistries.ITEM.get(id);
-        if (item == null) {
+        Item item = BuiltInRegistries.ITEM.getValue(id);
+        if (item == null || item == Items.AIR) {
             LOGGER.warn("Unknown item '{}' referenced in configuration", itemId);
-            return ItemStack.EMPTY;
+            return null;
         }
-        return new ItemStack(item, Math.max(count, 1));
+        return new ItemStackTemplate(item, Math.max(count, 1));
     }
 
-    private static String getItemId(ItemStack stack) {
-        ResourceLocation key = BuiltInRegistries.ITEM.getKey(stack.getItem());
+    private static String getItemId(ItemStackTemplate stack) {
+        Identifier key = BuiltInRegistries.ITEM.getKey(stack.item().value());
         return key != null ? key.toString() : "minecraft:air";
     }
 

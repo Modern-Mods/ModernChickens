@@ -19,12 +19,12 @@ import mcp.mobius.waila.api.IPluginConfig;
 import mcp.mobius.waila.api.ITooltip;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.core.BlockPos;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import strhercules.chickens.client.render.ClientFluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.text.NumberFormat;
@@ -35,7 +35,7 @@ import java.util.Locale;
  * mirroring Mekanism's WTHIT overlay.
  */
 public final class HudTooltipRenderer implements IBlockComponentProvider {
-    public static final ResourceLocation HUD_TAG = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
+    public static final Identifier HUD_TAG = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
 
     @Override
     public void appendBody(ITooltip tooltip, IBlockAccessor accessor, IPluginConfig config) {
@@ -84,7 +84,7 @@ public final class HudTooltipRenderer implements IBlockComponentProvider {
                 ? Component.translatable("tooltip.chickens.avian_dousing_machine.empty")
                 : Component.literal(String.format("%s: %s mB", stack.getHoverName().getString(), formatCompact(amount)));
         TextureAtlasSprite sprite = resolveFluidSprite(stack);
-        int tint = stack.isEmpty() ? 0xFF6F6F6F : (IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack) | 0xFF000000);
+        int tint = stack.isEmpty() ? 0xFF6F6F6F : (ClientFluids.tint(stack) | 0xFF000000);
         return new HudBarComponent(text, sprite, tint, amount / (float) capacity);
     }
 
@@ -101,7 +101,7 @@ public final class HudTooltipRenderer implements IBlockComponentProvider {
             tint = 0xFF6F6F6F;
         } else {
             text = Component.literal(String.format("%s: %s mB", item.getDisplayName().getString(), formatCompact(amount)));
-            sprite = getAtlas().getSprite(item.getTexture());
+            sprite = ClientFluids.blockSprite(item.getTexture());
             tint = 0xFF000000 | item.getEggColor();
         }
         return new HudBarComponent(text, sprite, tint, amount / (float) capacity);
@@ -111,39 +111,19 @@ public final class HudTooltipRenderer implements IBlockComponentProvider {
         long capacity = Math.max(entry.capacity(), 1L);
         long energy = Math.max(entry.energy(), 0L);
         Component text = Component.literal(String.format("%s / %s", formatEnergy(energy), formatEnergy(capacity)));
-        TextureAtlasSprite sprite = getAtlas().getSprite(ResourceLocation.withDefaultNamespace("block/redstone_block"));
+        TextureAtlasSprite sprite = ClientFluids.blockSprite(Identifier.withDefaultNamespace("block/redstone_block"));
         return new HudBarComponent(text, sprite, 0xFFE6C63E, (float) Math.min(1.0, energy / (double) capacity));
     }
 
     private static TextureAtlasSprite resolveFluidSprite(FluidStack stack) {
         if (stack.isEmpty()) {
-            return getAtlas().getSprite(ResourceLocation.withDefaultNamespace("block/water_still"));
+            return ClientFluids.blockSprite(Identifier.withDefaultNamespace("block/water_still"));
         }
-        IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
-        BlockPos pos = BlockPos.ZERO;
-        LocalPlayer player = Minecraft.getInstance().player;
-        if (player != null) {
-            pos = player.blockPosition();
-        }
-        ResourceLocation texture = null;
-        if (Minecraft.getInstance().level != null) {
-            texture = extensions.getStillTexture(stack.getFluid().defaultFluidState(), Minecraft.getInstance().level, pos);
-            if (texture == null) {
-                texture = extensions.getFlowingTexture(stack.getFluid().defaultFluidState(), Minecraft.getInstance().level, pos);
-            }
-        }
-        if (texture == null) {
-            texture = ResourceLocation.withDefaultNamespace("block/water_still");
-        }
-        return getAtlas().getSprite(texture);
-    }
-
-    private static TextureAtlas getAtlas() {
-        return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS);
+        return ClientFluids.stillSprite(stack.getFluid());
     }
 
     private static TextureAtlasSprite getMissingSprite() {
-        return Minecraft.getInstance().getModelManager().getMissingModel().getParticleIcon();
+        return ClientFluids.blockSprite(MissingTextureAtlasSprite.getLocation());
     }
 
     private static ChemicalEggRegistryItem resolveChemical(int id) {

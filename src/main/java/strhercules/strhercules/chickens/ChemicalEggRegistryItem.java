@@ -1,7 +1,7 @@
 package strhercules.chickens;
 
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.Collections;
 import java.util.EnumSet;
@@ -14,8 +14,8 @@ import java.util.Set;
  */
 public final class ChemicalEggRegistryItem {
     private final int id;
-    private final ResourceLocation chemicalId;
-    private final ResourceLocation texture;
+    private final Identifier chemicalId;
+    private final Identifier texture;
     private final Component displayName;
     private int eggColor;
     private int volume;
@@ -23,8 +23,8 @@ public final class ChemicalEggRegistryItem {
     private final boolean gaseous;
 
     public ChemicalEggRegistryItem(int id,
-                                   ResourceLocation chemicalId,
-                                   ResourceLocation texture,
+                                   Identifier chemicalId,
+                                   Identifier texture,
                                    Component displayName,
                                    int eggColor,
                                    int volume,
@@ -46,11 +46,11 @@ public final class ChemicalEggRegistryItem {
         return id;
     }
 
-    public ResourceLocation getChemicalId() {
+    public Identifier getChemicalId() {
         return chemicalId;
     }
 
-    public ResourceLocation getTexture() {
+    public Identifier getTexture() {
         return texture;
     }
 

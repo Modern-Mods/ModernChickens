@@ -5,6 +5,7 @@ import strhercules.chickens.blockentity.AbstractChickenContainerBlockEntity;
 import strhercules.chickens.blockentity.CollectorBlockEntity;
 import strhercules.chickens.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -35,8 +36,8 @@ import javax.annotation.Nullable;
 public class CollectorBlock extends Block implements EntityBlock {
     public static final MapCodec<CollectorBlock> CODEC = simpleCodec(CollectorBlock::new);
 
-    public CollectorBlock() {
-        this(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5F, 6.0F).sound(SoundType.WOOD));
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.5F, 6.0F).sound(SoundType.WOOD);
     }
 
     public CollectorBlock(BlockBehaviour.Properties properties) {
@@ -57,7 +58,7 @@ public class CollectorBlock extends Block implements EntityBlock {
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         if (type != ModBlockEntities.COLLECTOR.get()) {
@@ -76,22 +77,15 @@ public class CollectorBlock extends Block implements EntityBlock {
         if (!(blockEntity instanceof CollectorBlockEntity collector)) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(collector, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof CollectorBlockEntity collector) {
-                Containers.dropContents(level, pos, collector.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override

@@ -3,29 +3,31 @@ package strhercules.chickens.client.render.blockentity;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
+import strhercules.chickens.client.render.ClientFluids;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.HorizontalDirectionalBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.material.FluidState;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /** Shared tank/interior rendering for the transparent avian machines. */
-abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity> implements BlockEntityRenderer<T> {
+abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity>
+        implements BlockEntityRenderer<T, AvianMachineRenderState> {
     protected static final float SURFACE_EPSILON = 1.0F / 256.0F;
     protected static final float TANK_MIN = SURFACE_EPSILON;
     protected static final float TANK_MAX = 1.0F - SURFACE_EPSILON;
@@ -41,15 +43,23 @@ abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity> implements
     private static final float DIVIDER_EPSILON = 1.0F / 256.0F;
     private static final int CONTENT_ALPHA = 210;
     private static final int INTERIOR_COLOR = 0xFFFFFFFF;
-    private static final ResourceLocation INTERIOR_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath("chickens", "block/machines/fluid_pump_interior");
+    private static final Identifier INTERIOR_TEXTURE =
+            Identifier.fromNamespaceAndPath("chickens", "block/machines/fluid_pump_interior");
 
     protected AvianMachineBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
     }
 
     @Override
-    public final void render(T machine, float partialTicks, PoseStack poseStack,
-            MultiBufferSource buffer, int packedLight, int packedOverlay) {
+    public AvianMachineRenderState createRenderState() {
+        return new AvianMachineRenderState();
+    }
+
+    @Override
+    public final void extractRenderState(T machine, AvianMachineRenderState renderState, float partialTicks,
+            Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(machine, renderState, partialTicks, cameraPosition, breakProgress);
+        renderState.tanks.clear();
+        renderState.lit = false;
         BlockState state = machine.getBlockState();
         if (!state.hasProperty(BlockStateProperties.LIT)
                 || !state.getValue(BlockStateProperties.LIT)) {
@@ -61,26 +71,47 @@ abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity> implements
             return;
         }
 
-        TextureAtlas atlas = Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS);
+        renderState.lit = true;
+        renderState.rotation = getModelRotation(state.getValue(HorizontalDirectionalBlock.FACING));
+        renderState.divider = hasDivider();
+        renderState.interior = ClientFluids.blockSprite(INTERIOR_TEXTURE);
+        extractStoredContents(machine, level, renderState);
+    }
+
+    @Override
+    public final void submit(AvianMachineRenderState state, PoseStack poseStack,
+            SubmitNodeCollector submitNodeCollector, CameraRenderState camera) {
+        if (!state.lit) {
+            return;
+        }
+        int packedLight = state.lightCoords;
+        int packedOverlay = OverlayTexture.NO_OVERLAY;
+        TextureAtlasSprite interior = state.interior;
         poseStack.pushPose();
         poseStack.translate(0.5D, 0.0D, 0.5D);
-        poseStack.mulPose(Axis.YP.rotationDegrees(getModelRotation(
-                state.getValue(HorizontalDirectionalBlock.FACING))));
+        poseStack.mulPose(Axis.YP.rotationDegrees(state.rotation));
         poseStack.translate(-0.5D, 0.0D, -0.5D);
 
-        TextureAtlasSprite interior = atlas.getSprite(INTERIOR_TEXTURE);
-        VertexConsumer wallConsumer = buffer.getBuffer(RenderType.solid());
-        renderBackWall(wallConsumer, poseStack.last(), interior, packedLight, packedOverlay);
-        renderHorizontalWall(wallConsumer, poseStack.last(), interior, INTERIOR_BOTTOM, packedLight, packedOverlay);
-        renderHorizontalWall(wallConsumer, poseStack.last(), interior, INTERIOR_TOP, packedLight, packedOverlay);
-        renderSideWall(wallConsumer, poseStack.last(), interior, INTERIOR_SIDE_MIN, packedLight, packedOverlay);
-        renderSideWall(wallConsumer, poseStack.last(), interior, INTERIOR_SIDE_MAX, packedLight, packedOverlay);
-        if (hasDivider()) {
-            renderDivider(wallConsumer, poseStack.last(), interior, packedLight, packedOverlay);
-        }
+        submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.solidMovingBlock(), (pose, wallConsumer) -> {
+            renderBackWall(wallConsumer, pose, interior, packedLight, packedOverlay);
+            renderHorizontalWall(wallConsumer, pose, interior, INTERIOR_BOTTOM, packedLight, packedOverlay);
+            renderHorizontalWall(wallConsumer, pose, interior, INTERIOR_TOP, packedLight, packedOverlay);
+            renderSideWall(wallConsumer, pose, interior, INTERIOR_SIDE_MIN, packedLight, packedOverlay);
+            renderSideWall(wallConsumer, pose, interior, INTERIOR_SIDE_MAX, packedLight, packedOverlay);
+            if (state.divider) {
+                renderDivider(wallConsumer, pose, interior, packedLight, packedOverlay);
+            }
+        });
 
-        VertexConsumer tankConsumer = buffer.getBuffer(RenderType.translucent());
-        renderStoredContents(machine, level, atlas, tankConsumer, poseStack.last(), packedLight, packedOverlay);
+        if (!state.tanks.isEmpty()) {
+            submitNodeCollector.submitCustomGeometry(poseStack, RenderTypes.translucentMovingBlock(),
+                    (pose, tankConsumer) -> {
+                        for (AvianMachineRenderState.Tank tank : state.tanks) {
+                            renderTankContents(tankConsumer, pose, tank.contents(), tank.x0(), tank.x1(),
+                                    packedLight, packedOverlay);
+                        }
+                    });
+        }
         poseStack.popPose();
     }
 
@@ -88,38 +119,29 @@ abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity> implements
         return false;
     }
 
-    protected abstract void renderStoredContents(T machine, Level level, TextureAtlas atlas,
-            VertexConsumer consumer, PoseStack.Pose pose, int packedLight, int packedOverlay);
+    protected abstract void extractStoredContents(T machine, Level level, AvianMachineRenderState state);
 
-    protected static void renderTankContents(TextureAtlas atlas, VertexConsumer consumer, PoseStack.Pose pose,
-            @Nullable TankContents contents, float x0, float x1, int packedLight, int packedOverlay) {
-        if (contents == null || contents.amount() <= 0 || contents.capacity() <= 0) {
-            return;
+    protected static void addTank(AvianMachineRenderState state, @Nullable TankContents contents, float x0, float x1) {
+        if (contents != null && contents.amount() > 0 && contents.capacity() > 0) {
+            state.tanks.add(new AvianMachineRenderState.Tank(contents, x0, x1));
         }
+    }
+
+    private static void renderTankContents(VertexConsumer consumer, PoseStack.Pose pose,
+            TankContents contents, float x0, float x1, int packedLight, int packedOverlay) {
         float fill = Mth.clamp(contents.amount() / (float) contents.capacity(), 0.0F, 1.0F);
         float top = Mth.lerp(fill, TANK_BOTTOM, TANK_TOP);
-        TextureAtlasSprite sprite = atlas.getSprite(contents.texture());
-        renderTank(consumer, pose, sprite, x0, TANK_BOTTOM, TANK_MIN,
+        renderTank(consumer, pose, contents.sprite(), x0, TANK_BOTTOM, TANK_MIN,
                 x1, top, TANK_MAX, contents.tint(), packedLight, packedOverlay);
     }
 
     @Nullable
-    protected static TankContents resolveFluidContents(FluidStack fluid, int amount, int capacity,
-            Level level, BlockEntity machine) {
+    protected static TankContents resolveFluidContents(FluidStack fluid, int amount, int capacity) {
         if (fluid.isEmpty() || amount <= 0) {
             return null;
         }
-        FluidState state = fluid.getFluid().defaultFluidState();
-        IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(fluid.getFluid());
-        ResourceLocation texture = extensions.getStillTexture(state, level, machine.getBlockPos());
-        if (texture == null) {
-            texture = extensions.getFlowingTexture(state, level, machine.getBlockPos());
-        }
-        if (texture == null) {
-            return null;
-        }
-        int tint = extensions.getTintColor(state, level, machine.getBlockPos());
-        return new TankContents(texture, tint, amount, capacity);
+        return new TankContents(ClientFluids.stillSprite(fluid.getFluid()), ClientFluids.tint(fluid), amount,
+                capacity);
     }
 
     private static float getModelRotation(Direction facing) {
@@ -258,6 +280,6 @@ abstract class AvianMachineBlockEntityRenderer<T extends BlockEntity> implements
                 .setNormal(pose, normalX, normalY, normalZ);
     }
 
-    protected record TankContents(ResourceLocation texture, int tint, int amount, int capacity) {
+    protected record TankContents(TextureAtlasSprite sprite, int tint, int amount, int capacity) {
     }
 }

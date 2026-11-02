@@ -9,7 +9,7 @@ import strhercules.chickens.item.GasEggItem;
 import strhercules.chickens.registry.ModMenuTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
@@ -192,7 +192,7 @@ public class AvianChemicalConverterMenu extends AbstractContainerMenu implements
     }
 
     @Nullable
-    public ResourceLocation getChemicalId() {
+    public Identifier getChemicalId() {
         return converter != null ? converter.getChemicalId() : null;
     }
 
@@ -216,7 +216,7 @@ public class AvianChemicalConverterMenu extends AbstractContainerMenu implements
     }
 
     private boolean isServerSide() {
-        return converter != null && converter.getLevel() != null && !converter.getLevel().isClientSide;
+        return converter != null && converter.getLevel() != null && !converter.getLevel().isClientSide();
     }
 
     private int getServerAmount() {

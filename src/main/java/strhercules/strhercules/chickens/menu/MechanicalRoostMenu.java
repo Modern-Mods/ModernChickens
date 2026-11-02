@@ -199,7 +199,7 @@ public class MechanicalRoostMenu extends AbstractContainerMenu implements SideCo
     }
 
     private boolean isServerSide() {
-        return roost.getLevel() != null && !roost.getLevel().isClientSide;
+        return roost.getLevel() != null && !roost.getLevel().isClientSide();
     }
 
     private int getServerEnergy() {

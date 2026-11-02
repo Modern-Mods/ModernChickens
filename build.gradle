@@ -3,7 +3,7 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'maven-publish'
-    id 'net.neoforged.moddev' version '2.0.143'
+    id 'net.neoforged.moddev' version '2.0.148'
 }
 
 version = "${minecraft_version}-${mod_version}-${tag_lanzador}"
@@ -12,8 +12,8 @@ base {
     archivesName = "${mod_name}"
 }
 
-// Mojang ships Java 21 to end users in 1.20.5+, so your mod should target Java 21.
-java.toolchain.languageVersion = JavaLanguageVersion.of(21)
+// Minecraft 26.1 runs on Java 25, so the mod targets Java 25.
+java.toolchain.languageVersion = JavaLanguageVersion.of(25)
 
 sourceSets.main.resources {
     srcDir 'src/generated/resources'
@@ -44,7 +44,7 @@ neoForge {
         }
 
         data {
-            data()
+            clientData()
             // Specify the modid for data generation, where to output the resulting resource, and where to look for existing resources.
             programArguments.addAll '--mod', project.mod_id, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
         }
@@ -116,52 +116,25 @@ repositories {
 
 dependencies {
     // JEI
-    compileOnly "mezz.jei:jei-${minecraft_version}-common-api:${jei_version}"
-    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:${jei_version}"
-    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-common-api:${jei_version}"
+    compileOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge-api:${jei_version}"
+    runtimeOnly "mezz.jei:jei-${jei_minecraft_version}-neoforge:${jei_version}"
 
     // WTHIT API
-    compileOnly "mcp.mobius.waila:wthit-api:neo-${project.wthit_version}"
+    compileOnly "mcp.mobius.waila:wthit-api:neo-${wthit_version}"
 
     // Jade
-    compileOnly "maven.modrinth:jade:${project.jade_version}"
-    implementation "maven.modrinth:jade:${project.jade_version}"
+    compileOnly "maven.modrinth:jade:${jade_version}"
+    runtimeOnly "maven.modrinth:jade:${jade_version}"
 
-    // Patchouli
-    compileOnly "vazkii.patchouli:Patchouli:${patchouli_version}:api"
-    runtimeOnly "vazkii.patchouli:Patchouli:${patchouli_version}"
+    // Patchouli only provides the guidebook data at runtime, nothing in the code uses its API
+    runtimeOnly "maven.modrinth:patchouli:${patchouli_version}"
 
-    // AlmostUnified
-    implementation "com.almostreliable.mods:almostunified-neoforge:${au_version}"
-
-    // ultimate armoury: tools and weapons
-    implementation "curse.maven:ultimate-armoury-tools-and-weapons-1736634:${ultimatearmoury_version}"
-
-    // Thaumaturge and Astral Sorcery are loaded from a local mods folder and skipped when it is missing.
-    def devModsDir = new File(project.findProperty('dev_mods_dir') ?: "${System.getProperty('user.home')}/curseforge/minecraft/Instances/Endless World/mods")
-    ['curios-neoforge-9.5.1+1.21.1.jar',
-     'lithostitched-1.8.1-neoforge-21.1.jar',
-     'observerlib-1.10.3.jar',
-     'thaumaturge-1.21.1-NeoForge-1.0.2.jar',
-     'AstralSorcery-2.0.2.39.jar'].each { jarName ->
-        def devJar = new File(devModsDir, jarName)
-        if (devJar.exists()) {
-            runtimeOnly files(devJar)
-        }
-    }
-
-    // KubeJS 
+    // KubeJS
     compileOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
     compileOnly "dev.latvian.mods:rhino:${rhino_version}"
-     implementation "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
-     implementation "dev.latvian.mods:rhino:${rhino_version}"
-
-  // ------ [   DATAGEN DEPENDENCY MODS ] ------ //
-
-    // Mekanism
-    implementation("mekanism:Mekanism:${minecraft_version}-${mekanism_version}")
-    runtimeOnly("mekanism:Mekanism:${minecraft_version}-${mekanism_version}:generators")
-    compileOnly("mekanism:Mekanism:${minecraft_version}-${mekanism_version}:generators")
+    runtimeOnly "dev.latvian.mods:kubejs-neoforge:${kubejs_version}"
+    runtimeOnly "dev.latvian.mods:rhino:${rhino_version}"
 }
 
 test {
@@ -172,6 +145,7 @@ tasks.withType(ProcessResources).configureEach {
     var replaceProperties = [
         minecraft_version: minecraft_version,
         neoforge_version: neoforge_version,
+        minecraft_version_range: minecraft_version_range,
         loader_version_range: loader_version_range,
         mod_id: mod_id,
         mod_named: mod_named,
@@ -212,5 +186,6 @@ idea {
 
 tasks.withType(JavaCompile).configureEach {
     options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
-    options.getRelease().set(21)
+    options.compilerArgs += ['-Xmaxerrs', '5000', '-Xmaxwarns', '1']
+    options.getRelease().set(25)
 }

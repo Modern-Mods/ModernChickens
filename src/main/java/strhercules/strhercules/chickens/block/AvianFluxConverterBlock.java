@@ -10,6 +10,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -17,9 +18,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.Item.TooltipContext;
-import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TypedEntityData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
@@ -34,12 +33,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -48,18 +47,18 @@ import javax.annotation.Nullable;
  * persistent buffer. The block mirrors the legacy roost machines by exposing a
  * menu, dropping its inventory, and respecting comparator output updates.
  */
-public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implements EntityBlock {
+public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implements EntityBlock, BlockItemTooltip {
     public static final MapCodec<AvianFluxConverterBlock> CODEC = simpleCodec(AvianFluxConverterBlock::new);
-    public static final DirectionProperty FACING = HorizontalDirectionalBlock.FACING;
+    public static final EnumProperty<Direction> FACING = HorizontalDirectionalBlock.FACING;
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public AvianFluxConverterBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.WOOD)
                 .strength(2.5F, 6.0F)
                 .sound(SoundType.WOOD)
                 .noOcclusion()
-                .lightLevel(state -> state.getValue(LIT) ? 7 : 0));
+                .lightLevel(state -> state.getValue(LIT) ? 7 : 0);
     }
 
     public AvianFluxConverterBlock(BlockBehaviour.Properties properties) {
@@ -83,7 +82,7 @@ public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implemen
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         if (type != ModBlockEntities.AVIAN_FLUX_CONVERTER.get()) {
@@ -102,22 +101,15 @@ public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implemen
         if (!(blockEntity instanceof AvianFluxConverterBlockEntity converter)) {
             return InteractionResult.PASS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(converter, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof AvianFluxConverterBlockEntity converter) {
-                Containers.dropContents(level, pos, converter.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override
@@ -154,10 +146,10 @@ public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implemen
         if (MachineBlockHelper.canHarvestWith(tool)) {
             // Preserve the converter's stored RF by copying the block entity data into the
             // dropped item so the machine resumes with the same buffer when replaced.
-            if (!level.isClientSide && !player.isCreative()) {
+            if (!level.isClientSide() && !player.isCreative()) {
                 ItemStack drop = new ItemStack(this);
                 if (blockEntity instanceof AvianFluxConverterBlockEntity converter) {
-                    converter.saveToItem(drop, level.registryAccess());
+                    MachineBlockHelper.saveToItem(drop, converter, level.registryAccess());
                     var customName = converter.getCustomName();
                     if (customName != null) {
                         drop.set(DataComponents.CUSTOM_NAME, customName);
@@ -171,27 +163,27 @@ public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendItemTooltip(ItemStack stack, Consumer<Component> tooltip) {
         // Surface the baseline description so players can recall the machine's purpose without
         // visiting the manual or patch notes.
-        tooltip.add(Component.translatable("tooltip.chickens.avian_flux_converter"));
+        tooltip.accept(Component.translatable("tooltip.chickens.avian_flux_converter"));
 
         int capacity = Math.max(1, ChickensConfigHolder.get().getAvianFluxCapacity());
         int energy = 0;
 
-        CustomData blockEntityData = stack.getOrDefault(DataComponents.BLOCK_ENTITY_DATA, CustomData.EMPTY);
-        if (!blockEntityData.isEmpty()) {
-            CompoundTag tag = blockEntityData.copyTag();
+        TypedEntityData<BlockEntityType<?>> blockEntityData = stack.get(DataComponents.BLOCK_ENTITY_DATA);
+        if (blockEntityData != null) {
+            CompoundTag tag = blockEntityData.copyTagWithoutId();
             if (tag.contains("Capacity")) {
-                capacity = Math.max(1, tag.getInt("Capacity"));
+                capacity = Math.max(1, tag.getIntOr("Capacity", 0));
             }
             if (tag.contains("Energy")) {
-                energy = Math.max(0, tag.getInt("Energy"));
+                energy = Math.max(0, tag.getIntOr("Energy", 0));
             }
         }
 
         // Display the stored RF so the item mirrors the GUI readout and the WTHIT overlay.
-        tooltip.add(Component.translatable("tooltip.chickens.avian_flux_converter.energy", energy, capacity));
+        tooltip.accept(Component.translatable("tooltip.chickens.avian_flux_converter.energy", energy, capacity));
     }
 
     @Override
@@ -211,12 +203,12 @@ public class AvianFluxConverterBlock extends HorizontalDirectionalBlock implemen
     }
 
     @Override
-    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos) {
+    public int getAnalogOutputSignal(BlockState state, Level level, BlockPos pos, Direction direction) {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         if (blockEntity instanceof AvianFluxConverterBlockEntity converter) {
             return converter.getComparatorOutput();
         }
-        return super.getAnalogOutputSignal(state, level, pos);
+        return super.getAnalogOutputSignal(state, level, pos, direction);
     }
 
     @Override

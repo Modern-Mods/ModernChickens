@@ -1,10 +1,11 @@
 package strhercules.chickens.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.resources.language.I18n;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.network.chat.Component;
 import net.neoforged.fml.loading.FMLPaths;
 
@@ -196,8 +197,10 @@ public final class ChickensConfigScreen extends Screen {
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        if (button == 0 && hasScrollbar() && isOverScrollbar(mouseX, mouseY)) {
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        double mouseX = event.x();
+        double mouseY = event.y();
+        if (event.button() == 0 && hasScrollbar() && isOverScrollbar(mouseX, mouseY)) {
             int thumbY = scrollbarThumbY();
             int thumbHeight = scrollbarThumbHeight();
             scrollbarDragOffset = mouseY >= thumbY && mouseY < thumbY + thumbHeight
@@ -207,25 +210,25 @@ public final class ChickensConfigScreen extends Screen {
             updateScrollFromMouse(mouseY - scrollbarDragOffset);
             return true;
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     @Override
-    public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-        if (draggingScrollbar && button == 0) {
-            updateScrollFromMouse(mouseY - scrollbarDragOffset);
+    public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+        if (draggingScrollbar && event.button() == 0) {
+            updateScrollFromMouse(event.y() - scrollbarDragOffset);
             return true;
         }
-        return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+        return super.mouseDragged(event, dragX, dragY);
     }
 
     @Override
-    public boolean mouseReleased(double mouseX, double mouseY, int button) {
-        if (button == 0 && draggingScrollbar) {
+    public boolean mouseReleased(MouseButtonEvent event) {
+        if (event.button() == 0 && draggingScrollbar) {
             draggingScrollbar = false;
             return true;
         }
-        return super.mouseReleased(mouseX, mouseY, button);
+        return super.mouseReleased(event);
     }
 
     private boolean hasScrollbar() {
@@ -290,8 +293,7 @@ public final class ChickensConfigScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        renderBackground(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
         for (int slot = 0; slot < valueBoxes.size(); slot++) {
             int entryIndex = boundEntries[slot];
             if (entryIndex < 0 || entryIndex >= filteredEntries.size()) {
@@ -303,17 +305,17 @@ public final class ChickensConfigScreen extends Screen {
                     color);
         }
 
-        super.render(graphics, mouseX, mouseY, partialTicks);
-        graphics.drawCenteredString(font, title, width / 2, 8, 0xFFFFFF);
-        graphics.drawString(font, Component.translatable("screen.chickens.config.search_label"), panelLeft + 8,
-                16, 0xA0A0A0);
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
+        graphics.centeredText(font, title, width / 2, 8, 0xFFFFFFFF);
+        graphics.text(font, Component.translatable("screen.chickens.config.search_label"), panelLeft + 8,
+                16, 0xFFA0A0A0);
         for (int slot = 0; slot < valueBoxes.size(); slot++) {
             int entryIndex = boundEntries[slot];
             if (entryIndex < 0 || entryIndex >= filteredEntries.size()) {
                 continue;
             }
-            graphics.drawString(font, labelFor(filteredEntries.get(entryIndex)), panelLeft + 8,
-                    CONTENT_TOP + slot * ROW_HEIGHT + 7, 0xFFFFFF);
+            graphics.text(font, labelFor(filteredEntries.get(entryIndex)), panelLeft + 8,
+                    CONTENT_TOP + slot * ROW_HEIGHT + 7, 0xFFFFFFFF);
         }
         if (hasScrollbar()) {
             int scrollbarX = scrollbarX();
@@ -323,8 +325,8 @@ public final class ChickensConfigScreen extends Screen {
                     thumbY + scrollbarThumbHeight(), draggingScrollbar ? 0xFFFFFFFF : 0xFFAAAAAA);
         }
         Component footer = error != null ? error : Component.translatable("screen.chickens.config.restart");
-        graphics.drawString(font, footer, panelLeft + 8, height - 18,
-                error != null ? 0xFF5555 : 0xA0A0A0);
+        graphics.text(font, footer, panelLeft + 8, height - 18,
+                error != null ? 0xFFFF5555 : 0xFFA0A0A0);
     }
 
     private static Component labelFor(ConfigEntry entry) {

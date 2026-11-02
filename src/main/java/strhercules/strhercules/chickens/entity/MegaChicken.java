@@ -7,9 +7,8 @@ import strhercules.chickens.item.ChickenStats;
 import strhercules.chickens.item.MegaChickenItem;
 import strhercules.chickens.item.MegaChickenSkinCrateItem;
 import strhercules.chickens.registry.ModRegistry;
+import com.mojang.serialization.Codec;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -24,8 +23,11 @@ import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityDimensions;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -36,8 +38,10 @@ import net.minecraft.world.entity.ai.goal.PanicGoal;
 import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
 import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.ai.goal.WaterAvoidingRandomStrollGoal;
+import net.minecraft.world.entity.animal.chicken.ChickenSoundVariant;
+import net.minecraft.world.entity.animal.chicken.ChickenSoundVariants;
 import net.minecraft.world.entity.animal.Animal;
-import net.minecraft.world.entity.animal.horse.AbstractChestedHorse;
+import net.minecraft.world.entity.animal.equine.AbstractChestedHorse;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -46,7 +50,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.enchantment.EnchantmentEffectComponents;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.Container;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.MenuProvider;
@@ -54,11 +57,16 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.event.entity.living.LivingFallEvent;
 import strhercules.chickens.menu.MegaChickenMenu;
 
 import javax.annotation.Nullable;
+
+import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The rare, rideable wild chicken. Horse inheritance supplies the native saddle,
@@ -85,6 +93,8 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     private static final String TAG_TAMING_SEEDS_REQUIRED = "TamingSeedsRequired";
     private static final String TAG_TAMING_SEEDS_GIVEN = "TamingSeedsGiven";
     private static final String TAG_FLYING_EGG = "FlyingEgg";
+    private static final String TAG_CARGO_LAYOUT = "MegaChickenCargoLayout";
+    private static final String TAG_LEGACY_SADDLE = "SaddleItem";
     private static final int DEFAULT_APPEARANCE_TYPE = -1;
     public static final int ROBOT_SKIN_NONE = 0;
     public static final int ROBOT_SKIN_CHICKEN = 1;
@@ -109,7 +119,10 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     private static final EntityDataAccessor<Boolean> DATA_FLIGHT_ACTIVE = SynchedEntityData.defineId(
             MegaChicken.class, EntityDataSerializers.BOOLEAN);
 
-    private final SimpleContainer chestEquipment = new SimpleContainer(3);
+    private static final ChickenSoundVariant.ChickenSoundSet CLASSIC_SOUNDS = SoundEvents.CHICKEN_SOUNDS
+            .get(ChickenSoundVariants.SoundSet.CLASSIC).adultSounds();
+
+    private final SimpleContainer chestEquipment = new ChangeNotifyingContainer(3, this::syncChestFlags);
     private boolean jumpRequested;
     private boolean diveRequested;
     private boolean airbrakeRequested;
@@ -122,7 +135,27 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
 
     public MegaChicken(EntityType<? extends MegaChicken> type, Level level) {
         super(type, level);
-        this.chestEquipment.addListener(container -> this.syncChestFlags());
+    }
+
+    @Override
+    protected void createInventory() {
+        SimpleContainer previous = this.inventory;
+        this.inventory = new ChangeNotifyingContainer(this.getInventorySize(), this::syncChestFlags);
+        if (previous != null) {
+            int shared = Math.min(previous.getContainerSize(), this.inventory.getContainerSize());
+            for (int slot = 0; slot < shared; slot++) {
+                ItemStack stack = previous.getItem(slot);
+                if (!stack.isEmpty()) {
+                    this.inventory.setItem(slot, stack.copy());
+                }
+            }
+        }
+    }
+
+    @Nullable
+    public UUID getOwnerUUID() {
+        EntityReference<LivingEntity> owner = this.getOwnerReference();
+        return owner == null ? null : owner.getUUID();
     }
 
     @Override
@@ -161,17 +194,17 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
         if (!this.isFood(stack)) {
             return false;
         }
-        if (!this.isTamed() && !this.level().isClientSide) {
+        if (!this.isTamed() && !this.level().isClientSide()) {
             int required = this.getTamingSeedsRequired();
             int given = Math.min(this.entityData.get(DATA_TAMING_SEEDS_GIVEN) + 1, required);
             this.entityData.set(DATA_TAMING_SEEDS_GIVEN, given);
             if (given >= required) {
                 this.tameWithName(player);
             } else {
-                player.displayClientMessage(Component.translatable(
-                        "entity.chickens.mega_chicken.taming_progress", required - given), true);
+                player.sendOverlayMessage(Component.translatable(
+                        "entity.chickens.mega_chicken.taming_progress", required - given));
             }
-        } else if (this.isTamed() && !this.level().isClientSide && this.getHealth() < this.getMaxHealth()) {
+        } else if (this.isTamed() && !this.level().isClientSide() && this.getHealth() < this.getMaxHealth()) {
             this.heal(1.0F);
         }
         return true;
@@ -190,32 +223,32 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
             if (!this.isOwnedByPlayer(player)) {
                 return InteractionResult.PASS;
             }
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.setSkinId(crate.skin().id());
                 held.consume(1, player);
                 this.spawnAppearanceParticles();
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
         if (this.isOwnedByPlayer(player)
                 && (ChickenItemHelper.isRobotChicken(held) || ChickenItemHelper.isRobotRooster(held))) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.setRobotSkin(ChickenItemHelper.isRobotRooster(held)
                         ? ROBOT_SKIN_ROOSTER : ROBOT_SKIN_CHICKEN);
                 held.consume(1, player);
                 this.spawnAppearanceParticles();
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
         ChickensRegistryItem appearance = getAppearanceChicken(held);
         if (this.isTamed() && player.getUUID().equals(this.getOwnerUUID()) && appearance != null) {
-            if (!this.level().isClientSide) {
+            if (!this.level().isClientSide()) {
                 this.setSkinId("");
                 this.setAppearanceType(appearance.getId());
                 held.consume(1, player);
                 this.spawnAppearanceParticles();
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
         if (!this.isVehicle() && this.isTamed() && !this.isBaby() && held.is(Items.CHEST)) {
             int slot = !this.hasRightChest() ? RIGHT_CHEST_SLOT
@@ -224,7 +257,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
                 this.chestEquipment.setItem(slot, new ItemStack(Items.CHEST));
                 held.consume(1, player);
                 this.playChestEquipsSound();
-                return InteractionResult.sidedSuccess(this.level().isClientSide);
+                return InteractionResult.SUCCESS;
             }
         }
         return super.mobInteract(player, hand);
@@ -300,20 +333,20 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
         float current = getScaleAdjustment();
         float updated = Mth.clamp(current + delta, -MAX_SCALE_ADJUSTMENT, MAX_SCALE_ADJUSTMENT);
         if (Mth.equal(current, updated)) {
-            if (!this.level().isClientSide) {
-                player.displayClientMessage(Component.translatable(
+            if (!this.level().isClientSide()) {
+                player.sendOverlayMessage(Component.translatable(
                         delta > 0.0F ? "message.chickens.mega_chicken.scale_max"
-                                : "message.chickens.mega_chicken.scale_min"), true);
+                                : "message.chickens.mega_chicken.scale_min"));
             }
-            return InteractionResult.sidedSuccess(this.level().isClientSide);
+            return InteractionResult.SUCCESS;
         }
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             this.setScaleAdjustment(updated);
             held.consume(1, player);
-            player.displayClientMessage(Component.translatable("message.chickens.mega_chicken.scale",
-                    String.format(java.util.Locale.ROOT, "%.1f", updated)), true);
+            player.sendOverlayMessage(Component.translatable("message.chickens.mega_chicken.scale",
+                    String.format(java.util.Locale.ROOT, "%.1f", updated)));
         }
-        return InteractionResult.sidedSuccess(this.level().isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     public void setScaleAdjustment(float adjustment) {
@@ -333,7 +366,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     @Override
     public void onSyncedDataUpdated(EntityDataAccessor<?> accessor) {
         super.onSyncedDataUpdated(accessor);
-        if (accessor == DATA_SCALE_ADJUSTMENT && this.level().isClientSide) {
+        if (accessor == DATA_SCALE_ADJUSTMENT && this.level().isClientSide()) {
             applyScaleAttribute();
             this.refreshDimensions();
         }
@@ -348,19 +381,19 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     }
 
     public boolean hasRightChest() {
-        return this.level().isClientSide
+        return this.level().isClientSide()
                 ? this.entityData.get(DATA_RIGHT_CHEST)
                 : this.chestEquipment.getItem(RIGHT_CHEST_SLOT).is(Items.CHEST);
     }
 
     public boolean hasLeftChest() {
-        return this.level().isClientSide
+        return this.level().isClientSide()
                 ? this.entityData.get(DATA_LEFT_CHEST)
                 : this.chestEquipment.getItem(LEFT_CHEST_SLOT).is(Items.CHEST);
     }
 
     public boolean hasFlyingEgg() {
-        return this.level().isClientSide
+        return this.level().isClientSide()
                 ? this.entityData.get(DATA_FLYING_EGG)
                 : this.chestEquipment.getItem(FLYING_EGG_SLOT).is(ModRegistry.FLYING_EGG.get());
     }
@@ -370,7 +403,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     }
 
     private void setFlightActive(boolean active) {
-        if (!this.level().isClientSide || this.isControlledByLocalInstance()) {
+        if (!this.level().isClientSide() || this.isLocalInstanceAuthoritative()) {
             this.entityData.set(DATA_FLIGHT_ACTIVE, active);
         }
     }
@@ -384,7 +417,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     }
 
     @Override
-    public boolean causeFallDamage(float fallDistance, float damageMultiplier, DamageSource source) {
+    public boolean causeFallDamage(double fallDistance, float damageMultiplier, DamageSource source) {
         return false;
     }
 
@@ -399,7 +432,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     }
 
     private void syncChestFlags() {
-        if (this.level().isClientSide) {
+        if (this.level().isClientSide()) {
             return;
         }
         boolean right = this.chestEquipment.getItem(RIGHT_CHEST_SLOT).is(Items.CHEST);
@@ -410,122 +443,121 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
         this.entityData.set(DATA_FLYING_EGG, flyingEgg);
 
         boolean hasStoredItems = right || left;
-        for (int i = 1; !hasStoredItems && i < this.inventory.getContainerSize(); i++) {
+        for (int i = 0; !hasStoredItems && i < this.inventory.getContainerSize(); i++) {
             hasStoredItems = !this.inventory.getItem(i).isEmpty();
         }
         this.setChest(hasStoredItems);
     }
 
     @Override
-    public void containerChanged(Container container) {
-        super.containerChanged(container);
-        if (container == this.inventory) {
-            this.syncChestFlags();
-        }
-    }
-
-    @Override
-    public void addAdditionalSaveData(CompoundTag compound) {
+    public void addAdditionalSaveData(ValueOutput output) {
         this.syncChestFlags();
-        super.addAdditionalSaveData(compound);
-        compound.putInt(TAG_APPEARANCE_TYPE, this.getAppearanceType());
-        compound.putInt(TAG_ROBOT_SKIN, this.getRobotSkin());
-        compound.putFloat(TAG_SCALE_ADJUSTMENT, this.getScaleAdjustment());
+        super.addAdditionalSaveData(output);
+        output.putInt(TAG_APPEARANCE_TYPE, this.getAppearanceType());
+        output.putInt(TAG_ROBOT_SKIN, this.getRobotSkin());
+        output.putFloat(TAG_SCALE_ADJUSTMENT, this.getScaleAdjustment());
         if (!this.getSkinId().isEmpty()) {
-            compound.putString(TAG_SKIN_ID, this.getSkinId());
+            output.putString(TAG_SKIN_ID, this.getSkinId());
         }
-        compound.putBoolean(TAG_CHEST_EQUIPMENT_DATA, true);
+        output.putBoolean(TAG_CHEST_EQUIPMENT_DATA, true);
+        output.putBoolean(TAG_CARGO_LAYOUT, true);
         ItemStack right = this.chestEquipment.getItem(RIGHT_CHEST_SLOT);
         ItemStack left = this.chestEquipment.getItem(LEFT_CHEST_SLOT);
         if (!right.isEmpty()) {
-            compound.put(TAG_RIGHT_CHEST, right.save(this.registryAccess()));
+            output.store(TAG_RIGHT_CHEST, ItemStack.CODEC, right);
         }
         if (!left.isEmpty()) {
-            compound.put(TAG_LEFT_CHEST, left.save(this.registryAccess()));
+            output.store(TAG_LEFT_CHEST, ItemStack.CODEC, left);
         }
         ItemStack flyingEgg = this.chestEquipment.getItem(FLYING_EGG_SLOT);
         if (!flyingEgg.isEmpty()) {
-            compound.put(TAG_FLYING_EGG, flyingEgg.save(this.registryAccess()));
+            output.store(TAG_FLYING_EGG, ItemStack.CODEC, flyingEgg);
         }
-        compound.putInt(TAG_TAMING_SEEDS_REQUIRED, this.getTamingSeedsRequired());
-        compound.putInt(TAG_TAMING_SEEDS_GIVEN, this.entityData.get(DATA_TAMING_SEEDS_GIVEN));
+        output.putInt(TAG_TAMING_SEEDS_REQUIRED, this.getTamingSeedsRequired());
+        output.putInt(TAG_TAMING_SEEDS_GIVEN, this.entityData.get(DATA_TAMING_SEEDS_GIVEN));
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag compound) {
-        super.readAdditionalSaveData(compound);
-        this.entityData.set(DATA_APPEARANCE_TYPE, compound.contains(TAG_APPEARANCE_TYPE, Tag.TAG_INT)
-                ? compound.getInt(TAG_APPEARANCE_TYPE) : DEFAULT_APPEARANCE_TYPE);
+    public void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        this.entityData.set(DATA_APPEARANCE_TYPE, input.getIntOr(TAG_APPEARANCE_TYPE, DEFAULT_APPEARANCE_TYPE));
         this.entityData.set(DATA_SKIN_ID, "");
         this.entityData.set(DATA_ROBOT_SKIN, ROBOT_SKIN_NONE);
-        if (compound.contains(TAG_SKIN_ID, Tag.TAG_STRING)) {
-            this.setSkinId(compound.getString(TAG_SKIN_ID));
-        } else if (compound.contains(TAG_ROBOT_SKIN, Tag.TAG_INT)) {
-            this.setRobotSkin(compound.getInt(TAG_ROBOT_SKIN));
+        Optional<String> skinId = input.getString(TAG_SKIN_ID);
+        Optional<Integer> robotSkin = input.getInt(TAG_ROBOT_SKIN);
+        if (skinId.isPresent()) {
+            this.setSkinId(skinId.get());
+        } else if (robotSkin.isPresent()) {
+            this.setRobotSkin(robotSkin.get());
         }
-        this.setScaleAdjustment(compound.contains(TAG_SCALE_ADJUSTMENT, Tag.TAG_FLOAT)
-                ? compound.getFloat(TAG_SCALE_ADJUSTMENT) : 0.0F);
+        this.setScaleAdjustment(input.read(TAG_SCALE_ADJUSTMENT, Codec.FLOAT).orElse(0.0F));
         boolean wasChested = this.hasChest();
-        boolean hasEquipmentData = compound.getBoolean(TAG_CHEST_EQUIPMENT_DATA);
+        boolean hasEquipmentData = input.getBooleanOr(TAG_CHEST_EQUIPMENT_DATA, false);
+        if (!input.getBooleanOr(TAG_CARGO_LAYOUT, false)) {
+            this.shiftLegacyCargo();
+            input.read(TAG_LEGACY_SADDLE, ItemStack.CODEC).ifPresent(saddle -> {
+                if (!this.hasItemInSlot(EquipmentSlot.SADDLE)) {
+                    this.setItemSlot(EquipmentSlot.SADDLE, saddle);
+                }
+            });
+        }
         this.chestEquipment.clearContent();
         boolean loadedChest = false;
-        if (compound.contains(TAG_RIGHT_CHEST, Tag.TAG_COMPOUND)) {
-            ItemStack stack = ItemStack.parse(this.registryAccess(), compound.getCompound(TAG_RIGHT_CHEST))
-                    .orElse(ItemStack.EMPTY);
-            if (stack.is(Items.CHEST)) {
-                this.chestEquipment.setItem(RIGHT_CHEST_SLOT, new ItemStack(Items.CHEST));
-                loadedChest = true;
-            }
+        ItemStack rightChest = input.read(TAG_RIGHT_CHEST, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        if (rightChest.is(Items.CHEST)) {
+            this.chestEquipment.setItem(RIGHT_CHEST_SLOT, new ItemStack(Items.CHEST));
+            loadedChest = true;
         }
-        if (compound.contains(TAG_LEFT_CHEST, Tag.TAG_COMPOUND)) {
-            ItemStack stack = ItemStack.parse(this.registryAccess(), compound.getCompound(TAG_LEFT_CHEST))
-                    .orElse(ItemStack.EMPTY);
-            if (stack.is(Items.CHEST)) {
-                this.chestEquipment.setItem(LEFT_CHEST_SLOT, new ItemStack(Items.CHEST));
-                loadedChest = true;
-            }
+        ItemStack leftChest = input.read(TAG_LEFT_CHEST, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        if (leftChest.is(Items.CHEST)) {
+            this.chestEquipment.setItem(LEFT_CHEST_SLOT, new ItemStack(Items.CHEST));
+            loadedChest = true;
         }
-        if (compound.contains(TAG_FLYING_EGG, Tag.TAG_COMPOUND)) {
-            ItemStack stack = ItemStack.parse(this.registryAccess(), compound.getCompound(TAG_FLYING_EGG))
-                    .orElse(ItemStack.EMPTY);
-            if (stack.is(ModRegistry.FLYING_EGG.get())) {
-                this.chestEquipment.setItem(FLYING_EGG_SLOT, stack.copyWithCount(1));
-            }
+        ItemStack flyingEgg = input.read(TAG_FLYING_EGG, ItemStack.CODEC).orElse(ItemStack.EMPTY);
+        if (flyingEgg.is(ModRegistry.FLYING_EGG.get())) {
+            this.chestEquipment.setItem(FLYING_EGG_SLOT, flyingEgg.copyWithCount(1));
         }
         if (wasChested && !loadedChest && !hasEquipmentData) {
-            // Migrate the old single-chest horse state to the right visual slot.
             this.chestEquipment.setItem(RIGHT_CHEST_SLOT, new ItemStack(Items.CHEST));
         }
-        if (compound.contains(TAG_TAMING_SEEDS_REQUIRED, Tag.TAG_INT)) {
-            int required = Mth.clamp(compound.getInt(TAG_TAMING_SEEDS_REQUIRED), MIN_TAMING_SEEDS,
-                    MAX_TAMING_SEEDS);
+        Optional<Integer> tamingRequired = input.getInt(TAG_TAMING_SEEDS_REQUIRED);
+        if (tamingRequired.isPresent()) {
+            int required = Mth.clamp(tamingRequired.get(), MIN_TAMING_SEEDS, MAX_TAMING_SEEDS);
             this.entityData.set(DATA_TAMING_SEEDS_REQUIRED, required);
-            int given = compound.contains(TAG_TAMING_SEEDS_GIVEN, Tag.TAG_INT)
-                    ? compound.getInt(TAG_TAMING_SEEDS_GIVEN) : 0;
+            int given = input.getIntOr(TAG_TAMING_SEEDS_GIVEN, 0);
             this.entityData.set(DATA_TAMING_SEEDS_GIVEN, Mth.clamp(given, 0, required));
         }
         this.syncChestFlags();
     }
 
-    @Override
-    protected void dropEquipment() {
-        for (int i = 0; i < this.inventory.getContainerSize(); i++) {
-            this.dropEquipmentStack(this.inventory.getItem(i));
+    private void shiftLegacyCargo() {
+        for (int slot = this.inventory.getContainerSize() - 1; slot > 0; slot--) {
+            this.inventory.setItem(slot, this.inventory.getItem(slot - 1));
         }
-        this.dropEquipmentStack(this.chestEquipment.getItem(RIGHT_CHEST_SLOT));
-        this.dropEquipmentStack(this.chestEquipment.getItem(LEFT_CHEST_SLOT));
-        this.dropEquipmentStack(this.chestEquipment.getItem(FLYING_EGG_SLOT));
+        if (this.inventory.getContainerSize() > 0) {
+            this.inventory.setItem(0, ItemStack.EMPTY);
+        }
     }
 
-    private void dropEquipmentStack(ItemStack stack) {
+    @Override
+    protected void dropEquipment(ServerLevel level) {
+        for (int i = 0; i < this.inventory.getContainerSize(); i++) {
+            this.dropEquipmentStack(level, this.inventory.getItem(i));
+        }
+        this.dropEquipmentStack(level, this.chestEquipment.getItem(RIGHT_CHEST_SLOT));
+        this.dropEquipmentStack(level, this.chestEquipment.getItem(LEFT_CHEST_SLOT));
+        this.dropEquipmentStack(level, this.chestEquipment.getItem(FLYING_EGG_SLOT));
+    }
+
+    private void dropEquipmentStack(ServerLevel level, ItemStack stack) {
         if (!stack.isEmpty() && !EnchantmentHelper.has(stack, EnchantmentEffectComponents.PREVENT_EQUIPMENT_DROP)) {
-            this.spawnAtLocation(stack);
+            this.spawnAtLocation(level, stack);
         }
     }
 
     @Override
     public void openCustomInventoryScreen(Player player) {
-        if (!this.level().isClientSide && (!this.isVehicle() || this.hasPassenger(player))
+        if (!this.level().isClientSide() && (!this.isVehicle() || this.hasPassenger(player))
                 && this.isOwnedByPlayer(player)) {
             player.openMenu(this, buffer -> buffer.writeVarInt(this.getId()));
         }
@@ -555,7 +587,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
 
     @Override
     public void travel(Vec3 travelVector) {
-        if (this.hasFlyingEgg() && this.isVehicle() && this.isControlledByLocalInstance()
+        if (this.hasFlyingEgg() && this.isVehicle() && this.isLocalInstanceAuthoritative()
                 && !this.onGround() && this.getControllingPassenger() instanceof Player player) {
             this.setFlightActive(true);
             this.travelFlying(player);
@@ -682,27 +714,27 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
 
     @Override
     protected SoundEvent getAmbientSound() {
-        return SoundEvents.CHICKEN_AMBIENT;
+        return CLASSIC_SOUNDS.ambientSound().value();
     }
 
     @Override
     protected SoundEvent getHurtSound(net.minecraft.world.damagesource.DamageSource source) {
-        return SoundEvents.CHICKEN_HURT;
+        return CLASSIC_SOUNDS.hurtSound().value();
     }
 
     @Override
     protected SoundEvent getDeathSound() {
-        return SoundEvents.CHICKEN_DEATH;
+        return CLASSIC_SOUNDS.deathSound().value();
     }
 
     @Override
     protected SoundEvent getEatingSound() {
-        return SoundEvents.CHICKEN_AMBIENT;
+        return CLASSIC_SOUNDS.ambientSound().value();
     }
 
     @Override
     protected SoundEvent getAngrySound() {
-        return SoundEvents.CHICKEN_HURT;
+        return CLASSIC_SOUNDS.hurtSound().value();
     }
 
     @Override
@@ -713,7 +745,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
 
     @Override
     protected void playStepSound(BlockPos pos, BlockState state) {
-        this.playSound(SoundEvents.CHICKEN_STEP, 0.3F, 1.0F);
+        this.playSound(CLASSIC_SOUNDS.stepSound().value(), 0.3F, 1.0F);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -753,7 +785,7 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
     }
 
     public static boolean checkSpawnRules(EntityType<MegaChicken> type, LevelAccessor level,
-                                           MobSpawnType reason, BlockPos pos, RandomSource random) {
+                                           EntitySpawnReason reason, BlockPos pos, RandomSource random) {
         return random.nextInt(128) == 0 && Animal.checkAnimalSpawnRules(type, level, reason, pos, random);
     }
 
@@ -762,5 +794,20 @@ public class MegaChicken extends AbstractChestedHorse implements MenuProvider {
         // AbstractHorse allocates three rows per column; the custom screen renders
         // those 54 cargo slots as a 9x6 grid.
         return 18;
+    }
+
+    private static final class ChangeNotifyingContainer extends SimpleContainer {
+        private final Runnable onChanged;
+
+        private ChangeNotifyingContainer(int size, Runnable onChanged) {
+            super(size);
+            this.onChanged = onChanged;
+        }
+
+        @Override
+        public void setChanged() {
+            super.setChanged();
+            this.onChanged.run();
+        }
     }
 }

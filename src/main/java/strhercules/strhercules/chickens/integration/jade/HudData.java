@@ -8,7 +8,7 @@ import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import java.util.ArrayList;
@@ -71,16 +71,16 @@ final class HudData {
     }
 
     static HudData read(CompoundTag data) {
-        if (!data.contains(NBT_KEY, Tag.TAG_LIST)) {
+        if (!data.contains(NBT_KEY)) {
             return empty();
         }
-        ListTag list = data.getList(NBT_KEY, Tag.TAG_COMPOUND);
+        ListTag list = data.getListOrEmpty(NBT_KEY);
         List<Entry> entries = new ArrayList<>(list.size());
         for (Tag element : list) {
             if (!(element instanceof CompoundTag tag)) {
                 continue;
             }
-            EntryType type = parseType(tag.getString("Type"));
+            EntryType type = parseType(tag.getStringOr("Type", ""));
             switch (type) {
                 case TEXT -> {
                     Component component = readComponent(tag, "Text");
@@ -89,22 +89,20 @@ final class HudData {
                     }
                 }
                 case FLUID -> {
-                    ResourceLocation id = tag.contains("Id", Tag.TAG_STRING)
-                            ? ResourceLocation.tryParse(tag.getString("Id"))
-                            : null;
-                    int amount = tag.getInt("Amount");
-                    int capacity = tag.getInt("Capacity");
+                    Identifier id = tag.getString("Id").map(Identifier::tryParse).orElse(null);
+                    int amount = tag.getIntOr("Amount", 0);
+                    int capacity = tag.getIntOr("Capacity", 0);
                     entries.add(new FluidEntry(id, amount, capacity));
                 }
                 case CHEMICAL -> {
-                    int entryId = tag.getInt("Entry");
-                    int amount = tag.getInt("Amount");
-                    int capacity = tag.getInt("Capacity");
+                    int entryId = tag.getIntOr("Entry", 0);
+                    int amount = tag.getIntOr("Amount", 0);
+                    int capacity = tag.getIntOr("Capacity", 0);
                     entries.add(new ChemicalEntry(entryId, amount, capacity));
                 }
                 case ENERGY -> {
-                    long energy = tag.getLong("Energy");
-                    long capacity = tag.getLong("Capacity");
+                    long energy = tag.getLongOr("Energy", 0L);
+                    long capacity = tag.getLongOr("Capacity", 0L);
                     entries.add(new EnergyEntry(energy, capacity));
                 }
                 case UNKNOWN -> {
@@ -150,7 +148,7 @@ final class HudData {
         }
     }
 
-    record FluidEntry(ResourceLocation id, int amount, int capacity) implements Entry {
+    record FluidEntry(Identifier id, int amount, int capacity) implements Entry {
         @Override
         public EntryType type() {
             return EntryType.FLUID;
@@ -189,7 +187,7 @@ final class HudData {
         }
 
         void addFluid(FluidStack stack, int capacity) {
-            ResourceLocation id = stack.isEmpty() ? null : BuiltInRegistries.FLUID.getKey(stack.getFluid());
+            Identifier id = stack.isEmpty() ? null : BuiltInRegistries.FLUID.getKey(stack.getFluid());
             entries.add(new FluidEntry(id, stack.getAmount(), capacity));
         }
 

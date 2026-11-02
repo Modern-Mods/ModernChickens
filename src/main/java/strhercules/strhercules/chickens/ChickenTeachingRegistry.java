@@ -1,7 +1,7 @@
 package strhercules.chickens;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -23,7 +23,7 @@ public final class ChickenTeachingRegistry {
             "amethystine", "aurantium", "azurine", "caerium", "citrinetine", "rosarium", "rubetine");
 
     private static final Map<Item, String> TARGETS = new HashMap<>();
-    private static final Map<ResourceLocation, String> NAMESPACED_TARGETS = new LinkedHashMap<>();
+    private static final Map<Identifier, String> NAMESPACED_TARGETS = new LinkedHashMap<>();
 
     static {
         TARGETS.put(Items.BOOK, "SmartChicken");
@@ -31,7 +31,7 @@ public final class ChickenTeachingRegistry {
         TARGETS.put(Blocks.GRASS_BLOCK.asItem(), "americanChicken");
         TARGETS.put(Blocks.DIRT.asItem(), "dirtChicken");
         for (String tier : VOID_MINER_TIERS) {
-            NAMESPACED_TARGETS.put(ResourceLocation.fromNamespaceAndPath("voidminersremastered", tier + "_frame"),
+            NAMESPACED_TARGETS.put(Identifier.fromNamespaceAndPath("voidminersremastered", tier + "_frame"),
                     tier + "MinerChicken");
         }
     }
@@ -45,7 +45,7 @@ public final class ChickenTeachingRegistry {
         }
     }
 
-    public static Map<ResourceLocation, String> namespacedTargets() {
+    public static Map<Identifier, String> namespacedTargets() {
         return Collections.unmodifiableMap(NAMESPACED_TARGETS);
     }
 

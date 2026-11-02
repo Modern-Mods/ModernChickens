@@ -4,14 +4,16 @@ import strhercules.chickens.entity.ChickensChicken;
 import strhercules.chickens.item.ChickenItemHelper;
 import strhercules.chickens.registry.ModEntityTypes;
 import strhercules.chickens.registry.ModRegistry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.projectile.ThrownEgg;
+import net.minecraft.world.entity.projectile.throwableitemprojectile.ThrownEgg;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -36,11 +38,14 @@ public class ColoredEgg extends ThrownEgg {
     }
 
     public ColoredEgg(Level level, LivingEntity owner) {
-        super(level, owner);
+        super(ModEntityTypes.COLORED_EGG.get(), level);
+        this.setPos(owner.getX(), owner.getEyeY() - 0.1F, owner.getZ());
+        this.setOwner(owner);
     }
 
     public ColoredEgg(Level level, double x, double y, double z) {
-        super(level, x, y, z);
+        super(ModEntityTypes.COLORED_EGG.get(), level);
+        this.setPos(x, y, z);
     }
 
     public void setChickenType(int type) {
@@ -90,18 +95,18 @@ public class ColoredEgg extends ThrownEgg {
         } else if (type == HitResult.Type.ENTITY && result instanceof EntityHitResult entityHit) {
             this.onHitEntity(entityHit);
         }
-        if (!this.level().isClientSide) {
+        if (!this.level().isClientSide()) {
             if (this.random.nextInt(8) == 0) {
                 int count = 1;
                 if (this.random.nextInt(32) == 0) {
                     count = 4;
                 }
                 for (int i = 0; i < count; ++i) {
-                    ChickensChicken chick = ModEntityTypes.CHICKENS_CHICKEN.get().create(this.level());
+                    ChickensChicken chick = ModEntityTypes.CHICKENS_CHICKEN.get().create(this.level(), EntitySpawnReason.TRIGGERED);
                     if (chick != null) {
                         chick.setAge(-24000);
                         chick.setChickenType(getChickenType());
-                        chick.moveTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
+                        chick.snapTo(this.getX(), this.getY(), this.getZ(), this.getYRot(), 0.0F);
                         this.level().addFreshEntity(chick);
                     }
                 }
@@ -113,16 +118,14 @@ public class ColoredEgg extends ThrownEgg {
     }
 
     @Override
-    public void addAdditionalSaveData(CompoundTag tag) {
+    public void addAdditionalSaveData(ValueOutput tag) {
         super.addAdditionalSaveData(tag);
         tag.putInt(ChickenItemHelper.TAG_CHICKEN_TYPE, getChickenType());
     }
 
     @Override
-    public void readAdditionalSaveData(CompoundTag tag) {
+    public void readAdditionalSaveData(ValueInput tag) {
         super.readAdditionalSaveData(tag);
-        if (tag.contains(ChickenItemHelper.TAG_CHICKEN_TYPE)) {
-            setChickenType(tag.getInt(ChickenItemHelper.TAG_CHICKEN_TYPE));
-        }
+        tag.getInt(ChickenItemHelper.TAG_CHICKEN_TYPE).ifPresent(this::setChickenType);
     }
 }

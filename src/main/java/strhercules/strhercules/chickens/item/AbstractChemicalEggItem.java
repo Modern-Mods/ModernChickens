@@ -8,10 +8,11 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.network.chat.Component;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 abstract class AbstractChemicalEggItem extends Item {
     private final String nameTranslationKey;
@@ -33,22 +34,23 @@ abstract class AbstractChemicalEggItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
         ChemicalEggRegistryItem entry = resolve(stack);
         if (entry == null) {
             return;
         }
-        tooltip.add(Component.translatable(tooltipTranslationKey, entry.getDisplayName(), entry.getVolume())
+        tooltip.accept(Component.translatable(tooltipTranslationKey, entry.getDisplayName(), entry.getVolume())
                 .withStyle(ChatFormatting.GRAY));
         appendHazardTooltips(entry, tooltip);
     }
 
-    protected void appendHazardTooltips(ChemicalEggRegistryItem entry, List<Component> tooltip) {
+    protected void appendHazardTooltips(ChemicalEggRegistryItem entry, Consumer<Component> tooltip) {
         if (!ChickensConfigHolder.get().isLiquidEggHazardsEnabled()) {
             return;
         }
         for (LiquidEggRegistryItem.HazardFlag hazard : entry.getHazards()) {
-            tooltip.add(Component.translatable("item.chickens.liquid_egg.tooltip.hazard." + hazard.getTranslationKey())
+            tooltip.accept(Component.translatable("item.chickens.liquid_egg.tooltip.hazard." + hazard.getTranslationKey())
                     .withStyle(ChatFormatting.DARK_RED));
         }
     }

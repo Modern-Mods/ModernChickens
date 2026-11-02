@@ -52,7 +52,7 @@ public enum SpawnBiomeRule {
     }
 
     private static boolean isInsideFortress(ServerLevelAccessor level, BlockPos pos) {
-        Structure fortress = level.registryAccess().registryOrThrow(Registries.STRUCTURE).get(BuiltinStructures.FORTRESS);
+        Structure fortress = level.registryAccess().lookupOrThrow(Registries.STRUCTURE).getValue(BuiltinStructures.FORTRESS);
         return fortress != null && level.getLevel().structureManager().getStructureWithPieceAt(pos, fortress).isValid();
     }
 }

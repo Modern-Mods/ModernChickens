@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "H": "minecraft:hopper",
+    "W": "minecraft:pale_oak_planks",
+    "Y": "minecraft:hay_block"
+  },
+  "pattern": [
+    "WWW",
+    "WHW",
+    "YYY"
+  ],
+  "result": {
+    "id": "chickens:henhouse_pale_oak"
+  }
+}

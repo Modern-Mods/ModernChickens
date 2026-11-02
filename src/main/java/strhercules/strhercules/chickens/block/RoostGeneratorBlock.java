@@ -8,6 +8,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.DustParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.Containers;
@@ -39,12 +40,12 @@ public class RoostGeneratorBlock extends HorizontalDirectionalBlock implements E
     public static final MapCodec<RoostGeneratorBlock> CODEC = simpleCodec(RoostGeneratorBlock::new);
     public static final BooleanProperty LIT = BlockStateProperties.LIT;
 
-    public RoostGeneratorBlock() {
-        this(BlockBehaviour.Properties.of()
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of()
                 .mapColor(MapColor.METAL)
                 .strength(3.0F, 6.0F)
                 .sound(SoundType.METAL)
-                .noOcclusion());
+                .noOcclusion();
     }
 
     public RoostGeneratorBlock(BlockBehaviour.Properties properties) {
@@ -69,7 +70,7 @@ public class RoostGeneratorBlock extends HorizontalDirectionalBlock implements E
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state,
             BlockEntityType<T> type) {
-        if (level.isClientSide || type != ModBlockEntities.ROOST_GENERATOR.get()) {
+        if (level.isClientSide() || type != ModBlockEntities.ROOST_GENERATOR.get()) {
             return null;
         }
         return (lvl, pos, blockState, blockEntity) -> {
@@ -87,27 +88,20 @@ public class RoostGeneratorBlock extends HorizontalDirectionalBlock implements E
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown()) {
-            if (!level.isClientSide && generator.pullChickenOut(player)) {
+            if (!level.isClientSide() && generator.pullChickenOut(player)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(generator, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof RoostGeneratorBlockEntity generator) {
-                Containers.dropContents(level, pos, generator.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override

@@ -3,7 +3,7 @@ package strhercules.chickens.integration.jei;
 import strhercules.chickens.ChemicalEggRegistryItem;
 import strhercules.chickens.integration.mekanism.MekanismChemicalHelper;
 import mezz.jei.api.ingredients.IIngredientType;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -75,7 +75,7 @@ public final class MekanismJeiChemicalHelper {
         if (!AVAILABLE || entry == null || amount <= 0) {
             return null;
         }
-        ResourceLocation chemicalId = entry.getChemicalId();
+        Identifier chemicalId = entry.getChemicalId();
         Object chemical = MekanismChemicalHelper.getChemical(chemicalId);
         if (chemical == null) {
             return null;

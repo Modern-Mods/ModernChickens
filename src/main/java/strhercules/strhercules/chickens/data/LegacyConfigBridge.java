@@ -4,7 +4,7 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.config.ChickensConfigHolder;
 import strhercules.chickens.config.ChickensConfigValues;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.fml.loading.FMLPaths;
 import org.slf4j.Logger;
@@ -306,7 +306,7 @@ public final class LegacyConfigBridge {
     }
 
     private static String getItemId(ItemStack stack) {
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return id != null ? id.toString() : "minecraft:air";
     }
 }

@@ -30,9 +30,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 
 import javax.annotation.Nullable;
 
@@ -75,7 +77,7 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
     }
 
     private void tickServer(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         refreshEnergyCost();
@@ -220,7 +222,7 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
 
     private void markEnergyDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_CLIENTS);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -239,7 +241,7 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
             if (!sideConfig.allows(direction, MachineSideConfig.Channel.ENERGY, true)) {
                 continue;
             }
-            IEnergyStorage neighbor = level.getCapability(Capabilities.EnergyStorage.BLOCK,
+            EnergyHandler neighbor = level.getCapability(Capabilities.Energy.BLOCK,
                     worldPosition.relative(direction), direction.getOpposite());
             if (neighbor == null) {
                 continue;
@@ -248,19 +250,9 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
             if (space <= 0) {
                 break;
             }
-            int available = neighbor.extractEnergy(space, true);
-            if (available <= 0) {
+            if (EnergyHandlerUtil.move(neighbor, energyStorage, space, null) <= 0) {
                 continue;
             }
-            int accepted = energyStorage.receiveEnergy(available, true);
-            if (accepted <= 0) {
-                continue;
-            }
-            int drained = neighbor.extractEnergy(accepted, false);
-            if (drained <= 0) {
-                continue;
-            }
-            energyStorage.receiveEnergy(drained, false);
             changed = true;
         }
         return changed;
@@ -293,7 +285,7 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
         return Math.round(15.0F * energyStorage.getEnergyStored() / (float) capacity);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig, direction);
     }
 
@@ -347,7 +339,7 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
             stack.setCount(stack.getMaxStackSize());
         }
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, progress > 0);
         }
     }
@@ -419,42 +411,30 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        tag.putInt("Energy", energyStorage.getEnergyStored());
-        tag.putInt("ReservedEnergy", energyReserved);
-        tag.putInt("Progress", progress);
-        tag.putInt("EnergyCost", cachedEnergyCost);
-        if (customName != null) {
-            ComponentSerialization.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), customName)
-                    .result().ifPresent(component -> tag.put("CustomName", component));
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        output.putInt("Energy", energyStorage.getEnergyStored());
+        output.putInt("ReservedEnergy", energyReserved);
+        output.putInt("Progress", progress);
+        output.putInt("EnergyCost", cachedEnergyCost);
+        output.storeNullable("CustomName", ComponentSerialization.CODEC, customName);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        int storedEnergy = tag.getInt("Energy");
-        int storedReserved = tag.getInt("ReservedEnergy");
-        progress = Math.min(tag.getInt("Progress"), MAX_PROGRESS);
-        if (tag.contains("EnergyCost")) {
-            cachedEnergyCost = Math.max(1, tag.getInt("EnergyCost"));
-        } else {
-            cachedEnergyCost = DEFAULT_ENERGY_COST;
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        int storedEnergy = input.getIntOr("Energy", 0);
+        int storedReserved = input.getIntOr("ReservedEnergy", 0);
+        progress = Math.min(input.getIntOr("Progress", 0), MAX_PROGRESS);
+        cachedEnergyCost = input.getInt("EnergyCost").map(value -> Math.max(1, value)).orElse(DEFAULT_ENERGY_COST);
         syncWithConfig(false);
         energyStorage.setEnergy(Mth.clamp(storedEnergy, 0, capacity));
         energyReserved = Math.min(storedReserved, capacity);
-        if (tag.contains("CustomName", Tag.TAG_COMPOUND)) {
-            ComponentSerialization.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE),
-                    tag.getCompound("CustomName")).result().ifPresent(name -> customName = name);
-        } else {
-            customName = null;
-        }
+        customName = input.read("CustomName", ComponentSerialization.CODEC).orElse(null);
     }
 
     @Override
@@ -480,31 +460,14 @@ public class IncubatorBlockEntity extends BlockEntity implements WorldlyContaine
         }
     }
 
-    private final class MachineEnergyStorage extends EnergyStorage {
+    private final class MachineEnergyStorage extends StoredEnergyHandler {
         MachineEnergyStorage() {
             super(DEFAULT_ENERGY_CAPACITY, DEFAULT_ENERGY_MAX_RECEIVE, 0);
         }
 
         @Override
-        public int receiveEnergy(int amount, boolean simulate) {
-            int received = super.receiveEnergy(amount, simulate);
-            if (received > 0 && !simulate) {
-                markEnergyDirty();
-            }
-            return received;
-        }
-
-        @Override
-        public int extractEnergy(int amount, boolean simulate) {
-            int extracted = super.extractEnergy(amount, simulate);
-            if (extracted > 0 && !simulate) {
-                markEnergyDirty();
-            }
-            return extracted;
-        }
-
-        void setEnergy(int energy) {
-            this.energy = Mth.clamp(energy, 0, getMaxEnergyStored());
+        protected void onEnergyChanged() {
+            markEnergyDirty();
         }
 
         void setLimits(int capacity, int maxReceive) {

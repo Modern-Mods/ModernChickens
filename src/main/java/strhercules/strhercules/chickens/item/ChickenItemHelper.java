@@ -5,11 +5,21 @@ import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.entity.ChickensChicken;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.animal.chicken.ChickenSoundVariants;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.CustomModelData;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.component.DataComponentPatch;
 
 import javax.annotation.Nullable;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Utility methods shared by multiple chicken-themed items. The original mod
@@ -33,20 +43,48 @@ public final class ChickenItemHelper {
     private ChickenItemHelper() {
     }
 
+    public static SoundEvent chickenHurtSound() {
+        return SoundEvents.CHICKEN_SOUNDS.get(ChickenSoundVariants.SoundSet.CLASSIC).adultSounds().hurtSound().value();
+    }
+
+    public static SoundEvent chickenAmbientSound() {
+        return SoundEvents.CHICKEN_SOUNDS.get(ChickenSoundVariants.SoundSet.CLASSIC).adultSounds().ambientSound().value();
+    }
+
+    public static CustomModelData modelData(int type) {
+        return new CustomModelData(List.of((float) type), List.of(), List.of(), List.of());
+    }
+
+    public static int getChickenType(ItemStackTemplate template) {
+        Optional<CustomData> data = template.components().getPatch(DataComponents.CUSTOM_DATA);
+        return data == null || data.isEmpty() ? 0 : data.get().copyTag().getIntOr(TAG_CHICKEN_TYPE, 0);
+    }
+
+    public static ItemStackTemplate typedTemplate(Item item, int type) {
+        CompoundTag tag = new CompoundTag();
+        tag.putInt(TAG_CHICKEN_TYPE, type);
+        DataComponentPatch patch = DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(tag))
+                .set(DataComponents.CUSTOM_MODEL_DATA, modelData(type))
+                .build();
+        return new ItemStackTemplate(item, patch);
+    }
+
     public static void setChickenType(ItemStack stack, int type) {
         CustomData.update(DataComponents.CUSTOM_DATA, stack, tag -> tag.putInt(TAG_CHICKEN_TYPE, type));
-        stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(type));
+        stack.set(DataComponents.CUSTOM_MODEL_DATA, modelData(type));
     }
 
     public static int getChickenType(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (data.contains(TAG_CHICKEN_TYPE)) {
-            int type = data.copyTag().getInt(TAG_CHICKEN_TYPE);
+            int type = data.copyTag().getIntOr(TAG_CHICKEN_TYPE, 0);
             CustomModelData modelData = stack.get(DataComponents.CUSTOM_MODEL_DATA);
-            if (modelData == null || modelData.value() != type) {
+            Float modelType = modelData == null ? null : modelData.getFloat(0);
+            if (modelType == null || modelType.intValue() != type) {
                 // Ensure the item displays with the correct baked model, even if an older stack
                 // or command-generated item forgot to sync the model data component.
-                stack.set(DataComponents.CUSTOM_MODEL_DATA, new CustomModelData(type));
+                stack.set(DataComponents.CUSTOM_MODEL_DATA, modelData(type));
             }
             return type;
         }
@@ -70,7 +108,7 @@ public final class ChickenItemHelper {
 
     public static boolean isRooster(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        return data.contains(TAG_ROOSTER) && data.copyTag().getBoolean(TAG_ROOSTER);
+        return data.contains(TAG_ROOSTER) && data.copyTag().getBooleanOr(TAG_ROOSTER, false);
     }
 
     public static void setRobotChicken(ItemStack stack, boolean robotChicken) {
@@ -87,7 +125,7 @@ public final class ChickenItemHelper {
 
     public static boolean isRobotChicken(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        return data.contains(TAG_ROBOT_CHICKEN) && data.copyTag().getBoolean(TAG_ROBOT_CHICKEN);
+        return data.contains(TAG_ROBOT_CHICKEN) && data.copyTag().getBooleanOr(TAG_ROBOT_CHICKEN, false);
     }
 
     public static void setRobotRooster(ItemStack stack, boolean robotRooster) {
@@ -103,7 +141,7 @@ public final class ChickenItemHelper {
 
     public static boolean isRobotRooster(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
-        return data.contains(TAG_ROBOT_ROOSTER) && data.copyTag().getBoolean(TAG_ROBOT_ROOSTER);
+        return data.contains(TAG_ROBOT_ROOSTER) && data.copyTag().getBooleanOr(TAG_ROBOT_ROOSTER, false);
     }
 
     @Nullable
@@ -123,7 +161,7 @@ public final class ChickenItemHelper {
     public static ChickenStats getStats(ItemStack stack) {
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         if (data.contains(TAG_STATS)) {
-            CompoundTag tag = data.copyTag().getCompound(TAG_STATS);
+            CompoundTag tag = data.copyTag().getCompoundOrEmpty(TAG_STATS);
             return ChickenStats.fromTag(tag);
         }
         return ChickenStats.DEFAULT;
@@ -152,9 +190,9 @@ public final class ChickenItemHelper {
         tag.putBoolean(TAG_ROBOT_CHICKEN, isRobotChicken(stack));
         CustomData data = stack.getOrDefault(DataComponents.CUSTOM_DATA, CustomData.EMPTY);
         CompoundTag custom = data.copyTag();
-        tag.putInt(TAG_ROBOT_UPGRADES_GIVEN, custom.getInt(TAG_ROBOT_UPGRADES_GIVEN));
-        tag.putInt(TAG_ROBOT_UPGRADES_REQUIRED, custom.getInt(TAG_ROBOT_UPGRADES_REQUIRED));
-        chicken.readAdditionalSaveData(tag);
+        tag.putInt(TAG_ROBOT_UPGRADES_GIVEN, custom.getIntOr(TAG_ROBOT_UPGRADES_GIVEN, 0));
+        tag.putInt(TAG_ROBOT_UPGRADES_REQUIRED, custom.getIntOr(TAG_ROBOT_UPGRADES_REQUIRED, 0));
+        chicken.readAdditionalSaveData(TagValueInput.create(ProblemReporter.DISCARDING, chicken.registryAccess(), tag));
         chicken.setStatsAnalyzed(stats.analysed());
     }
 

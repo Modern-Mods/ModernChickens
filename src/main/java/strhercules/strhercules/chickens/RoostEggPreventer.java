@@ -1,7 +1,7 @@
 package strhercules.chickens;
 
 import strhercules.chickens.config.ChickensConfigHolder;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.EntityTickEvent;
 

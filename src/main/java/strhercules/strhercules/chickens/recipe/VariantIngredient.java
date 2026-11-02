@@ -1,11 +1,16 @@
 package strhercules.chickens.recipe;
 
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.core.Holder;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.StringRepresentable;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
 import net.neoforged.neoforge.common.crafting.ICustomIngredient;
 import net.neoforged.neoforge.common.crafting.IngredientType;
 import strhercules.chickens.ChemicalEggRegistry;
@@ -26,7 +31,9 @@ import strhercules.chickens.registry.ModRecipeTypes;
 import strhercules.chickens.registry.ModRegistry;
 
 import javax.annotation.Nullable;
+import java.util.Locale;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 /**
@@ -35,9 +42,11 @@ import java.util.stream.Stream;
  * KubeJS scripts cannot tell them apart with a plain item id. Chickens can also ask for minimum stats.
  *
  * <pre>
- * {"type": "chickens:variant", "kind": "liquid_egg", "id": "minecraft:water"}
- * {"type": "chickens:variant", "kind": "chicken", "id": "DiamondChicken", "min_growth": 5, "min_gain": 3}
+ * {"type": "chickens:variant", "kind": "liquid_egg", "chickenid": "minecraft:water"}
+ * {"type": "chickens:variant", "kind": "chicken", "chickenid": "DiamondChicken", "min_growth": 5, "min_gain": 3}
  * </pre>
+ * Both {@code kind} and {@code chickenid} are mandatory. {@code id} is still read as a legacy alias of
+ * {@code chickenid} so datapacks written before the rename keep working.
  */
 public final class VariantIngredient implements ICustomIngredient {
     public enum Kind implements StringRepresentable {
@@ -57,15 +66,48 @@ public final class VariantIngredient implements ICustomIngredient {
         public String getSerializedName() {
             return serializedName;
         }
+
+        @Nullable
+        public static Kind byName(String name) {
+            String normalized = name.trim().toLowerCase(Locale.ROOT);
+            for (Kind kind : values()) {
+                if (kind.serializedName.equals(normalized)) {
+                    return kind;
+                }
+            }
+            return null;
+        }
     }
 
-    public static final MapCodec<VariantIngredient> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            StringRepresentable.fromEnum(Kind::values).fieldOf("kind").forGetter(VariantIngredient::kind),
-            Codec.STRING.fieldOf("id").forGetter(VariantIngredient::id),
-            Codec.INT.optionalFieldOf("min_growth", 0).forGetter(VariantIngredient::minGrowth),
-            Codec.INT.optionalFieldOf("min_gain", 0).forGetter(VariantIngredient::minGain),
-            Codec.INT.optionalFieldOf("min_strength", 0).forGetter(VariantIngredient::minStrength)
-    ).apply(instance, VariantIngredient::new));
+    private record Fields(Optional<Kind> kind, Optional<String> chickenId, Optional<String> legacyId,
+                          int minGrowth, int minGain, int minStrength) {
+        static final MapCodec<Fields> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                StringRepresentable.fromEnum(Kind::values).optionalFieldOf("kind").forGetter(Fields::kind),
+                Codec.STRING.optionalFieldOf("chickenid").forGetter(Fields::chickenId),
+                Codec.STRING.optionalFieldOf("id").forGetter(Fields::legacyId),
+                Codec.INT.optionalFieldOf("min_growth", 0).forGetter(Fields::minGrowth),
+                Codec.INT.optionalFieldOf("min_gain", 0).forGetter(Fields::minGain),
+                Codec.INT.optionalFieldOf("min_strength", 0).forGetter(Fields::minStrength)
+        ).apply(instance, Fields::new));
+
+        static DataResult<Fields> of(VariantIngredient ingredient) {
+            return DataResult.success(new Fields(Optional.of(ingredient.kind), Optional.of(ingredient.id), Optional.empty(),
+                    ingredient.minGrowth, ingredient.minGain, ingredient.minStrength));
+        }
+
+        DataResult<VariantIngredient> toIngredient() {
+            if (kind.isEmpty()) {
+                return DataResult.error(() -> "chickens:variant ingredient is missing the required field 'kind'");
+            }
+            Optional<String> resolvedId = chickenId.or(() -> legacyId);
+            if (resolvedId.isEmpty()) {
+                return DataResult.error(() -> "chickens:variant ingredient is missing the required field 'chickenid'");
+            }
+            return DataResult.success(new VariantIngredient(kind.get(), resolvedId.get(), minGrowth, minGain, minStrength));
+        }
+    }
+
+    public static final MapCodec<VariantIngredient> CODEC = Fields.CODEC.flatXmap(Fields::toIngredient, Fields::of);
 
     private final Kind kind;
     private final String id;
@@ -118,9 +160,17 @@ public final class VariantIngredient implements ICustomIngredient {
     }
 
     @Override
-    public Stream<ItemStack> getItems() {
+    public Stream<Holder<Item>> items() {
         ItemStack reference = reference();
-        return reference.isEmpty() ? Stream.empty() : Stream.of(reference);
+        return reference.isEmpty() ? Stream.empty() : Stream.of(reference.typeHolder());
+    }
+
+    @Override
+    public SlotDisplay display() {
+        ItemStack reference = reference();
+        return reference.isEmpty()
+                ? SlotDisplay.Empty.INSTANCE
+                : new SlotDisplay.ItemStackSlotDisplay(ItemStackTemplate.fromNonEmptyStack(reference));
     }
 
     @Override
@@ -136,7 +186,7 @@ public final class VariantIngredient implements ICustomIngredient {
     private ItemStack reference() {
         return switch (kind) {
             case LIQUID_EGG -> {
-                ResourceLocation fluidId = ResourceLocation.tryParse(id);
+                Identifier fluidId = Identifier.tryParse(id);
                 LiquidEggRegistryItem liquid = fluidId == null ? null : LiquidEggRegistry.findByFluid(fluidId);
                 yield liquid == null ? ItemStack.EMPTY : LiquidEggItem.createFor(liquid);
             }
@@ -161,7 +211,7 @@ public final class VariantIngredient implements ICustomIngredient {
 
     @Nullable
     private ChemicalEggRegistryItem findChemical(boolean gas) {
-        ResourceLocation chemicalId = ResourceLocation.tryParse(id);
+        Identifier chemicalId = Identifier.tryParse(id);
         if (chemicalId == null) {
             return null;
         }

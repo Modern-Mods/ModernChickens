@@ -13,9 +13,9 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Shows the lay time and egg output for each chicken. The layout mirrors the
@@ -23,8 +23,8 @@ import net.minecraft.resources.ResourceLocation;
  * presentation.
  */
 public class LayingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.LayingRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying_icon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -48,8 +48,13 @@ public class LayingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.La
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -66,13 +71,14 @@ public class LayingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.La
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.LayingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.LayingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 40, 21);
 
         int minMinutes = recipe.minLayTime() / (20 * 60);
         int maxMinutes = recipe.maxLayTime() / (20 * 60);
         Component message = Component.translatable("gui.laying.time", minMinutes, maxMinutes);
-        graphics.drawString(Minecraft.getInstance().font, message, 24, 7, 0xFF7F7F7F, false);
+        graphics.text(Minecraft.getInstance().font, message, 24, 7, 0xFF7F7F7F, false);
     }
 }

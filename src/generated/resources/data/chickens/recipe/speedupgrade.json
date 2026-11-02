@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "D": {
-      "item": "minecraft:diamond"
-    },
-    "E": {
-      "item": "minecraft:ender_eye"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
-    }
+    "D": "minecraft:diamond",
+    "E": "minecraft:ender_eye",
+    "N": "minecraft:netherite_ingot"
   },
   "pattern": [
     "NEN",
@@ -18,7 +12,6 @@
     "NEN"
   ],
   "result": {
-    "count": 1,
     "id": "chickens:speedupgrade"
   }
 }

@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.MobSpawnType;
-import net.minecraft.world.entity.animal.Chicken;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.animal.chicken.Chicken;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -47,13 +47,13 @@ public final class ChickenTeachHandler {
             return;
         }
         BlockPos blockPos = chicken.blockPosition();
-        ChickensChicken newChicken = ModEntityTypes.CHICKENS_CHICKEN.get().create(serverLevel);
+        ChickensChicken newChicken = ModEntityTypes.CHICKENS_CHICKEN.get().create(serverLevel, EntitySpawnReason.CONVERSION);
         if (newChicken == null) {
             return;
         }
-        newChicken.moveTo(chicken.getX(), chicken.getY(), chicken.getZ(), chicken.getYRot(), chicken.getXRot());
+        newChicken.snapTo(chicken.getX(), chicken.getY(), chicken.getZ(), chicken.getYRot(), chicken.getXRot());
         newChicken.setYHeadRot(chicken.getYHeadRot());
-        newChicken.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(blockPos), MobSpawnType.CONVERSION, null);
+        newChicken.finalizeSpawn(serverLevel, serverLevel.getCurrentDifficultyAt(blockPos), EntitySpawnReason.CONVERSION, null);
         newChicken.setChickenType(targetBreed.getId());
         newChicken.setAge(chicken.getAge());
         if (chicken.hasCustomName()) {

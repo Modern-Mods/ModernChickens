@@ -13,7 +13,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.player.Player;
@@ -21,6 +21,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -28,11 +30,13 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.neoforged.neoforge.fluids.FluidActionResult;
 import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.FluidType;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.minecraft.world.item.ItemStackTemplate;
 
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.Set;
 import javax.annotation.Nullable;
 
@@ -44,6 +48,10 @@ import javax.annotation.Nullable;
 public class LiquidEggItem extends Item {
     public LiquidEggItem(Properties properties) {
         super(properties);
+    }
+
+    public static ItemStackTemplate templateFor(LiquidEggRegistryItem liquid) {
+        return ChickenItemHelper.typedTemplate(ModRegistry.LIQUID_EGG.get(), liquid.getId());
     }
 
     public static ItemStack createFor(LiquidEggRegistryItem liquid) {
@@ -63,38 +71,39 @@ public class LiquidEggItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
         LiquidEggRegistryItem liquid = resolve(stack);
         if (liquid != null) {
             Component fluidName = liquid.getDisplayName();
             Component amount = Component.literal(Integer.toString(liquid.getVolume()));
-            tooltip.add(Component.translatable("item.chickens.liquid_egg.tooltip", fluidName, amount)
+            tooltip.accept(Component.translatable("item.chickens.liquid_egg.tooltip", fluidName, amount)
                     .withStyle(ChatFormatting.GRAY));
             appendHazardTooltips(liquid.getHazards(), tooltip);
         }
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
         BlockHitResult hit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (hit.getType() != HitResult.Type.BLOCK) {
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
         LiquidEggRegistryItem liquid = resolve(stack);
         if (liquid == null) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
         BlockPos blockPos = hit.getBlockPos();
         Direction face = hit.getDirection();
         if (!level.mayInteract(player, blockPos) || !player.mayUseItemAt(blockPos.relative(face), face, stack)) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         BlockState state = level.getBlockState(blockPos);
         BlockPos placePos = state.canBeReplaced() ? blockPos : blockPos.relative(face);
         if (!tryPlaceLiquid(level, placePos, liquid, player, stack, hand)) {
-            return InteractionResultHolder.fail(stack);
+            return InteractionResult.FAIL;
         }
 
         player.awardStat(Stats.ITEM_USED.get(this));
@@ -104,7 +113,7 @@ public class LiquidEggItem extends Item {
         if (!level.isClientSide()) {
             applyHazardEffects(liquid, level, player);
         }
-        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+        return InteractionResult.SUCCESS;
     }
 
     private boolean tryPlaceLiquid(Level level,
@@ -116,11 +125,9 @@ public class LiquidEggItem extends Item {
         // Attempt to delegate placement to NeoForge's fluid helpers so fluids
         // without dedicated blocks still work (e.g., experience, modded fuels).
         FluidStack fluid = liquid.createFluidStack();
-        if (!fluid.isEmpty()) {
-            FluidActionResult placed = FluidUtil.tryPlaceFluid(player, level, hand, pos, container, fluid);
-            if (placed.isSuccess()) {
-                return true;
-            }
+        if (fluid.getAmount() >= FluidType.BUCKET_VOLUME
+                && FluidUtil.tryPlaceFluid(FluidResource.of(fluid), player, level, pos, false)) {
+            return true;
         }
 
         BlockState fallback = liquid.getLiquidBlockState();
@@ -135,15 +142,15 @@ public class LiquidEggItem extends Item {
             return false;
         }
 
-        if (level.dimensionType().ultraWarm() && fallback.is(Blocks.WATER)) {
-            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+        if (level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, pos) && fallback.is(Blocks.WATER)) {
+            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F, 2.6F + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.8F);
             for (int i = 0; i < 8; ++i) {
-                level.addParticle(ParticleTypes.LARGE_SMOKE, pos.getX() + level.random.nextDouble(), pos.getY() + level.random.nextDouble(), pos.getZ() + level.random.nextDouble(), 0.0D, 0.0D, 0.0D);
+                level.addParticle(ParticleTypes.LARGE_SMOKE, pos.getX() + level.getRandom().nextDouble(), pos.getY() + level.getRandom().nextDouble(), pos.getZ() + level.getRandom().nextDouble(), 0.0D, 0.0D, 0.0D);
             }
             return true;
         }
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (replaceable && !hasFluid) {
                 level.destroyBlock(pos, true);
             }
@@ -152,12 +159,12 @@ public class LiquidEggItem extends Item {
         return true;
     }
 
-    private void appendHazardTooltips(Set<LiquidEggRegistryItem.HazardFlag> hazards, List<Component> tooltip) {
+    private void appendHazardTooltips(Set<LiquidEggRegistryItem.HazardFlag> hazards, Consumer<Component> tooltip) {
         if (!ChickensConfigHolder.get().isLiquidEggHazardsEnabled()) {
             return;
         }
         for (LiquidEggRegistryItem.HazardFlag flag : hazards) {
-            tooltip.add(Component.translatable("item.chickens.liquid_egg.tooltip.hazard." + flag.getTranslationKey())
+            tooltip.accept(Component.translatable("item.chickens.liquid_egg.tooltip.hazard." + flag.getTranslationKey())
                     .withStyle(ChatFormatting.DARK_RED));
         }
     }
@@ -184,7 +191,7 @@ public class LiquidEggItem extends Item {
             player.addEffect(new MobEffectInstance(MobEffects.WITHER, 40));
         }
         if (liquid.hasHazard(LiquidEggRegistryItem.HazardFlag.MAGICAL)) {
-            player.addEffect(new MobEffectInstance(MobEffects.CONFUSION, 80));
+            player.addEffect(new MobEffectInstance(MobEffects.NAUSEA, 80));
         }
     }
 

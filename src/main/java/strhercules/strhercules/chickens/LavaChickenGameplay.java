@@ -4,6 +4,7 @@ import strhercules.chickens.entity.ChickensChicken;
 import strhercules.chickens.registry.ModEffects;
 import strhercules.chickens.registry.ModRegistry;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.damagesource.DamageTypes;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -35,7 +36,9 @@ public final class LavaChickenGameplay {
         if (!isEligibleModernChicken(chicken) || !isLava(source) || !rollDrop(chicken)) {
             return;
         }
-        chicken.spawnAtLocation(new ItemStack(ModRegistry.LAVA_CHICKEN.get()), 0.0F);
+        if (chicken.level() instanceof ServerLevel serverLevel) {
+            chicken.spawnAtLocation(serverLevel, new ItemStack(ModRegistry.LAVA_CHICKEN.get()), 0.0F);
+        }
     }
 
     private static void onLivingDrops(LivingDropsEvent event) {
@@ -56,7 +59,7 @@ public final class LavaChickenGameplay {
         // Keep the vanilla fire overlay active without allowing the fire timer to
         // expire before the beneficial effect does.
         player.setRemainingFireTicks(Math.max(player.getRemainingFireTicks(), 2));
-        if (player.level().isClientSide || !player.onGround() || player.tickCount % 4 != 0) {
+        if (player.level().isClientSide() || !player.onGround() || player.tickCount % 4 != 0) {
             return;
         }
 

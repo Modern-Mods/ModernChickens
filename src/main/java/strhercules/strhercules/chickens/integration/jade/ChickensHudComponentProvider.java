@@ -6,13 +6,13 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.GasEggRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.player.LocalPlayer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.minecraft.resources.Identifier;
+import strhercules.chickens.client.render.ClientFluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IBlockComponentProvider;
@@ -28,8 +28,8 @@ import java.util.Locale;
  */
 final class ChickensHudComponentProvider implements IBlockComponentProvider {
     static final ChickensHudComponentProvider INSTANCE = new ChickensHudComponentProvider();
-    private static final ResourceLocation UID = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
-    private static final ResourceLocation MEKANISM_CHEMICAL = ResourceLocation.fromNamespaceAndPath("mekanism", "chemical");
+    private static final Identifier UID = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "hud_overlay");
+    private static final Identifier MEKANISM_CHEMICAL = Identifier.fromNamespaceAndPath("mekanism", "chemical");
 
     private ChickensHudComponentProvider() {
     }
@@ -48,8 +48,8 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE);
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE_DEFAULT);
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE_DETAILED);
-        boolean mekanismOwnsChemicalBar = config.get(MEKANISM_CHEMICAL)
-                && accessor.getServerData().contains("mek_data", Tag.TAG_LIST);
+        boolean mekanismOwnsChemicalBar = config.values().containsKey(MEKANISM_CHEMICAL) && config.get(MEKANISM_CHEMICAL)
+                && accessor.getServerData().contains("mek_data");
         for (HudData.Entry entry : hud.entries()) {
             switch (entry.type()) {
                 case TEXT -> tooltip.add(((HudData.TextEntry) entry).text());
@@ -66,7 +66,7 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return UID;
     }
 
@@ -78,7 +78,7 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
                 ? Component.translatable("tooltip.chickens.avian_dousing_machine.empty")
                 : Component.literal(String.format("%s: %s mB", stack.getHoverName().getString(), formatCompact(amount)));
         TextureAtlasSprite sprite = resolveFluidSprite(stack, accessor);
-        int tint = stack.isEmpty() ? 0xFF6F6F6F : (IClientFluidTypeExtensions.of(stack.getFluid()).getTintColor(stack) | 0xFF000000);
+        int tint = stack.isEmpty() ? 0xFF6F6F6F : (ClientFluids.tint(stack) | 0xFF000000);
         HudBarElement element = new HudBarElement(text, sprite, tint, amount / (float) capacity);
         element.tag(UID);
         return element;
@@ -97,7 +97,7 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
             tint = 0xFF6F6F6F;
         } else {
             text = Component.literal(String.format("%s: %s mB", item.getDisplayName().getString(), formatCompact(amount)));
-            sprite = getAtlas().getSprite(item.getTexture());
+            sprite = ClientFluids.blockSprite(item.getTexture());
             tint = 0xFF000000 | item.getEggColor();
         }
         HudBarElement element = new HudBarElement(text, sprite, tint, amount / (float) capacity);
@@ -109,7 +109,7 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
         long capacity = Math.max(entry.capacity(), 1L);
         long energy = Math.max(entry.energy(), 0L);
         Component text = Component.literal(String.format("%s / %s", formatEnergy(energy), formatEnergy(capacity)));
-        TextureAtlasSprite sprite = getAtlas().getSprite(ResourceLocation.withDefaultNamespace("block/redstone_block"));
+        TextureAtlasSprite sprite = ClientFluids.blockSprite(Identifier.withDefaultNamespace("block/redstone_block"));
         HudBarElement element = new HudBarElement(text, sprite, 0xFFE6C63E, (float) Math.min(1.0, energy / (double) capacity));
         element.tag(UID);
         return element;
@@ -117,26 +117,13 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
 
     private static TextureAtlasSprite resolveFluidSprite(FluidStack stack, BlockAccessor accessor) {
         if (stack.isEmpty()) {
-            return getAtlas().getSprite(ResourceLocation.withDefaultNamespace("block/water_still"));
+            return ClientFluids.blockSprite(Identifier.withDefaultNamespace("block/water_still"));
         }
-        IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
-        BlockPos pos = accessor.getPosition();
-        ResourceLocation texture = extensions.getStillTexture(stack.getFluid().defaultFluidState(), accessor.getLevel(), pos);
-        if (texture == null) {
-            texture = extensions.getFlowingTexture(stack.getFluid().defaultFluidState(), accessor.getLevel(), pos);
-        }
-        if (texture == null) {
-            texture = ResourceLocation.withDefaultNamespace("block/water_still");
-        }
-        return getAtlas().getSprite(texture);
-    }
-
-    private static TextureAtlas getAtlas() {
-        return Minecraft.getInstance().getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS);
+        return ClientFluids.stillSprite(stack.getFluid());
     }
 
     private static TextureAtlasSprite getMissingSprite() {
-        return Minecraft.getInstance().getModelManager().getMissingModel().getParticleIcon();
+        return ClientFluids.blockSprite(MissingTextureAtlasSprite.getLocation());
     }
 
     private static ChemicalEggRegistryItem resolveChemical(int id) {

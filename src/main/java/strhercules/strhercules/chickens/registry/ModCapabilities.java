@@ -5,7 +5,7 @@ import strhercules.chickens.liquidegg.LiquidEggFluidWrapper;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.items.wrapper.SidedInvWrapper;
+import net.neoforged.neoforge.transfer.item.WorldlyContainerWrapper;
 import net.minecraft.world.WorldlyContainer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -24,8 +24,8 @@ public final class ModCapabilities {
     }
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new LiquidEggFluidWrapper(stack),
+        event.registerItem(Capabilities.Fluid.ITEM,
+                (stack, access) -> new LiquidEggFluidWrapper(access),
                 ModRegistry.LIQUID_EGG.get());
 
         // Expose container inventories through the NeoForge capability bridge so
@@ -46,39 +46,39 @@ public final class ModCapabilities {
         registerContainerCapability(event, ModBlockEntities.MECHANICAL_NEST.get());
 
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.AVIAN_FLUX_CONVERTER.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.AVIAN_DOUSING_MACHINE.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.INCUBATOR.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.HENHOUSE.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.MECHANICAL_ROOST.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.ROOST_GENERATOR.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.EnergyStorage.BLOCK,
+                Capabilities.Energy.BLOCK,
                 ModBlockEntities.MECHANICAL_NEST.get(),
                 (blockEntity, direction) -> blockEntity.getEnergyStorage(direction));
         event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
+                Capabilities.Fluid.BLOCK,
                 ModBlockEntities.AVIAN_FLUID_CONVERTER.get(),
                 (blockEntity, direction) -> blockEntity.getFluidTank(direction));
         event.registerBlockEntity(
-                Capabilities.FluidHandler.BLOCK,
+                Capabilities.Fluid.BLOCK,
                 ModBlockEntities.AVIAN_DOUSING_MACHINE.get(),
                 (blockEntity, direction) -> blockEntity.getFluidTank(direction));
 
@@ -99,8 +99,8 @@ public final class ModCapabilities {
             RegisterCapabilitiesEvent event,
             BlockEntityType<T> type) {
         event.registerBlockEntity(
-                Capabilities.ItemHandler.BLOCK,
+                Capabilities.Item.BLOCK,
                 type,
-                (blockEntity, direction) -> new SidedInvWrapper(blockEntity, direction));
+                (blockEntity, direction) -> new WorldlyContainerWrapper(blockEntity, direction));
     }
 }

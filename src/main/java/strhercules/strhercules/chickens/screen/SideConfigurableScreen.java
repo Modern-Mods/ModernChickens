@@ -4,11 +4,13 @@ import strhercules.chickens.blockentity.MachineSideConfig;
 import strhercules.chickens.menu.SideConfigMenu;
 import strhercules.chickens.network.SideConfigPayload;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 
@@ -18,19 +20,21 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
     private MachineSideConfig.Channel selectedChannel = MachineSideConfig.Channel.ITEMS;
     private boolean sideConfigOpen;
 
-    protected SideConfigurableScreen(M menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
+    protected SideConfigurableScreen(M menu, Inventory playerInventory, Component title, int imageWidth,
+            int imageHeight) {
+        super(menu, playerInventory, title, imageWidth, imageHeight);
     }
 
-    protected final void renderSideConfig(GuiGraphics graphics, int mouseX, int mouseY) {
+    protected final void renderSideConfig(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         SideConfigPanel.render(graphics, this.font, this.leftPos, this.topPos, this.imageWidth, this.imageHeight,
                 this.width, this.menu, this.sideConfigOpen, this.selectedChannel, mouseX, mouseY);
     }
 
     @Override
-    public boolean mouseClicked(double mouseX, double mouseY, int button) {
-        int x = (int) mouseX;
-        int y = (int) mouseY;
+    public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+        int button = event.button();
+        int x = (int) event.x();
+        int y = (int) event.y();
         if (button == 0 && SideConfigPanel.isTabHovered(this.leftPos, this.topPos, this.imageWidth, this.imageHeight,
                 this.width, x, y)) {
             this.sideConfigOpen = !this.sideConfigOpen;
@@ -55,7 +59,7 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
                 return true;
             }
         }
-        return super.mouseClicked(mouseX, mouseY, button);
+        return super.mouseClicked(event, doubleClick);
     }
 
     private static final class SideConfigPanel {
@@ -71,24 +75,24 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
         };
         private static final String[] CHANNEL_LABELS = { "Items", "Fluids", "Chemicals", "Energy" };
 
-        private static final ResourceLocation BASE_TEXTURE = texture("base");
-        private static final ResourceLocation SHADOW_TEXTURE = texture("shadow");
-        private static final ResourceLocation INNER_SCREEN_TEXTURE = texture("inner_screen");
-        private static final ResourceLocation CONFIGURATION_TEXTURE = texture("configuration");
-        private static final ResourceLocation BUTTON_TEXTURE = texture("button");
-        private static final ResourceLocation HOLDER_LEFT_TEXTURE = texture("holder_left");
-        private static final ResourceLocation HOLDER_RIGHT_TEXTURE = texture("holder_right");
-        private static final ResourceLocation CLEAR_SIDES_TEXTURE = texture("button/clear_sides");
-        private static final ResourceLocation AUTO_EJECT_TEXTURE = texture("button/auto_eject");
-        private static final ResourceLocation[] CHANNEL_TEXTURES = {
+        private static final Identifier BASE_TEXTURE = texture("base");
+        private static final Identifier SHADOW_TEXTURE = texture("shadow");
+        private static final Identifier INNER_SCREEN_TEXTURE = texture("inner_screen");
+        private static final Identifier CONFIGURATION_TEXTURE = texture("configuration");
+        private static final Identifier BUTTON_TEXTURE = texture("button");
+        private static final Identifier HOLDER_LEFT_TEXTURE = texture("holder_left");
+        private static final Identifier HOLDER_RIGHT_TEXTURE = texture("holder_right");
+        private static final Identifier CLEAR_SIDES_TEXTURE = texture("button/clear_sides");
+        private static final Identifier AUTO_EJECT_TEXTURE = texture("button/auto_eject");
+        private static final Identifier[] CHANNEL_TEXTURES = {
                 texture("items"), texture("fluids"), texture("chemicals"), texture("energy")
         };
 
-        private static ResourceLocation texture(String name) {
-            return ResourceLocation.fromNamespaceAndPath("chickens", "textures/gui/io/" + name + ".png");
+        private static Identifier texture(String name) {
+            return Identifier.fromNamespaceAndPath("chickens", "textures/gui/io/" + name + ".png");
         }
 
-        private static void render(GuiGraphics graphics, Font font, int leftPos, int topPos, int imageWidth,
+        private static void render(GuiGraphicsExtractor graphics, Font font, int leftPos, int topPos, int imageWidth,
                 int imageHeight, int screenWidth, SideConfigMenu menu, boolean open,
                 MachineSideConfig.Channel channel, int mouseX, int mouseY) {
             int tabX = tabX(leftPos, imageWidth, screenWidth);
@@ -98,7 +102,7 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
             if (!open) {
                 drawTab(graphics, tabX, tabY, leftPos, tabHovered, false, CONFIGURATION_TEXTURE);
                 if (tabHovered) {
-                    graphics.renderTooltip(font, Component.literal("Configure machine I/O"), mouseX, mouseY);
+                    graphics.setTooltipForNextFrame(font, Component.literal("Configure machine I/O"), mouseX, mouseY);
                 }
                 return;
             }
@@ -110,12 +114,12 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
             drawNineSlice(graphics, BASE_TEXTURE, panelX, panelY, PANEL_WIDTH, PANEL_HEIGHT,
                     4, 4, 0, 0, 256, 256, 256, 256, 0xFFFFFFFF);
 
-            graphics.drawString(font, Component.literal(channelLabel(channel) + " Config"), panelX + 5, panelY + 5,
-                    0x404040, false);
+            graphics.text(font, Component.literal(channelLabel(channel) + " Config"), panelX + 5, panelY + 5,
+                    0xFF404040, false);
             drawNineSlice(graphics, INNER_SCREEN_TEXTURE, panelX + 38, panelY + 25, 80, 12,
                     4, 4, 0, 0, 256, 256, 256, 256, 0xFFFFFFFF);
-            graphics.drawCenteredString(font, Component.literal(channelLabel(channel)), panelX + 78, panelY + 27,
-                    0x00FF88);
+            graphics.centeredText(font, Component.literal(channelLabel(channel)), panelX + 78, panelY + 27,
+                    0xFF00FF88);
 
             boolean tabsOnLeft = panelX < leftPos;
             int channelTabX = channelTabX(panelX, leftPos, screenWidth);
@@ -142,20 +146,20 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
             int autoX = panelX + 136;
             int autoY = panelY + 6;
             drawButton(graphics, autoX, autoY, 14, 14, false, 0xFF858585, false);
-            graphics.blit(AUTO_EJECT_TEXTURE, autoX, autoY, 0, 0, 14, 14, 14, 14);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, AUTO_EJECT_TEXTURE, autoX, autoY, 0, 0, 14, 14, 14, 14);
 
             int resetX = panelX + 136;
             int resetY = panelY + 95;
             boolean resetHovered = isHovered(resetX, resetY, 14, 14, mouseX, mouseY);
             drawButton(graphics, resetX, resetY, 14, 14, resetHovered, 0xFF858585, true);
-            graphics.blit(CLEAR_SIDES_TEXTURE, resetX, resetY, 0, 0, 14, 14, 14, 14);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, CLEAR_SIDES_TEXTURE, resetX, resetY, 0, 0, 14, 14, 14, 14);
 
             // Keep the close/configuration tab above the panel when the screen is narrow.
             drawTab(graphics, tabX, tabY, leftPos, tabHovered, true, CONFIGURATION_TEXTURE);
 
             Component tooltip = tooltipAt(panelX, panelY, leftPos, screenWidth, config, channel, mouseX, mouseY);
             if (tooltip != null) {
-                graphics.renderTooltip(font, tooltip, mouseX, mouseY);
+                graphics.setTooltipForNextFrame(font, tooltip, mouseX, mouseY);
             }
         }
 
@@ -237,46 +241,43 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
             return Math.max(2, Math.min(preferred, screenWidth - TAB_WIDTH - 2));
         }
 
-        private static void drawTab(GuiGraphics graphics, int x, int y, int leftPos, boolean hovered, boolean open,
-                ResourceLocation icon) {
+        private static void drawTab(GuiGraphicsExtractor graphics, int x, int y, int leftPos, boolean hovered, boolean open,
+                Identifier icon) {
             drawHolderTab(graphics, x, y, x < leftPos, hovered || open ? 0xFFD0D0D0 : 0xFFB0B0B0, icon);
         }
 
-        private static void drawHolderTab(GuiGraphics graphics, int x, int y, boolean left, int color,
-                ResourceLocation icon) {
-            ResourceLocation holder = left ? HOLDER_LEFT_TEXTURE : HOLDER_RIGHT_TEXTURE;
+        private static void drawHolderTab(GuiGraphicsExtractor graphics, int x, int y, boolean left, int color,
+                Identifier icon) {
+            Identifier holder = left ? HOLDER_LEFT_TEXTURE : HOLDER_RIGHT_TEXTURE;
             drawTintedNineSlice(graphics, holder, x, y, TAB_WIDTH, TAB_HEIGHT, 4, 4,
                     0, 0, 26, 9, 26, 9, color);
-            graphics.blit(icon, x + 4, y, 0, 0, 18, 18, 18, 18);
+            graphics.blit(RenderPipelines.GUI_TEXTURED, icon, x + 4, y, 0, 0, 18, 18, 18, 18);
         }
 
-        private static void drawButton(GuiGraphics graphics, int x, int y, int width, int height, boolean hovered,
+        private static void drawButton(GuiGraphicsExtractor graphics, int x, int y, int width, int height, boolean hovered,
                 int color, boolean active) {
             int state = !active ? 0 : hovered ? 2 : 1;
             drawTintedNineSlice(graphics, BUTTON_TEXTURE, x, y, width, height, 20, 4,
                     0, state * 20, 200, 20, 200, 60, color);
         }
 
-        private static void drawTintedNineSlice(GuiGraphics graphics, ResourceLocation texture, int x, int y,
+        private static void drawTintedNineSlice(GuiGraphicsExtractor graphics, Identifier texture, int x, int y,
                 int width, int height, int sliceWidth, int sliceHeight, int uOffset, int vOffset, int sourceWidth,
                 int sourceHeight, int textureWidth, int textureHeight, int color) {
-            graphics.setColor(((color >> 16) & 0xFF) / 255.0F, ((color >> 8) & 0xFF) / 255.0F,
-                    (color & 0xFF) / 255.0F, ((color >>> 24) & 0xFF) / 255.0F);
             blitNineSlice(graphics, texture, x, y, width, height, sliceWidth, sliceHeight, uOffset, vOffset,
-                    sourceWidth, sourceHeight, textureWidth, textureHeight);
-            graphics.setColor(1, 1, 1, 1);
+                    sourceWidth, sourceHeight, textureWidth, textureHeight, color);
         }
 
-        private static void drawNineSlice(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width,
+        private static void drawNineSlice(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width,
                 int height, int sliceWidth, int sliceHeight, int uOffset, int vOffset, int sourceWidth,
                 int sourceHeight, int textureWidth, int textureHeight, int color) {
             drawTintedNineSlice(graphics, texture, x, y, width, height, sliceWidth, sliceHeight, uOffset, vOffset,
                     sourceWidth, sourceHeight, textureWidth, textureHeight, color);
         }
 
-        private static void blitNineSlice(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width,
+        private static void blitNineSlice(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width,
                 int height, int sliceWidth, int sliceHeight, int uOffset, int vOffset, int sourceWidth,
-                int sourceHeight, int textureWidth, int textureHeight) {
+                int sourceHeight, int textureWidth, int textureHeight, int color) {
             int left = Math.min(sliceWidth, width / 2);
             int right = Math.min(sliceWidth, width - left);
             int top = Math.min(sliceHeight, height / 2);
@@ -286,33 +287,34 @@ public abstract class SideConfigurableScreen<M extends AbstractContainerMenu & S
             int sourceCenterWidth = sourceWidth - sliceWidth * 2;
             int sourceCenterHeight = sourceHeight - sliceHeight * 2;
 
-            blitPart(graphics, texture, x, y, left, top, uOffset, vOffset, left, top, textureWidth, textureHeight);
+            blitPart(graphics, texture, x, y, left, top, uOffset, vOffset, left, top, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + left, y, centerWidth, top, uOffset + sliceWidth, vOffset,
-                    sourceCenterWidth, sliceHeight, textureWidth, textureHeight);
+                    sourceCenterWidth, sliceHeight, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + width - right, y, right, top, uOffset + sourceWidth - sliceWidth,
-                    vOffset, right, top, textureWidth, textureHeight);
+                    vOffset, right, top, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x, y + top, left, centerHeight, uOffset, vOffset + sliceHeight, sliceWidth,
-                    sourceCenterHeight, textureWidth, textureHeight);
+                    sourceCenterHeight, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + left, y + top, centerWidth, centerHeight, uOffset + sliceWidth,
-                    vOffset + sliceHeight, sourceCenterWidth, sourceCenterHeight, textureWidth, textureHeight);
+                    vOffset + sliceHeight, sourceCenterWidth, sourceCenterHeight, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + width - right, y + top, right, centerHeight,
                     uOffset + sourceWidth - sliceWidth, vOffset + sliceHeight, right, sourceCenterHeight,
-                    textureWidth, textureHeight);
+                    textureWidth, textureHeight, color);
             blitPart(graphics, texture, x, y + height - bottom, left, bottom, uOffset, vOffset + sourceHeight - sliceHeight,
-                    left, bottom, textureWidth, textureHeight);
+                    left, bottom, textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + left, y + height - bottom, centerWidth, bottom,
                     uOffset + sliceWidth, vOffset + sourceHeight - sliceHeight, sourceCenterWidth, bottom,
-                    textureWidth, textureHeight);
+                    textureWidth, textureHeight, color);
             blitPart(graphics, texture, x + width - right, y + height - bottom, right, bottom,
                     uOffset + sourceWidth - sliceWidth, vOffset + sourceHeight - sliceHeight, right, bottom,
-                    textureWidth, textureHeight);
+                    textureWidth, textureHeight, color);
         }
 
-        private static void blitPart(GuiGraphics graphics, ResourceLocation texture, int x, int y, int width,
-                int height, int u, int v, int sourceWidth, int sourceHeight, int textureWidth, int textureHeight) {
+        private static void blitPart(GuiGraphicsExtractor graphics, Identifier texture, int x, int y, int width,
+                int height, int u, int v, int sourceWidth, int sourceHeight, int textureWidth, int textureHeight,
+                int color) {
             if (width > 0 && height > 0 && sourceWidth > 0 && sourceHeight > 0) {
-                graphics.blit(texture, x, y, width, height, (float) u, (float) v, sourceWidth, sourceHeight,
-                        textureWidth, textureHeight);
+                graphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, (float) u, (float) v, width, height,
+                        sourceWidth, sourceHeight, textureWidth, textureHeight, color);
             }
         }
 

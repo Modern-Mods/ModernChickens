@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "H": {
-      "item": "minecraft:hopper"
-    },
-    "W": {
-      "item": "minecraft:spruce_planks"
-    },
-    "Y": {
-      "item": "minecraft:hay_block"
-    }
+    "H": "minecraft:hopper",
+    "W": "minecraft:spruce_planks",
+    "Y": "minecraft:hay_block"
   },
   "pattern": [
     "WWW",
@@ -18,7 +12,6 @@
     "YYY"
   ],
   "result": {
-    "count": 1,
     "id": "chickens:henhouse_spruce"
   }
 }

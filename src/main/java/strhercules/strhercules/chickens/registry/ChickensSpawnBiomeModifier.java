@@ -37,14 +37,14 @@ public final class ChickensSpawnBiomeModifier implements BiomeModifier {
             return;
         }
 
-        builder.getMobSpawnSettings().addSpawn(plan.category(), plan.spawnerData());
-        builder.getMobSpawnSettings().addMobCharge(plan.spawnerData().type, plan.spawnCharge(), plan.energyBudget());
+        builder.getMobSpawnSettings().addSpawn(plan.category(), plan.spawnWeight(), plan.spawnerData());
+        builder.getMobSpawnSettings().addMobCharge(plan.spawnerData().type(), plan.spawnCharge(), plan.energyBudget());
 
         if (vanillaChickenBiome) {
-            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
-                    new MobSpawnSettings.SpawnerData(ModEntityTypes.MEGA_CHICKEN.get(), 1, 1, 1));
-            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE,
-                    new MobSpawnSettings.SpawnerData(ModEntityTypes.ROOSTER.get(), 1, 1, 1));
+            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE, 1,
+                    new MobSpawnSettings.SpawnerData(ModEntityTypes.MEGA_CHICKEN.get(), 1, 1));
+            builder.getMobSpawnSettings().addSpawn(MobCategory.CREATURE, 1,
+                    new MobSpawnSettings.SpawnerData(ModEntityTypes.ROOSTER.get(), 1, 1));
         }
     }
 
@@ -53,8 +53,8 @@ public final class ChickensSpawnBiomeModifier implements BiomeModifier {
     }
 
     private static boolean hasVanillaChickenSpawn(ModifiableBiomeInfo.BiomeInfo.Builder builder) {
-        return builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE).stream()
-                .anyMatch(spawn -> spawn.type == EntityType.CHICKEN);
+        return builder.getMobSpawnSettings().getSpawner(MobCategory.CREATURE).getList().stream()
+                .anyMatch(spawn -> spawn.value().type() == EntityType.CHICKEN);
     }
 
     @Override

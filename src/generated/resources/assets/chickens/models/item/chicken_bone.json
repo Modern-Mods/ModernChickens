@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "chickens:item/chicken/whitechicken",
+    "layer1": "chickens:item/boneoverlay"
+  }
+}

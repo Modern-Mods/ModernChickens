@@ -12,17 +12,17 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.RecipeType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Recreates the coloured egg throwing category so players can discover which
  * dyed eggs summon which chicken breeds.
  */
 public class ThrowingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.ThrowingRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/throws.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/throws_icon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/throws.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/throws_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -46,8 +46,13 @@ public class ThrowingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -64,8 +69,9 @@ public class ThrowingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.ThrowingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.ThrowingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 32, 21);
     }
 }

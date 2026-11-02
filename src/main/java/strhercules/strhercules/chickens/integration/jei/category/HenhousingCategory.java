@@ -12,17 +12,17 @@ import mezz.jei.api.recipe.IFocusGroup;
 import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import mezz.jei.api.recipe.RecipeType;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Recreates the henhouse processing category that demonstrates how hay bales
  * are converted into dirt within the block entity.
  */
 public class HenhousingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.HenhouseRecipe> {
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/henhouse.png");
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/henhousing_icon.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/henhouse.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/henhousing_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -46,8 +46,13 @@ public class HenhousingCategory implements IRecipeCategory<ChickensJeiRecipeType
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -64,8 +69,9 @@ public class HenhousingCategory implements IRecipeCategory<ChickensJeiRecipeType
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.HenhouseRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.HenhouseRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 57, 2);
     }
 }

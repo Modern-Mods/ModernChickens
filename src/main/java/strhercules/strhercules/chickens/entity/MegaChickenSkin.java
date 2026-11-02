@@ -2,7 +2,7 @@ package strhercules.chickens.entity;
 
 import strhercules.chickens.ChickensMod;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import javax.annotation.Nullable;
 
@@ -39,8 +39,8 @@ public enum MegaChickenSkin {
                 fallbackName);
     }
 
-    public ResourceLocation texture() {
-        return ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    public Identifier texture() {
+        return Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
                 "textures/entity/megachicken/" + id + "_chicken.png");
     }
 

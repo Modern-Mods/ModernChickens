@@ -15,7 +15,7 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 
@@ -43,8 +43,13 @@ public final class AvianDousingCategory implements IRecipeCategory<ChickensJeiRe
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -78,10 +83,11 @@ public final class AvianDousingCategory implements IRecipeCategory<ChickensJeiRe
 
     @Override
     public void draw(ChickensJeiRecipeTypes.AvianDousingRecipe recipe, IRecipeSlotsView recipeSlotsView,
-            GuiGraphics graphics, double mouseX, double mouseY) {
+            GuiGraphicsExtractor graphics, double mouseX, double mouseY) {
+        background.draw(graphics);
         Component input = Component.translatable("gui.chickens.avian_dousing_machine.input");
         int textColor = 0xFF7F7F7F;
-        graphics.drawString(Minecraft.getInstance().font, input, 4, 4, textColor, false);
+        graphics.text(Minecraft.getInstance().font, input, 4, 4, textColor, false);
 
         // Fluid recipes show amount + energy; chemical recipes show chemical id + volume + energy;
         // item reagent recipes (dragon breath etc.) show energy only.
@@ -90,8 +96,8 @@ public final class AvianDousingCategory implements IRecipeCategory<ChickensJeiRe
                     recipe.fluidCost());
             Component energy = Component.translatable("gui.chickens.avian_dousing_machine.energy",
                     recipe.energyCost());
-            graphics.drawString(Minecraft.getInstance().font, volume, 4, 16, textColor, false);
-            graphics.drawString(Minecraft.getInstance().font, energy, 4, 28, textColor, false);
+            graphics.text(Minecraft.getInstance().font, volume, 4, 16, textColor, false);
+            graphics.text(Minecraft.getInstance().font, energy, 4, 28, textColor, false);
         } else if (recipe.entry() != null) {
             Component chemicalName = recipe.entry().getDisplayName();
             String chemicalId = recipe.entry().getChemicalId().toString();
@@ -101,14 +107,14 @@ public final class AvianDousingCategory implements IRecipeCategory<ChickensJeiRe
                     AvianDousingMachineBlockEntity.CHEMICAL_COST);
             Component energy = Component.translatable("gui.chickens.avian_dousing_machine.energy",
                     AvianDousingMachineBlockEntity.CHEMICAL_ENERGY_COST);
-            graphics.drawString(Minecraft.getInstance().font, chemical, 4, 16, textColor, false);
-            graphics.drawString(Minecraft.getInstance().font, volume, 4, 28, textColor, false);
-            graphics.drawString(Minecraft.getInstance().font, energy, 4, 40, textColor, false);
+            graphics.text(Minecraft.getInstance().font, chemical, 4, 16, textColor, false);
+            graphics.text(Minecraft.getInstance().font, volume, 4, 28, textColor, false);
+            graphics.text(Minecraft.getInstance().font, energy, 4, 40, textColor, false);
         } else {
             // Special item reagent (dragon breath, nether star)
             Component energy = Component.translatable("gui.chickens.avian_dousing_machine.energy",
                     recipe.energyCost());
-            graphics.drawString(Minecraft.getInstance().font, energy, 4, 16, textColor, false);
+            graphics.text(Minecraft.getInstance().font, energy, 4, 16, textColor, false);
         }
     }
 }

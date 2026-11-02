@@ -4,7 +4,7 @@ import strhercules.chickens.ChickensMod;
 import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.SpawnType;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 
 import javax.annotation.Nullable;
@@ -12,8 +12,8 @@ import java.util.Locale;
 
 
 public class KubeChickenBuilder {
-    private static final ResourceLocation DEFAULT_TEXTURE =
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/whitechicken.png");
+    private static final Identifier DEFAULT_TEXTURE =
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/entity/whitechicken.png");
 
     private final String entityName;
 
@@ -189,7 +189,7 @@ public class KubeChickenBuilder {
             throw new IllegalArgumentException("chicken '" + entityName + "' has no layItem");
         }
 
-        ResourceLocation texture = resolveTexture();
+        Identifier texture = resolveTexture();
         boolean generated = generatedTexture != null ? generatedTexture : texturePath == null;
 
         ChickensRegistryItem chicken = new ChickensRegistryItem(resolvedId, entityName, texture, layItem,
@@ -216,7 +216,7 @@ public class KubeChickenBuilder {
             chicken.setSpawnWeight(spawnWeight);
         }
         if (itemTexture != null && !itemTexture.isEmpty()) {
-            ResourceLocation sprite = ResourceLocation.tryParse(itemTexture);
+            Identifier sprite = Identifier.tryParse(itemTexture);
             if (sprite != null) {
                 chicken.setItemTexture(sprite);
             } else {
@@ -228,11 +228,11 @@ public class KubeChickenBuilder {
         return chicken;
     }
 
-    private ResourceLocation resolveTexture() {
+    private Identifier resolveTexture() {
         if (texturePath == null || texturePath.isEmpty()) {
             return DEFAULT_TEXTURE;
         }
-        ResourceLocation parsed = ResourceLocation.tryParse(texturePath);
+        Identifier parsed = Identifier.tryParse(texturePath);
         if (parsed != null) {
             return parsed;
         }

@@ -14,17 +14,19 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.sounds.SoundSource;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Item representation of a chicken. Players can drop stacks into roosts or
@@ -78,28 +80,28 @@ public class ChickenItem extends Item {
             if (!ChickenItemHelper.isRooster(stack) || !nest.canPlaceItem(NestBlockEntity.ROOSTER_SLOT, stack)) {
                 return InteractionResult.PASS;
             }
-            if (!level.isClientSide && nest.putRoosters(stack)) {
+            if (!level.isClientSide() && nest.putRoosters(stack)) {
                 return InteractionResult.CONSUME;
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
         if (blockEntity instanceof MechanicalNestBlockEntity mechanicalNest) {
             if (!mechanicalNest.canInsertRooster(stack)) {
                 return InteractionResult.PASS;
             }
-            if (!level.isClientSide && mechanicalNest.putRooster(stack)) {
+            if (!level.isClientSide() && mechanicalNest.putRooster(stack)) {
                 return InteractionResult.CONSUME;
             }
-            return InteractionResult.sidedSuccess(level.isClientSide);
+            return InteractionResult.SUCCESS;
         }
         if (blockEntity instanceof RoostBlockEntity roost) {
-            if (!level.isClientSide && roost.putChicken(stack)) {
+            if (!level.isClientSide() && roost.putChicken(stack)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
         }
         if (blockEntity instanceof BreederBlockEntity breeder) {
-            if (!level.isClientSide && breeder.insertChicken(stack)) {
+            if (!level.isClientSide() && breeder.insertChicken(stack)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
@@ -114,12 +116,12 @@ public class ChickenItem extends Item {
     private void spawnChicken(ItemStack stack, @Nullable net.minecraft.world.entity.player.Player player,
             ServerLevel level, BlockPos spawnPos) {
         if (ChickenItemHelper.isRooster(stack)) {
-            Rooster rooster = ModEntityTypes.ROOSTER.get().create(level);
+            Rooster rooster = ModEntityTypes.ROOSTER.get().create(level, EntitySpawnReason.SPAWN_ITEM_USE);
             if (rooster == null) {
                 return;
             }
-            rooster.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
-                    level.random.nextFloat() * 360.0F, 0.0F);
+            rooster.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
+                    level.getRandom().nextFloat() * 360.0F, 0.0F);
             RoosterItemData.applyToEntity(stack, rooster);
             level.addFreshEntity(rooster);
             level.playSound(null, spawnPos, SoundEvents.CHICKEN_EGG, SoundSource.NEUTRAL, 0.5F, 1.0F);
@@ -133,12 +135,12 @@ public class ChickenItem extends Item {
         if (description == null) {
             return;
         }
-        ChickensChicken chicken = ModEntityTypes.CHICKENS_CHICKEN.get().create(level);
+        ChickensChicken chicken = ModEntityTypes.CHICKENS_CHICKEN.get().create(level, EntitySpawnReason.SPAWN_ITEM_USE);
         if (chicken == null) {
             return;
         }
-        chicken.moveTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
-                level.random.nextFloat() * 360.0F, 0.0F);
+        chicken.snapTo(spawnPos.getX() + 0.5D, spawnPos.getY(), spawnPos.getZ() + 0.5D,
+                level.getRandom().nextFloat() * 360.0F, 0.0F);
         ChickenItemHelper.applyToEntity(stack, chicken);
         level.addFreshEntity(chicken);
         level.playSound(null, spawnPos, SoundEvents.CHICKEN_EGG, SoundSource.NEUTRAL, 0.5F, 1.0F);
@@ -150,26 +152,27 @@ public class ChickenItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
         if (ChickenItemHelper.isRobotRooster(stack)) {
-            tooltip.add(Component.translatable("item.chickens.robot_rooster.tooltip")
+            tooltip.accept(Component.translatable("item.chickens.robot_rooster.tooltip")
                     .withStyle(ChatFormatting.GRAY));
             return;
         }
         ChickensRegistryItem chicken = ChickenItemHelper.resolve(stack);
         if (chicken != null) {
             if (ChickenItemHelper.isRobotChicken(stack)) {
-                tooltip.add(Component.translatable("item.chickens.robot_chicken.tooltip")
+                tooltip.accept(Component.translatable("item.chickens.robot_chicken.tooltip")
                         .withStyle(ChatFormatting.GRAY));
             }
-            tooltip.add(Component.translatable("item.chickens.chicken.type",
+            tooltip.accept(Component.translatable("item.chickens.chicken.type",
                             chicken.getDisplayName())
                     .withStyle(ChatFormatting.GRAY));
             ChickenStats stats = ChickenItemHelper.getStats(stack);
-            tooltip.add(Component.translatable("item.chickens.chicken.stats", stats.gain(), stats.growth(), stats.strength())
+            tooltip.accept(Component.translatable("item.chickens.chicken.stats", stats.gain(), stats.growth(), stats.strength())
                     .withStyle(ChatFormatting.DARK_GREEN));
             if (stats.analysed()) {
-                tooltip.add(Component.translatable("item.chickens.chicken.analysed").withStyle(ChatFormatting.AQUA));
+                tooltip.accept(Component.translatable("item.chickens.chicken.analysed").withStyle(ChatFormatting.AQUA));
             }
         }
     }

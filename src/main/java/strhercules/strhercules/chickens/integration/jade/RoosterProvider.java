@@ -3,7 +3,7 @@ package strhercules.chickens.integration.jade;
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.entity.Rooster;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import snownee.jade.api.EntityAccessor;
 import snownee.jade.api.IEntityComponentProvider;
 import snownee.jade.api.ITooltip;
@@ -14,7 +14,7 @@ import java.util.Locale;
 enum RoosterProvider implements IEntityComponentProvider {
     INSTANCE;
 
-    private static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(
+    private static final Identifier ID = Identifier.fromNamespaceAndPath(
             ChickensMod.MOD_ID, "rooster");
 
     @Override
@@ -32,7 +32,7 @@ enum RoosterProvider implements IEntityComponentProvider {
     }
 
     @Override
-    public ResourceLocation getUid() {
+    public Identifier getUid() {
         return ID;
     }
 }

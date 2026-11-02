@@ -2,15 +2,16 @@ package strhercules.chickens.screen;
 
 import strhercules.chickens.ChickensMod;
 import strhercules.chickens.menu.AvianFluxConverterMenu;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 
 
 public class AvianFluxConverterScreen extends SideConfigurableScreen<AvianFluxConverterMenu> {
-    private static final ResourceLocation GUI_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID,
+    private static final Identifier GUI_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID,
             "textures/gui/fluxconverter.png");
     private static final int ENERGY_BAR_X = 103;
     private static final int ENERGY_BAR_Y = 14;
@@ -20,36 +21,33 @@ public class AvianFluxConverterScreen extends SideConfigurableScreen<AvianFluxCo
     private static final int ENERGY_TEXTURE_Y = 0;
 
     public AvianFluxConverterScreen(AvianFluxConverterMenu menu, Inventory playerInventory, Component title) {
-        super(menu, playerInventory, title);
-        this.imageWidth = 176;
-        this.imageHeight = 166;
+        super(menu, playerInventory, title, 176, 166);
         this.inventoryLabelY = this.imageHeight - 94;
     }
 
     @Override
-    protected void renderBg(GuiGraphics graphics, float partialTicks, int mouseX, int mouseY) {
+    public void extractBackground(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractBackground(graphics, mouseX, mouseY, partialTicks);
         int x = (this.width - this.imageWidth) / 2;
         int y = (this.height - this.imageHeight) / 2;
-        graphics.blit(GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
+        graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, x, y, 0, 0, this.imageWidth, this.imageHeight, 256, 256);
         renderEnergyBar(graphics, x, y);
     }
 
     @Override
-    protected void renderLabels(GuiGraphics graphics, int mouseX, int mouseY) {
-        graphics.drawString(this.font, this.title, 8, 6, 0x404040, false);
-        graphics.drawString(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0x404040, false);
+    protected void extractLabels(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
+        graphics.text(this.font, this.title, 8, 6, 0xFF404040, false);
+        graphics.text(this.font, this.playerInventoryTitle, 8, this.inventoryLabelY, 0xFF404040, false);
     }
 
     @Override
-    public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(graphics, mouseX, mouseY, partialTicks);
-        super.render(graphics, mouseX, mouseY, partialTicks);
+    public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTicks) {
+        super.extractRenderState(graphics, mouseX, mouseY, partialTicks);
         renderSideConfig(graphics, mouseX, mouseY);
         renderEnergyTooltip(graphics, mouseX, mouseY);
-        this.renderTooltip(graphics, mouseX, mouseY);
     }
 
-    private void renderEnergyBar(GuiGraphics graphics, int originX, int originY) {
+    private void renderEnergyBar(GuiGraphicsExtractor graphics, int originX, int originY) {
         int energy = this.menu.getEnergy();
         int capacity = Math.max(this.menu.getCapacity(), 1);
         int offset = ENERGY_BAR_HEIGHT
@@ -57,18 +55,18 @@ public class AvianFluxConverterScreen extends SideConfigurableScreen<AvianFluxCo
         if (offset < ENERGY_BAR_HEIGHT) {
             // Lift the gauge upward from the bottom of the slot just like the henhouse hay bar,
             // reusing the authored fluxconverter.png coordinates provided by art.
-            graphics.blit(GUI_TEXTURE, originX + ENERGY_BAR_X, originY + ENERGY_BAR_Y + offset, ENERGY_TEXTURE_X,
+            graphics.blit(RenderPipelines.GUI_TEXTURED, GUI_TEXTURE, originX + ENERGY_BAR_X, originY + ENERGY_BAR_Y + offset, ENERGY_TEXTURE_X,
                     ENERGY_TEXTURE_Y + offset, ENERGY_BAR_WIDTH, ENERGY_BAR_HEIGHT - offset, 256, 256);
         }
     }
 
-    private void renderEnergyTooltip(GuiGraphics graphics, int mouseX, int mouseY) {
+    private void renderEnergyTooltip(GuiGraphicsExtractor graphics, int mouseX, int mouseY) {
         if (!isHoveringEnergy(mouseX, mouseY)) {
             return;
         }
         int energy = this.menu.getEnergy();
         int capacity = Math.max(this.menu.getCapacity(), 1);
-        graphics.renderTooltip(this.font, Component.translatable("tooltip.chickens.avian_flux_converter.energy", energy, capacity),
+        graphics.setTooltipForNextFrame(this.font, Component.translatable("tooltip.chickens.avian_flux_converter.energy", energy, capacity),
                 mouseX, mouseY);
     }
 

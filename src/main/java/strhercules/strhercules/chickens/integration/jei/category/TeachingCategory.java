@@ -13,15 +13,15 @@ import mezz.jei.api.recipe.RecipeIngredientRole;
 import mezz.jei.api.recipe.RecipeType;
 import mezz.jei.api.recipe.category.IRecipeCategory;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 public class TeachingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.TeachingRecipe> {
     // Reutilizamos la misma textura de fondo que LayingCategory
-    private static final ResourceLocation TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying.png");
+    private static final Identifier TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying.png");
     // El icono es el propio item del libro; no necesitamos una textura separada.
-    private static final ResourceLocation ICON_TEXTURE = ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying_icon.png");
+    private static final Identifier ICON_TEXTURE = Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "textures/gui/laying_icon.png");
 
     private final IDrawable background;
     private final IDrawable icon;
@@ -45,8 +45,13 @@ public class TeachingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public IDrawable getBackground() {
-        return background;
+    public int getWidth() {
+        return background.getWidth();
+    }
+
+    @Override
+    public int getHeight() {
+        return background.getHeight();
     }
 
     @Override
@@ -68,10 +73,11 @@ public class TeachingCategory implements IRecipeCategory<ChickensJeiRecipeTypes.
     }
 
     @Override
-    public void draw(ChickensJeiRecipeTypes.TeachingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphics graphics,
+    public void draw(ChickensJeiRecipeTypes.TeachingRecipe recipe, IRecipeSlotsView recipeSlotsView, GuiGraphicsExtractor graphics,
             double mouseX, double mouseY) {
+        background.draw(graphics);
         arrow.draw(graphics, 38, 21);
         Component hint = Component.translatable("gui.chickens.teaching.hint");
-        graphics.drawString(Minecraft.getInstance().font, hint, 5, 7, 0xFF7F7F7F, false);
+        graphics.text(Minecraft.getInstance().font, hint, 5, 7, 0xFF7F7F7F, false);
     }
 }

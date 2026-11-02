@@ -2,15 +2,9 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "B": {
-      "item": "minecraft:beacon"
-    },
-    "E": {
-      "item": "minecraft:ender_eye"
-    },
-    "N": {
-      "item": "minecraft:netherite_ingot"
-    }
+    "B": "minecraft:beacon",
+    "E": "minecraft:ender_eye",
+    "N": "minecraft:netherite_ingot"
   },
   "pattern": [
     "ENE",
@@ -18,7 +12,6 @@
     "ENE"
   ],
   "result": {
-    "count": 1,
     "id": "chickens:rangeupgrade"
   }
 }

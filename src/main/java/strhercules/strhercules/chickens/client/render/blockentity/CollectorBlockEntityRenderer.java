@@ -4,14 +4,21 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
 import strhercules.chickens.blockentity.CollectorBlockEntity;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.client.renderer.entity.ItemRenderer;
+import net.minecraft.client.renderer.blockentity.state.BlockEntityRenderState;
+import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
+import net.minecraft.client.renderer.item.ItemModelResolver;
+import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.util.Mth;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,29 +29,48 @@ import java.util.List;
  * model; rendering real item stacks here recreates that presentation while
  * keeping the logic data driven.
  */
-public class CollectorBlockEntityRenderer implements BlockEntityRenderer<CollectorBlockEntity> {
+public class CollectorBlockEntityRenderer
+        implements BlockEntityRenderer<CollectorBlockEntity, CollectorBlockEntityRenderer.CollectorRenderState> {
     private static final int MAX_DISPLAY_ITEMS = 4;
     private static final float ORBIT_RADIUS = 0.25F;
-    private final ItemRenderer itemRenderer;
+    private final ItemModelResolver itemModelResolver;
 
     public CollectorBlockEntityRenderer(BlockEntityRendererProvider.Context context) {
-        // Pull the shared item renderer from the context so we reuse the same
-        // batching and model cache as vanilla containers.
-        this.itemRenderer = context.getItemRenderer();
+        // Pull the shared item resolver from the context so we reuse the same
+        // model cache as vanilla containers.
+        this.itemModelResolver = context.itemModelResolver();
     }
 
     @Override
-    public void render(CollectorBlockEntity collector, float partialTicks, PoseStack poseStack, MultiBufferSource buffer,
-            int packedLight, int packedOverlay) {
-        List<ItemStack> displayStacks = collectDisplayStacks(collector);
-        if (displayStacks.isEmpty()) {
-            return;
-        }
+    public CollectorRenderState createRenderState() {
+        return new CollectorRenderState();
+    }
 
-        float time = getAnimationTime(partialTicks);
-        int total = displayStacks.size();
+    @Override
+    public void extractRenderState(CollectorBlockEntity collector, CollectorRenderState renderState,
+            float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress) {
+        BlockEntityRenderer.super.extractRenderState(collector, renderState, partialTicks, cameraPosition,
+                breakProgress);
+        renderState.items.clear();
+        Level level = collector.getLevel();
+        if (level == null) {
+            level = Minecraft.getInstance().level;
+        }
+        renderState.time = getAnimationTime(partialTicks);
+        for (ItemStack stack : collectDisplayStacks(collector)) {
+            ItemStackRenderState itemState = new ItemStackRenderState();
+            itemModelResolver.updateForTopItem(itemState, stack, ItemDisplayContext.GROUND, level, null, 0);
+            renderState.items.add(itemState);
+        }
+    }
+
+    @Override
+    public void submit(CollectorRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector,
+            CameraRenderState camera) {
+        float time = state.time;
+        int total = state.items.size();
         for (int index = 0; index < total; index++) {
-            ItemStack stack = displayStacks.get(index);
+            ItemStackRenderState itemState = state.items.get(index);
             poseStack.pushPose();
 
             float angle = time + (360.0F / total) * index;
@@ -58,12 +84,7 @@ public class CollectorBlockEntityRenderer implements BlockEntityRenderer<Collect
             poseStack.mulPose(Axis.YP.rotationDegrees(angle));
             poseStack.scale(0.35F, 0.35F, 0.35F);
 
-            Level level = collector.getLevel();
-            if (level == null) {
-                level = Minecraft.getInstance().level;
-            }
-            itemRenderer.renderStatic(stack, ItemDisplayContext.GROUND, packedLight, packedOverlay, poseStack, buffer,
-                    level, 0);
+            itemState.submit(poseStack, submitNodeCollector, state.lightCoords, OverlayTexture.NO_OVERLAY, 0);
             poseStack.popPose();
         }
     }
@@ -99,5 +120,9 @@ public class CollectorBlockEntityRenderer implements BlockEntityRenderer<Collect
         // Convert world time into degrees so each item has a smooth circular path.
         return (minecraft.level.getGameTime() + partialTicks) * 6.0F;
     }
-}
 
+    public static class CollectorRenderState extends BlockEntityRenderState {
+        public final List<ItemStackRenderState> items = new ArrayList<>();
+        public float time;
+    }
+}

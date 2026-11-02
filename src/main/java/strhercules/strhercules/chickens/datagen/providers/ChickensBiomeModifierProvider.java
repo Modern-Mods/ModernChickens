@@ -4,7 +4,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.RegistrySetBuilder;
 import net.minecraft.data.PackOutput;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.neoforge.common.data.DatapackBuiltinEntriesProvider;
 import net.neoforged.neoforge.common.world.BiomeModifier;
 import net.neoforged.neoforge.registries.NeoForgeRegistries;
@@ -18,7 +18,7 @@ import java.util.concurrent.CompletableFuture;
 public class ChickensBiomeModifierProvider extends DatapackBuiltinEntriesProvider {
     private static final ResourceKey<BiomeModifier> CHICKENS_SPAWNS = ResourceKey.create(
             NeoForgeRegistries.Keys.BIOME_MODIFIERS,
-            ResourceLocation.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_spawns"));
+            Identifier.fromNamespaceAndPath(ChickensMod.MOD_ID, "chickens_spawns"));
 
     private static final RegistrySetBuilder BUILDER = new RegistrySetBuilder()
             .add(NeoForgeRegistries.Keys.BIOME_MODIFIERS, context ->

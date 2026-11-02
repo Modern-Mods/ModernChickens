@@ -5,7 +5,10 @@ import strhercules.chickens.item.ChickenStats;
 import strhercules.chickens.registry.ModEntityTypes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.util.ProblemReporter;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.TagValueInput;
 
 import javax.annotation.Nullable;
 import java.util.HashMap;
@@ -38,7 +41,7 @@ public final class ChickenRenderHelper {
         }
         ChickensChicken chicken = CACHE.compute(type, (key, existing) -> {
             if (existing == null || existing.level() != level) {
-                ChickensChicken created = ModEntityTypes.CHICKENS_CHICKEN.get().create(level);
+                ChickensChicken created = ModEntityTypes.CHICKENS_CHICKEN.get().create(level, EntitySpawnReason.LOAD);
                 if (created == null) {
                     return null;
                 }
@@ -49,15 +52,15 @@ public final class ChickenRenderHelper {
         if (chicken == null) {
             return null;
         }
-        applyStats(chicken, type, stats);
+        applyStats(chicken, level, type, stats);
         chicken.tickCount = (int) level.getGameTime();
         return chicken;
     }
 
-    private static void applyStats(ChickensChicken chicken, int type, ChickenStats stats) {
+    private static void applyStats(ChickensChicken chicken, Level level, int type, ChickenStats stats) {
         CompoundTag tag = stats.toTag();
         tag.putInt(TAG_TYPE, type);
-        chicken.readAdditionalSaveData(tag);
+        chicken.load(TagValueInput.create(ProblemReporter.DISCARDING, level.registryAccess(), tag));
         chicken.setChickenType(type);
         chicken.setAge(0);
     }

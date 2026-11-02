@@ -2,14 +2,16 @@ package strhercules.chickens.datagen.providers;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.loot.LootContext;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
 import net.minecraft.world.level.storage.loot.functions.CopyNameFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 import net.minecraft.world.level.storage.loot.predicates.ExplosionCondition;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
@@ -43,6 +45,7 @@ public class ChickensBlockLootSubProvider extends BlockLootSubProvider {
             "chickens:henhouse_spruce",
             "chickens:henhouse_mangrove",
             "chickens:henhouse_cherry",
+            "chickens:henhouse_pale_oak",
             "chickens:henhouse_bamboo",
             "chickens:henhouse_crimson",
             "chickens:henhouse_warped"
@@ -80,7 +83,7 @@ public class ChickensBlockLootSubProvider extends BlockLootSubProvider {
                 LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1))
                         .add(LootItem.lootTableItem(block)
-                                .apply(CopyNameFunction.copyName(CopyNameFunction.NameSource.BLOCK_ENTITY)))
+                                .apply(CopyNameFunction.copyName(LootContext.BlockEntityTarget.BLOCK_ENTITY)))
                         .when(ExplosionCondition.survivesExplosion())
         );
     }
@@ -91,7 +94,7 @@ public class ChickensBlockLootSubProvider extends BlockLootSubProvider {
                         .setRolls(ConstantValue.exactly(1))
                         .setBonusRolls(ConstantValue.exactly(0))
                         .add(LootItem.lootTableItem(block)
-                                .apply(CopyComponentsFunction.copyComponents(CopyComponentsFunction.Source.BLOCK_ENTITY)))
+                                .apply(CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)))
         );
     }
 
@@ -105,6 +108,6 @@ public class ChickensBlockLootSubProvider extends BlockLootSubProvider {
     }
 
     private static Block block(String id) {
-        return BuiltInRegistries.BLOCK.get(ResourceLocation.parse(id));
+        return BuiltInRegistries.BLOCK.getValue(Identifier.parse(id));
     }
 }

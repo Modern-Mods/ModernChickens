@@ -6,6 +6,7 @@ import strhercules.chickens.blockentity.RoostBlockEntity;
 import strhercules.chickens.registry.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.Containers;
@@ -25,7 +26,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import net.minecraft.world.level.block.state.properties.DirectionProperty;
+import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.common.extensions.IPlayerExtension;
@@ -40,8 +41,8 @@ import javax.annotation.Nullable;
 public class RoostBlock extends HorizontalDirectionalBlock implements EntityBlock {
     public static final MapCodec<RoostBlock> CODEC = simpleCodec(RoostBlock::new);
 
-    public RoostBlock() {
-        this(BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.0F, 5.0F).sound(SoundType.WOOD));
+    public static BlockBehaviour.Properties defaultProperties() {
+        return BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).strength(2.0F, 5.0F).sound(SoundType.WOOD);
     }
 
     public RoostBlock(BlockBehaviour.Properties properties) {
@@ -63,7 +64,7 @@ public class RoostBlock extends HorizontalDirectionalBlock implements EntityBloc
     @Nullable
     @Override
     public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return null;
         }
         if (type != ModBlockEntities.ROOST.get()) {
@@ -83,28 +84,20 @@ public class RoostBlock extends HorizontalDirectionalBlock implements EntityBloc
             return InteractionResult.PASS;
         }
         if (player.isShiftKeyDown()) {
-            if (!level.isClientSide && roost.pullChickenOut(player)) {
+            if (!level.isClientSide() && roost.pullChickenOut(player)) {
                 return InteractionResult.CONSUME;
             }
             return InteractionResult.SUCCESS;
         }
-        if (!level.isClientSide && player instanceof ServerPlayer serverPlayer) {
+        if (!level.isClientSide() && player instanceof ServerPlayer serverPlayer) {
             ((IPlayerExtension) serverPlayer).openMenu(roost, pos);
         }
-        return InteractionResult.sidedSuccess(level.isClientSide);
+        return InteractionResult.SUCCESS;
     }
 
     @Override
-    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
-        if (!state.is(newState.getBlock())) {
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof RoostBlockEntity roost) {
-                roost.dropBufferedOutput();
-                Containers.dropContents(level, pos, roost.getItems());
-                level.updateNeighbourForOutputSignal(pos, this);
-            }
-        }
-        super.onRemove(state, level, pos, newState, isMoving);
+    protected void affectNeighborsAfterRemoval(BlockState state, ServerLevel level, BlockPos pos, boolean movedByPiston) {
+        Containers.updateNeighboursAfterDestroy(state, level, pos);
     }
 
     @Override
@@ -113,12 +106,12 @@ public class RoostBlock extends HorizontalDirectionalBlock implements EntityBloc
     }
 
     @Override
-    public int getLightBlock(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+    protected int getLightDampening(BlockState state) {
         return 15;
     }
 
     @Override
-    public boolean propagatesSkylightDown(BlockState state, net.minecraft.world.level.BlockGetter level, BlockPos pos) {
+    protected boolean propagatesSkylightDown(BlockState state) {
         return false;
     }
 

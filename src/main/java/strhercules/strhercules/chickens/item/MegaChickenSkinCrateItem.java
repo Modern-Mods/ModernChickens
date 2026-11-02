@@ -6,8 +6,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /** End-game loot item that applies one validated Mega Chicken skin. */
 public final class MegaChickenSkinCrateItem extends Item {
@@ -24,15 +25,15 @@ public final class MegaChickenSkinCrateItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        return Component.translatable(getDescriptionId(stack)).withStyle(ChatFormatting.AQUA);
+        return Component.translatable(getDescriptionId()).withStyle(ChatFormatting.AQUA);
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip,
-            TooltipFlag flag) {
-        tooltip.add(Component.translatable("tooltip.chickens.mega_chicken_skin_crate", skin.displayName())
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("tooltip.chickens.mega_chicken_skin_crate", skin.displayName())
                 .withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("tooltip.chickens.mega_chicken_skin_crate.ownership")
+        tooltip.accept(Component.translatable("tooltip.chickens.mega_chicken_skin_crate.ownership")
                 .withStyle(ChatFormatting.DARK_GRAY));
     }
 }

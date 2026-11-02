@@ -68,10 +68,10 @@ public record ChickenStats(int growth, int gain, int strength, boolean analysed)
         if (tag == null) {
             return DEFAULT;
         }
-        int growth = tag.getInt(TAG_GROWTH);
-        int gain = tag.getInt(TAG_GAIN);
-        int strength = tag.getInt(TAG_STRENGTH);
-        boolean analysed = tag.getBoolean(TAG_ANALYSED);
+        int growth = tag.getIntOr(TAG_GROWTH, 0);
+        int gain = tag.getIntOr(TAG_GAIN, 0);
+        int strength = tag.getIntOr(TAG_STRENGTH, 0);
+        boolean analysed = tag.getBooleanOr(TAG_ANALYSED, false);
         return new ChickenStats(growth, gain, strength, analysed);
     }
 }

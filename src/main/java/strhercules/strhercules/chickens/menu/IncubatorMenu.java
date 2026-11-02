@@ -244,7 +244,7 @@ public class IncubatorMenu extends AbstractContainerMenu implements SideConfigMe
     }
 
     private boolean isServerSide() {
-        return incubator.getLevel() != null && !incubator.getLevel().isClientSide;
+        return incubator.getLevel() != null && !incubator.getLevel().isClientSide();
     }
 
     private int getServerEnergy() {

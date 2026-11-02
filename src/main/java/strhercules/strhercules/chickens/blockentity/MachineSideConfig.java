@@ -1,9 +1,11 @@
 package strhercules.chickens.blockentity;
 
 import net.minecraft.core.Direction;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /** Persisted per-face automation policy shared by the mod's machines. */
 public final class MachineSideConfig {
@@ -69,34 +71,29 @@ public final class MachineSideConfig {
         return next;
     }
 
-    public void save(CompoundTag parent) {
-        CompoundTag config = new CompoundTag();
+    public void save(ValueOutput parent) {
+        ValueOutput config = parent.child(TAG);
         for (Direction direction : Direction.values()) {
-            CompoundTag side = new CompoundTag();
+            ValueOutput side = config.child(direction.getName());
             for (Channel channel : Channel.values()) {
                 side.putByte(channel.name(), (byte) get(direction, channel).ordinal());
             }
-            config.put(direction.getName(), side);
         }
-        parent.put(TAG, config);
     }
 
-    public void load(CompoundTag parent) {
+    public void load(ValueInput parent) {
         reset();
-        if (!parent.contains(TAG, CompoundTag.TAG_COMPOUND)) {
+        Optional<ValueInput> config = parent.child(TAG);
+        if (config.isEmpty()) {
             return;
         }
-        CompoundTag config = parent.getCompound(TAG);
         for (Direction direction : Direction.values()) {
-            if (!config.contains(direction.getName(), CompoundTag.TAG_COMPOUND)) {
+            Optional<ValueInput> side = config.get().child(direction.getName());
+            if (side.isEmpty()) {
                 continue;
             }
-            CompoundTag side = config.getCompound(direction.getName());
             for (Channel channel : Channel.values()) {
-                if (!side.contains(channel.name(), CompoundTag.TAG_BYTE)) {
-                    continue;
-                }
-                int ordinal = side.getByte(channel.name());
+                int ordinal = side.get().getByteOr(channel.name(), (byte) -1);
                 if (ordinal >= 0 && ordinal < Mode.values().length) {
                     modes[direction.ordinal()][channel.ordinal()] = Mode.values()[ordinal];
                 }

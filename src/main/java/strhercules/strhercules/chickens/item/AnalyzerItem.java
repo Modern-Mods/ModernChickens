@@ -11,9 +11,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.Item.TooltipContext;
 
-import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Portable chicken analyser that reports the target bird's tier and stats. The
@@ -26,9 +27,10 @@ public class AnalyzerItem extends Item {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable("item.chickens.analyzer.tooltip1").withStyle(ChatFormatting.GRAY));
-        tooltip.add(Component.translatable("item.chickens.analyzer.tooltip2").withStyle(ChatFormatting.GRAY));
+    public void appendHoverText(ItemStack stack, TooltipContext context, TooltipDisplay display,
+            Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable("item.chickens.analyzer.tooltip1").withStyle(ChatFormatting.GRAY));
+        tooltip.accept(Component.translatable("item.chickens.analyzer.tooltip2").withStyle(ChatFormatting.GRAY));
     }
 
     @Override
@@ -36,7 +38,7 @@ public class AnalyzerItem extends Item {
         if (!(target instanceof ChickensChicken chicken)) {
             return InteractionResult.PASS;
         }
-        if (player.level().isClientSide) {
+        if (player.level().isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 

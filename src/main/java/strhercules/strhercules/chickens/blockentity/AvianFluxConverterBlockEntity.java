@@ -32,9 +32,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.energy.EnergyStorage;
-import net.neoforged.neoforge.energy.IEnergyStorage;
+import net.neoforged.neoforge.transfer.energy.EnergyHandler;
+import net.neoforged.neoforge.transfer.energy.EnergyHandlerUtil;
 
 import javax.annotation.Nullable;
 
@@ -53,54 +55,35 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
 
     private final NonNullList<ItemStack> items = NonNullList.withSize(SLOT_COUNT, ItemStack.EMPTY);
     private final MachineSideConfig sideConfig = new MachineSideConfig();
-    private final EnergyStorage energyStorage = new EnergyStorage(DEFAULT_CAPACITY, DEFAULT_MAX_RECEIVE, DEFAULT_MAX_EXTRACT) {
+    private final MachineEnergyHandler energyStorage = new MachineEnergyHandler() {
         @Override
-        public int receiveEnergy(int requestedReceive, boolean simulate) {
-            int space = capacity - AvianFluxConverterBlockEntity.this.energy;
-            if (space <= 0) {
-                return 0;
-            }
-            int limit = AvianFluxConverterBlockEntity.this.maxReceive;
-            if (limit <= 0) {
-                return 0;
-            }
-            int accepted = Math.min(limit, Math.min(space, requestedReceive));
-            if (accepted <= 0) {
-                return 0;
-            }
-            if (!simulate) {
-                AvianFluxConverterBlockEntity.this.energy += accepted;
-                markEnergyDirty();
-            }
-            return accepted;
-        }
-
-        @Override
-        public int extractEnergy(int requestedExtract, boolean simulate) {
-            int limit = AvianFluxConverterBlockEntity.this.maxExtract;
-            if (limit <= 0) {
-                return 0;
-            }
-            int available = Math.min(limit,
-                    Math.min(AvianFluxConverterBlockEntity.this.energy, requestedExtract));
-            if (available <= 0) {
-                return 0;
-            }
-            if (!simulate) {
-                AvianFluxConverterBlockEntity.this.energy -= available;
-                markEnergyDirty();
-            }
-            return available;
-        }
-
-        @Override
-        public int getEnergyStored() {
+        protected int storedEnergy() {
             return AvianFluxConverterBlockEntity.this.energy;
         }
 
         @Override
-        public int getMaxEnergyStored() {
+        protected void storeEnergy(int value) {
+            AvianFluxConverterBlockEntity.this.energy = value;
+        }
+
+        @Override
+        protected int energyCapacity() {
             return AvianFluxConverterBlockEntity.this.capacity;
+        }
+
+        @Override
+        protected int maxInsert() {
+            return AvianFluxConverterBlockEntity.this.maxReceive;
+        }
+
+        @Override
+        protected int maxExtract() {
+            return AvianFluxConverterBlockEntity.this.maxExtract;
+        }
+
+        @Override
+        protected void onEnergyChanged() {
+            markEnergyDirty();
         }
     };
 
@@ -126,7 +109,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
     }
 
     private void tickServer(Level level) {
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return;
         }
         boolean drainedEgg = drainFluxEgg();
@@ -145,7 +128,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
 
     private void markEnergyDirty() {
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             BlockState state = getBlockState();
             level.sendBlockUpdated(worldPosition, state, state, Block.UPDATE_ALL);
             level.updateNeighbourForOutputSignal(worldPosition, state.getBlock());
@@ -200,7 +183,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
                 continue;
             }
             BlockPos targetPos = worldPosition.relative(direction);
-            IEnergyStorage target = level.getCapability(Capabilities.EnergyStorage.BLOCK, targetPos,
+            EnergyHandler target = level.getCapability(Capabilities.Energy.BLOCK, targetPos,
                     direction.getOpposite());
             if (target == null) {
                 continue;
@@ -213,13 +196,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
             if (available <= 0) {
                 continue;
             }
-            int accepted = target.receiveEnergy(available, false);
-            if (accepted <= 0) {
-                continue;
-            }
-            // Mirror the transfer into our internal storage so comparator outputs and
-            // GUI sync reflect the exported RF total immediately.
-            energyStorage.extractEnergy(accepted, false);
+            EnergyHandlerUtil.move(energyStorage, target, available, null);
         }
     }
 
@@ -234,7 +211,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
         return Math.round(15.0F * energy / (float) capacity);
     }
 
-    public IEnergyStorage getEnergyStorage(@Nullable Direction direction) {
+    public EnergyHandler getEnergyStorage(@Nullable Direction direction) {
         return MachineCapabilityWrappers.energy(energyStorage, sideConfig, direction);
     }
 
@@ -304,7 +281,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
             stack.setCount(getMaxStackSize());
         }
         setChanged();
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }
@@ -376,23 +353,17 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
 
     @Override
     public CompoundTag getUpdateTag(HolderLookup.Provider provider) {
-        CompoundTag tag = new CompoundTag();
-        saveAdditional(tag, provider);
-        return tag;
+        return saveWithoutMetadata(provider);
     }
 
     @Override
-    public void handleUpdateTag(CompoundTag tag, HolderLookup.Provider provider) {
-        loadAdditional(tag, provider);
+    public void handleUpdateTag(ValueInput input) {
+        loadAdditional(input);
     }
 
     @Override
-    public void onDataPacket(Connection connection, ClientboundBlockEntityDataPacket packet,
-            HolderLookup.Provider provider) {
-        CompoundTag tag = packet.getTag();
-        if (tag != null) {
-            loadAdditional(tag, provider);
-        }
+    public void onDataPacket(Connection connection, ValueInput input) {
+        loadAdditional(input);
     }
 
     @Nullable
@@ -402,35 +373,23 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
     }
 
     @Override
-    protected void saveAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.saveAdditional(tag, provider);
-        sideConfig.save(tag);
-        ContainerHelper.saveAllItems(tag, items, provider);
-        tag.putInt("Energy", energy);
-        tag.putInt("Capacity", capacity);
-        if (customName != null) {
-            ComponentSerialization.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE),
-                    customName).result().ifPresent(component -> tag.put("CustomName", component));
-        }
+    protected void saveAdditional(ValueOutput output) {
+        super.saveAdditional(output);
+        sideConfig.save(output);
+        ContainerHelper.saveAllItems(output, items);
+        output.putInt("Energy", energy);
+        output.putInt("Capacity", capacity);
+        output.storeNullable("CustomName", ComponentSerialization.CODEC, customName);
     }
 
     @Override
-    protected void loadAdditional(CompoundTag tag, HolderLookup.Provider provider) {
-        super.loadAdditional(tag, provider);
-        sideConfig.load(tag);
-        ContainerHelper.loadAllItems(tag, items, provider);
-        if (tag.contains("Capacity")) {
-            capacity = Math.max(1, tag.getInt("Capacity"));
-        } else {
-            capacity = DEFAULT_CAPACITY;
-        }
-        energy = Mth.clamp(tag.getInt("Energy"), 0, capacity);
-        if (tag.contains("CustomName", Tag.TAG_COMPOUND)) {
-            ComponentSerialization.CODEC.parse(provider.createSerializationContext(NbtOps.INSTANCE),
-                    tag.getCompound("CustomName")).result().ifPresent(component -> customName = component);
-        } else {
-            customName = null;
-        }
+    protected void loadAdditional(ValueInput input) {
+        super.loadAdditional(input);
+        sideConfig.load(input);
+        ContainerHelper.loadAllItems(input, items);
+        capacity = input.getInt("Capacity").map(value -> Math.max(1, value)).orElse(DEFAULT_CAPACITY);
+        energy = Mth.clamp(input.getIntOr("Energy", 0), 0, capacity);
+        customName = input.read("CustomName", ComponentSerialization.CODEC).orElse(null);
         syncWithConfig(false);
         cachedActiveState = false;
     }
@@ -458,7 +417,7 @@ public class AvianFluxConverterBlockEntity extends BlockEntity implements Worldl
     public void onLoad() {
         super.onLoad();
         syncWithConfig(false);
-        if (level != null && !level.isClientSide) {
+        if (level != null && !level.isClientSide()) {
             updateActiveState(level, shouldBlockGlow(false));
         }
     }

@@ -4,7 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.Level;
 import net.neoforged.neoforge.capabilities.BlockCapability;
 import org.slf4j.Logger;
@@ -31,7 +31,7 @@ public final class MekanismChemicalHelper {
 
     private static final boolean AVAILABLE;
     private static final Registry<Object> CHEMICAL_REGISTRY;
-    private static final ResourceLocation EMPTY_CHEMICAL_NAME;
+    private static final Identifier EMPTY_CHEMICAL_NAME;
     private static final Method CHEMICAL_GET_ICON;
     private static final Method CHEMICAL_GET_TINT;
     private static final Method CHEMICAL_GET_TEXT_COMPONENT;
@@ -66,7 +66,7 @@ public final class MekanismChemicalHelper {
     static {
         boolean present = false;
         Registry<Object> registry = null;
-        ResourceLocation empty = null;
+        Identifier empty = null;
         Method getIcon = null;
         Method getTint = null;
         Method getTextComponent = null;
@@ -107,14 +107,14 @@ public final class MekanismChemicalHelper {
             Field emptyChemicalField;
             try {
                 emptyChemicalField = apiClass.getField("EMPTY_CHEMICAL_NAME");
-                empty = (ResourceLocation) emptyChemicalField.get(null);
+                empty = (Identifier) emptyChemicalField.get(null);
             } catch (NoSuchFieldException ignored) {
                 // Mekanism 10.7.11+ renamed EMPTY_CHEMICAL_NAME to EMPTY_CHEMICAL_KEY.
                 try {
                     Field emptyKeyField = apiClass.getField("EMPTY_CHEMICAL_KEY");
                     Object holderKey = emptyKeyField.get(null);
                     if (holderKey instanceof net.minecraft.resources.ResourceKey<?> resourceKey) {
-                        empty = resourceKey.location();
+                        empty = resourceKey.identifier();
                     }
                 } catch (NoSuchFieldException secondary) {
                     // Ignore; fallback leaves empty null.
@@ -162,7 +162,7 @@ public final class MekanismChemicalHelper {
 
             @SuppressWarnings("unchecked")
             BlockCapability<Object, Direction> capability = (BlockCapability<Object, Direction>) BlockCapability.createSided(
-                    ResourceLocation.fromNamespaceAndPath("mekanism", "chemical_handler"), (Class<Object>) handlerClass);
+                    Identifier.fromNamespaceAndPath("mekanism", "chemical_handler"), (Class<Object>) handlerClass);
             blockCapability = capability;
             present = true;
         } catch (ReflectiveOperationException | LinkageError ex) {
@@ -214,11 +214,11 @@ public final class MekanismChemicalHelper {
         List<ChemicalData> results = new ArrayList<>();
         for (Object chemical : CHEMICAL_REGISTRY) {
             try {
-                ResourceLocation id = CHEMICAL_REGISTRY.getKey(chemical);
+                Identifier id = CHEMICAL_REGISTRY.getKey(chemical);
                 if (id == null || id.equals(EMPTY_CHEMICAL_NAME)) {
                     continue;
                 }
-                ResourceLocation texture = (ResourceLocation) CHEMICAL_GET_ICON.invoke(chemical);
+                Identifier texture = (Identifier) CHEMICAL_GET_ICON.invoke(chemical);
                 if (texture == null) {
                     continue;
                 }
@@ -252,7 +252,7 @@ public final class MekanismChemicalHelper {
     }
 
     @Nullable
-    public static Object createStack(ResourceLocation id, long amount) {
+    public static Object createStack(Identifier id, long amount) {
         if (id == null || amount <= 0) {
             return EMPTY_STACK;
         }
@@ -310,7 +310,7 @@ public final class MekanismChemicalHelper {
     }
 
     @Nullable
-    public static ResourceLocation getStackChemicalId(@Nullable Object stack) {
+    public static Identifier getStackChemicalId(@Nullable Object stack) {
         if (stack == null || CHEMICAL_STACK_GET_CHEMICAL == null) {
             return null;
         }
@@ -380,7 +380,7 @@ public final class MekanismChemicalHelper {
     }
 
     @Nullable
-    public static Object getChemical(ResourceLocation id) {
+    public static Object getChemical(Identifier id) {
         if (!isAvailable() || id == null || CHEMICAL_REGISTRY == null) {
             return null;
         }
@@ -388,14 +388,14 @@ public final class MekanismChemicalHelper {
     }
 
     @Nullable
-    public static ResourceLocation getChemicalId(Object chemical) {
+    public static Identifier getChemicalId(Object chemical) {
         if (!isAvailable() || chemical == null || CHEMICAL_REGISTRY == null) {
             return null;
         }
         return CHEMICAL_REGISTRY.getKey(chemical);
     }
 
-    public static boolean isRadioactive(@Nullable ResourceLocation id) {
+    public static boolean isRadioactive(@Nullable Identifier id) {
         if (id == null || CHEMICAL_IS_RADIOACTIVE == null) {
             return false;
         }
@@ -412,7 +412,7 @@ public final class MekanismChemicalHelper {
     }
 
     /** Returns Mekanism's runtime tint for a chemical, or white when unavailable. */
-    public static int getChemicalTint(@Nullable ResourceLocation id) {
+    public static int getChemicalTint(@Nullable Identifier id) {
         if (id == null || CHEMICAL_GET_TINT == null) {
             return 0xFFFFFF;
         }
@@ -428,8 +428,8 @@ public final class MekanismChemicalHelper {
         }
     }
 
-    public record ChemicalData(ResourceLocation id,
-                                ResourceLocation texture,
+    public record ChemicalData(Identifier id,
+                                Identifier texture,
                                 Component displayName,
                                 int tint,
                                 boolean gaseous,

@@ -2,7 +2,7 @@ package strhercules.chickens.integration.kubejs;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import strhercules.chickens.ChickensRegistryItem;
@@ -272,7 +272,7 @@ public final class KubeChickenModifier {
             chicken.setGeneratedTexture(generatedTexture);
         }
         if (itemTexture != null && !itemTexture.isBlank()) {
-            ResourceLocation parsed = ResourceLocation.tryParse(itemTexture);
+            Identifier parsed = Identifier.tryParse(itemTexture);
             if (parsed != null) {
                 chicken.setItemTexture(parsed);
             } else {
@@ -355,7 +355,7 @@ public final class KubeChickenModifier {
                 // Treat the full value as an item id below.
             }
         }
-        ResourceLocation id = ResourceLocation.tryParse(raw);
+        Identifier id = Identifier.tryParse(raw);
         Item item = id == null ? null : BuiltInRegistries.ITEM.getOptional(id).orElse(null);
         if (item == null) {
             ChickenRegistryKubeEvent.LOGGER.warn("Chicken modifier '{}' could not resolve item '{}'; ignoring",
