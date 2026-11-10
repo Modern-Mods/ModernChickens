@@ -169,7 +169,10 @@ public final class ChickensCommands {
         Optional<Path> result = BreedingGraphExporter.export(ChickensRegistry.getItems(), includeWeights);
         if (result.isPresent()) {
             Path path = result.get();
-            source.sendSuccess(() -> Component.translatable("commands.chickens.export.success", path.toString()), true);
+            String messageKey = includeWeights
+                    ? "commands.chickens.export.success_weights"
+                    : "commands.chickens.export.success";
+            source.sendSuccess(() -> Component.translatable(messageKey, path.toString()), true);
             return 1;
         }
         source.sendFailure(Component.translatable("commands.chickens.export.failure"));

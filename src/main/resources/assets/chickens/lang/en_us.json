@@ -510,6 +510,7 @@
   "entity.chickens.mega_chicken": "Mega Chicken",
   "entity.chickens.mega_chicken.taming_progress": "%s seeds remaining to tame",
   "commands.chickens.export.success": "Exported breeding graph to %s",
+  "commands.chickens.export.success_weights": "Exported breeding graph with chances to %s",
   "commands.chickens.export.failure": "Failed to export breeding graph. Check server logs.",
   "config.jade.plugin_chickens.avian_dousing_machine": "Avian Dousing Machine",
   "config.jade.plugin_chickens.avian_fluid_converter": "Avian Fluid Converter",
