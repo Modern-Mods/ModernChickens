@@ -1,4 +1,10 @@
 **CHANGELOG**
+# [2.0.14] - 10/11/2026
+
+## Fixed
+
+- **Jade no longer fails without Mekanism.** Looking at a Roost, Nest, Chicken Breeder or other machine hid the Jade tooltip and filled the log with errors when Mekanism was not installed. Mekanism is optional again, as the mod page says (issue #4).
+
 # [2.0.13] - 1/11/2026
 
 ## New

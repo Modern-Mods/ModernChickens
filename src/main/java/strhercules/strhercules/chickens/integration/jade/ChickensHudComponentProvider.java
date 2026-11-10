@@ -48,7 +48,8 @@ final class ChickensHudComponentProvider implements IBlockComponentProvider {
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE);
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE_DEFAULT);
         tooltip.remove(JadeIds.UNIVERSAL_FLUID_STORAGE_DETAILED);
-        boolean mekanismOwnsChemicalBar = config.get(MEKANISM_CHEMICAL)
+        boolean mekanismOwnsChemicalBar = config.getKeys().contains(MEKANISM_CHEMICAL)
+                && config.get(MEKANISM_CHEMICAL)
                 && accessor.getServerData().contains("mek_data", Tag.TAG_LIST);
         for (HudData.Entry entry : hud.entries()) {
             switch (entry.type()) {
