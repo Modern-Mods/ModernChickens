@@ -100,6 +100,7 @@ public final class LegacyConfigBridge {
                 getBool(props, "general.alwaysShowStats",           current.isAlwaysShowStats()),
                 getDouble(props, "general.roostSpeedMultiplier",    current.getRoostSpeedMultiplier()),
                 getDouble(props, "general.breederSpeedMultiplier",  current.getBreederSpeedMultiplier()),
+                getDouble(props, "general.breedingChanceMultiplier", current.getBreedingChanceMultiplier()),
                 getDouble(props, "general.roosterAuraMultiplier",   current.getRoosterAuraMultiplier()),
                 getInt(props, "general.roosterAuraRange",           current.getRoosterAuraRange()),
                 getInt(props, "general.nestMaxRoosters",            current.getNestMaxRoosters()),
@@ -181,6 +182,7 @@ public final class LegacyConfigBridge {
             case "alwaysShowStats" -> props.setProperty("general.alwaysShowStats", value);
             case "roostSpeed" -> props.setProperty("general.roostSpeedMultiplier", value);
             case "breederSpeed" -> props.setProperty("general.breederSpeedMultiplier", value);
+            case "breedingChanceMultiplier" -> props.setProperty("general.breedingChanceMultiplier", value);
             case "roosterAuraMultiplier" -> props.setProperty("general.roosterAuraMultiplier", value);
             case "roosterAuraRange" -> props.setProperty("general.roosterAuraRange", value);
             case "nestMaxRoosters" -> props.setProperty("general.nestMaxRoosters", value);

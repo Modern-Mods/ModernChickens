@@ -15,6 +15,7 @@ public final class ChickensConfigHolder {
             false,                   // alwaysShowStats
             1.0D,                    // roostSpeedMultiplier
             4.0D,                    // breederSpeedMultiplier
+            1.0D,                    // breedingChanceMultiplier
             1.25D,                   // roosterAuraMultiplier
             4,                       // roosterAuraRange
             1,                       // nestMaxRoosters (single rooster by default)

@@ -1,4 +1,11 @@
 **CHANGELOG**
+# [2.0.14] - 10/11/2026
+
+## New
+
+- **You can change the breeding odds.** The new option `general.breedingChanceMultiplier` in `chickens.toml` (default 1.0) multiplies how likely a pair is to give the chicken it unlocks, instead of one of its parents. 2.0 makes it twice as likely, 0 makes a pair only give back its parents. The percentage JEI shows follows it. With the default nothing changes.
+- **`/chickens export breeding weights`** writes the breeding graph with the chance of every child and the tier of every chicken. The old `/chickens export breeding` works as before.
+
 # [2.0.13] - 1/11/2026
 
 ## New

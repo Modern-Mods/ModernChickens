@@ -3,6 +3,7 @@ package strhercules.chickens;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.biome.Biome;
+import strhercules.chickens.config.ChickensConfigHolder;
 import net.neoforged.neoforge.common.Tags;
 
 import javax.annotation.Nullable;
@@ -137,10 +138,16 @@ public final class ChickensRegistry {
         if (child.getTier() <= 1) {
             return 0;
         }
-        List<ChickensRegistryItem> possibleChildren = getChildren(child.getParent1(), child.getParent2());
+        ChickensRegistryItem parent1 = child.getParent1();
+        ChickensRegistryItem parent2 = child.getParent2();
+        List<ChickensRegistryItem> possibleChildren = getChildren(parent1, parent2);
         int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        return ((maxChance - child.getTier()) * 100.0f) / maxDiceValue;
+        double multiplier = ChickensConfigHolder.get().getBreedingChanceMultiplier();
+        double totalWeight = getTotalWeight(possibleChildren, maxChance, parent1, parent2, multiplier);
+        if (totalWeight <= 0.0D) {
+            return 0;
+        }
+        return (float) (getWeight(child, maxChance, parent1, parent2, multiplier) * 100.0D / totalWeight);
     }
 
     @Nullable
@@ -150,29 +157,50 @@ public final class ChickensRegistry {
             return null;
         }
         int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        int diceValue = RAND.nextInt(maxDiceValue);
-        return getChickenToBeBorn(possibleChildren, maxChance, diceValue);
+        double multiplier = ChickensConfigHolder.get().getBreedingChanceMultiplier();
+        double totalWeight = getTotalWeight(possibleChildren, maxChance, parent1, parent2, multiplier);
+        if (totalWeight <= 0.0D) {
+            return null;
+        }
+        return getChickenToBeBorn(possibleChildren, maxChance, parent1, parent2, multiplier,
+                RAND.nextDouble() * totalWeight);
     }
 
     @Nullable
-    private static ChickensRegistryItem getChickenToBeBorn(List<ChickensRegistryItem> possibleChildren, int maxChance, int diceValue) {
-        int currentValue = 0;
+    private static ChickensRegistryItem getChickenToBeBorn(List<ChickensRegistryItem> possibleChildren, int maxChance,
+            ChickensRegistryItem parent1, ChickensRegistryItem parent2, double multiplier, double diceValue) {
+        double currentValue = 0.0D;
+        ChickensRegistryItem lastWeighted = null;
         for (ChickensRegistryItem child : possibleChildren) {
-            currentValue += maxChance - child.getTier();
+            double weight = getWeight(child, maxChance, parent1, parent2, multiplier);
+            if (weight <= 0.0D) {
+                continue;
+            }
+            currentValue += weight;
+            lastWeighted = child;
             if (diceValue < currentValue) {
                 return child;
             }
         }
-        return null;
+        return lastWeighted;
     }
 
-    private static int getMaxDiceValue(List<ChickensRegistryItem> possibleChildren, int maxChance) {
-        int maxDiceValue = 0;
-        for (ChickensRegistryItem child : possibleChildren) {
-            maxDiceValue += maxChance - child.getTier();
+    private static double getWeight(ChickensRegistryItem chicken, int maxChance, ChickensRegistryItem parent1,
+            ChickensRegistryItem parent2, double multiplier) {
+        double weight = maxChance - chicken.getTier();
+        if (chicken != parent1 && chicken != parent2) {
+            weight *= multiplier;
         }
-        return maxDiceValue;
+        return weight;
+    }
+
+    private static double getTotalWeight(List<ChickensRegistryItem> possibleChildren, int maxChance,
+            ChickensRegistryItem parent1, ChickensRegistryItem parent2, double multiplier) {
+        double totalWeight = 0.0D;
+        for (ChickensRegistryItem child : possibleChildren) {
+            totalWeight += getWeight(child, maxChance, parent1, parent2, multiplier);
+        }
+        return totalWeight;
     }
 
     private static int getMaxChance(List<ChickensRegistryItem> possibleChildren) {

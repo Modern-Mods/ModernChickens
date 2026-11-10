@@ -25,6 +25,7 @@
   "config.chickens.option.alwaysShowStats": "Always Show Stats",
   "config.chickens.option.roostSpeed": "Roost Speed Multiplier",
   "config.chickens.option.breederSpeed": "Breeder Speed Multiplier",
+  "config.chickens.option.breedingChanceMultiplier": "Breeding Chance Multiplier",
   "config.chickens.option.roosterAuraMultiplier": "Rooster Aura Multiplier",
   "config.chickens.option.roosterAuraRange": "Rooster Aura Range",
   "config.chickens.option.nestMaxRoosters": "Maximum Nest Roosters",
