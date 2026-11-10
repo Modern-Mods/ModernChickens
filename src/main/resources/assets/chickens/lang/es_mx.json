@@ -25,6 +25,7 @@
   "config.chickens.option.alwaysShowStats": "Mostrar siempre las estadísticas",
   "config.chickens.option.roostSpeed": "Multiplicador de velocidad del gallinero",
   "config.chickens.option.breederSpeed": "Multiplicador de velocidad del criador",
+  "config.chickens.option.breedingChanceMultiplier": "Multiplicador de probabilidad de cría de nuevas gallinas",
   "config.chickens.option.roosterAuraMultiplier": "Multiplicador del aura del gallo",
   "config.chickens.option.roosterAuraRange": "Alcance del aura del gallo",
   "config.chickens.option.nestMaxRoosters": "Máximo de gallos por nido",

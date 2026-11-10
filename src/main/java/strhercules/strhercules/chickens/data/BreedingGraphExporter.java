@@ -1,5 +1,6 @@
 package strhercules.chickens.data;
 
+import strhercules.chickens.ChickensRegistry;
 import strhercules.chickens.ChickensRegistryItem;
 import strhercules.chickens.SpawnType;
 import net.minecraftforge.fml.loading.FMLPaths;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Collection;
+import java.util.Locale;
 import java.util.Optional;
 
 /**
@@ -33,6 +35,20 @@ public final class BreedingGraphExporter {
      * when writing fails.
      */
     public static Optional<Path> export(Collection<ChickensRegistryItem> chickens) {
+        return export(chickens, false);
+    }
+
+    /**
+     * Writes the supplied chicken collection to {@code logs/chickens.gml},
+     * optionally adding each chicken's tier and every parent edge's breeding
+     * chance in percent.
+     *
+     * @param chickens the registry snapshot to serialise.
+     * @param includeWeights whether to write {@code tier} on nodes and {@code chance} on edges.
+     * @return the path that was written on success or {@link Optional#empty()}
+     * when writing fails.
+     */
+    public static Optional<Path> export(Collection<ChickensRegistryItem> chickens, boolean includeWeights) {
         Path logDir = FMLPaths.GAMEDIR.get().resolve("logs");
         Path output = logDir.resolve("chickens.gml");
         try {
@@ -44,6 +60,9 @@ public final class BreedingGraphExporter {
                     writer.write("\tnode [\n");
                     writer.write("\t\tid " + chicken.getId() + "\n");
                     writer.write("\t\tlabel \"" + chicken.getEntityName() + "\"\n");
+                    if (includeWeights) {
+                        writer.write("\t\ttier " + chicken.getTier() + "\n");
+                    }
                     if (requiresVisitingNether(chicken)) {
                         writer.write("\t\tgraphics [\n");
                         writer.write("\t\t\tfill \"#FF6600\"\n");
@@ -54,16 +73,21 @@ public final class BreedingGraphExporter {
                 for (ChickensRegistryItem chicken : chickens) {
                     ChickensRegistryItem parent1 = chicken.getParent1();
                     ChickensRegistryItem parent2 = chicken.getParent2();
+                    String chance = includeWeights
+                            ? "\t\tchance " + formatChance(ChickensRegistry.getChildChance(chicken)) + "\n"
+                            : "";
                     if (parent1 != null) {
                         writer.write("\tedge [\n");
                         writer.write("\t\tsource " + parent1.getId() + "\n");
                         writer.write("\t\ttarget " + chicken.getId() + "\n");
+                        writer.write(chance);
                         writer.write("\t]\n");
                     }
                     if (parent2 != null) {
                         writer.write("\tedge [\n");
                         writer.write("\t\tsource " + parent2.getId() + "\n");
                         writer.write("\t\ttarget " + chicken.getId() + "\n");
+                        writer.write(chance);
                         writer.write("\t]\n");
                     }
                 }
@@ -75,6 +99,10 @@ public final class BreedingGraphExporter {
             LOGGER.warn("Failed to write chicken breeding graph", e);
             return Optional.empty();
         }
+    }
+
+    private static String formatChance(float chance) {
+        return String.format(Locale.ROOT, "%.4f", chance);
     }
 
     private static boolean requiresVisitingNether(ChickensRegistryItem chicken) {

@@ -751,6 +751,15 @@ public final class ChickensDataLoader {
         int dropCount = ensurePositive(props, "general.roostDropCount",
                 readInt(props, "general.roostDropCount", 64), 1);
         boolean scalingDrops = readBoolean(props, "general.scalingDrops", true);
+        double breedingChanceMultiplier = readDouble(props, "general.breedingChanceMultiplier", 1.0D);
+        if (Double.isNaN(breedingChanceMultiplier)) {
+            breedingChanceMultiplier = 1.0D;
+            props.setProperty("general.breedingChanceMultiplier", Double.toString(breedingChanceMultiplier));
+        }
+        double clampedBreedingChanceMultiplier = Math.max(0.0D, Math.min(100.0D, breedingChanceMultiplier));
+        if (clampedBreedingChanceMultiplier != breedingChanceMultiplier) {
+            props.setProperty("general.breedingChanceMultiplier", Double.toString(clampedBreedingChanceMultiplier));
+        }
         return new ChickensConfigValues(spawnProbability, minBroodSize, maxBroodSize, multiplier,
                 overworldChance, netherChance, endChance, alwaysShowStats,
                 roostSpeed, breederSpeed, roosterAuraMultiplier, roosterAuraRange,
@@ -767,7 +776,7 @@ public final class ChickensDataLoader {
                 fluidChickensEnabled, automaticFluidChickensEnabled,
                 chemicalChickensEnabled, gasChickensEnabled, incubatorEnergyCost,
                 incubatorCapacity, incubatorMaxReceive,
-                dropCount, scalingDrops);
+                dropCount, scalingDrops, clampedBreedingChanceMultiplier);
     }
 
     private static String readString(Properties props, String key, String defaultValue) {

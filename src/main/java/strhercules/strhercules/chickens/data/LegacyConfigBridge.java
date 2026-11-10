@@ -134,7 +134,8 @@ public final class LegacyConfigBridge {
                 getInt(props, "general.incubatorCapacity",          current.getIncubatorEnergyCapacity()),
                 getInt(props, "general.incubatorMaxReceive",        current.getIncubatorEnergyMaxReceive()),
                 current.getDropCount(),
-                getBool(props, "general.scalingDrops", current.isScalingDropsEnabled())
+                getBool(props, "general.scalingDrops", current.isScalingDropsEnabled()),
+                getDouble(props, "general.breedingChanceMultiplier", current.getBreedingChanceMultiplier())
         );
         ChickensConfigHolder.set(built);
     }
@@ -198,6 +199,7 @@ public final class LegacyConfigBridge {
             case "incubatorCapacity" -> props.setProperty("general.incubatorCapacity", value);
             case "incubatorMaxReceive" -> props.setProperty("general.incubatorMaxReceive", value);
             case "scalingDrops" -> props.setProperty("general.scalingDrops", value);
+            case "breedingChanceMultiplier" -> props.setProperty("general.breedingChanceMultiplier", value);
             case "enableFluidChickens" -> props.setProperty("general.enableFluidChickens", value);
             case "autoRegisterFluidChickens" -> props.setProperty("general.autoRegisterFluidChickens", value);
             case "enableChemicalChickens" -> props.setProperty("general.enableChemicalChickens", value);

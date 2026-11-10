@@ -1,5 +1,6 @@
 package strhercules.chickens;
 
+import strhercules.chickens.config.ChickensConfigHolder;
 import net.minecraft.tags.BiomeTags;
 import net.minecraft.core.Holder;
 import net.minecraft.world.item.DyeColor;
@@ -135,45 +136,68 @@ public final class ChickensRegistry {
     }
 
     public static float getChildChance(ChickensRegistryItem child) {
-        if (child.getTier() <= 1) {
+        if (child.getTier() <= 1 || !child.isBreedable()) {
             return 0;
         }
-        List<ChickensRegistryItem> possibleChildren = getChildren(child.getParent1(), child.getParent2());
-        int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        return ((maxChance - child.getTier()) * 100.0f) / maxDiceValue;
+        BreedingPool pool = createBreedingPool(child.getParent1(), child.getParent2());
+        double totalWeight = pool.totalWeight();
+        if (totalWeight <= 0.0D) {
+            return 0;
+        }
+        return (float) (pool.weightOf(child) * 100.0D / totalWeight);
     }
 
     @Nullable
     public static ChickensRegistryItem getRandomChild(ChickensRegistryItem parent1, ChickensRegistryItem parent2) {
-        List<ChickensRegistryItem> possibleChildren = getChildren(parent1, parent2);
-        if (possibleChildren.isEmpty()) {
+        BreedingPool pool = createBreedingPool(parent1, parent2);
+        if (pool.chickens().isEmpty()) {
             return null;
         }
-        int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        int diceValue = RAND.nextInt(maxDiceValue);
-        return getChickenToBeBorn(possibleChildren, maxChance, diceValue);
+        double totalWeight = pool.totalWeight();
+        if (totalWeight <= 0.0D) {
+            return null;
+        }
+        return getChickenToBeBorn(pool, RAND.nextDouble() * totalWeight);
+    }
+
+    private static BreedingPool createBreedingPool(ChickensRegistryItem parent1, ChickensRegistryItem parent2) {
+        List<ChickensRegistryItem> possibleChildren = getChildren(parent1, parent2);
+        return new BreedingPool(possibleChildren, parent1, parent2, getMaxChance(possibleChildren),
+                ChickensConfigHolder.get().getBreedingChanceMultiplier());
     }
 
     @Nullable
-    private static ChickensRegistryItem getChickenToBeBorn(List<ChickensRegistryItem> possibleChildren, int maxChance, int diceValue) {
-        int currentValue = 0;
-        for (ChickensRegistryItem child : possibleChildren) {
-            currentValue += maxChance - child.getTier();
+    private static ChickensRegistryItem getChickenToBeBorn(BreedingPool pool, double diceValue) {
+        double currentValue = 0.0D;
+        ChickensRegistryItem lastWeighted = null;
+        for (ChickensRegistryItem child : pool.chickens()) {
+            double weight = pool.weightOf(child);
+            if (weight <= 0.0D) {
+                continue;
+            }
+            currentValue += weight;
+            lastWeighted = child;
             if (diceValue < currentValue) {
                 return child;
             }
         }
-        return null;
+        return lastWeighted;
     }
 
-    private static int getMaxDiceValue(List<ChickensRegistryItem> possibleChildren, int maxChance) {
-        int maxDiceValue = 0;
-        for (ChickensRegistryItem child : possibleChildren) {
-            maxDiceValue += maxChance - child.getTier();
+    private record BreedingPool(List<ChickensRegistryItem> chickens, ChickensRegistryItem parent1,
+                                ChickensRegistryItem parent2, int maxChance, double unlockedMultiplier) {
+        double weightOf(ChickensRegistryItem chicken) {
+            double weight = maxChance - chicken.getTier();
+            return chicken == parent1 || chicken == parent2 ? weight : weight * unlockedMultiplier;
         }
-        return maxDiceValue;
+
+        double totalWeight() {
+            double total = 0.0D;
+            for (ChickensRegistryItem chicken : chickens) {
+                total += weightOf(chicken);
+            }
+            return total;
+        }
     }
 
     private static int getMaxChance(List<ChickensRegistryItem> possibleChildren) {

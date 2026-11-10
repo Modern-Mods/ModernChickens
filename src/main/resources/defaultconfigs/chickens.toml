@@ -14,6 +14,9 @@ endSpawnChance = 0.015
 alwaysShowStats = false
 roostSpeed = 1
 breederSpeed = 1
+# Multiplies the breeding weight of the chickens a pair unlocks; the two parents keep their own weight.
+# 1 keeps the default odds, above 1 makes new chickens likelier, 0 makes a pair only return its parents.
+breedingChanceMultiplier = 1
 roosterAuraMultiplier = 1.25
 roosterAuraRange = 4
 nestMaxRoosters = 1

@@ -59,6 +59,7 @@ public final class ChickensConfigValues {
     /** Fixed drop count applied to every roost production tick, regardless of tier. */
     private final int dropCount;
     private final boolean scalingDrops;
+    private final double breedingChanceMultiplier;
 
     public ChickensConfigValues(int spawnProbability, int minBroodSize, int maxBroodSize,
             float netherSpawnChanceMultiplier, float overworldSpawnChance,
@@ -80,7 +81,7 @@ public final class ChickensConfigValues {
             boolean automaticFluidChickensEnabled,
             boolean chemicalChickensEnabled, boolean gasChickensEnabled, int incubatorEnergyCost,
             int incubatorEnergyCapacity, int incubatorEnergyMaxReceive,
-            int dropCount, boolean scalingDrops) {
+            int dropCount, boolean scalingDrops, double breedingChanceMultiplier) {
         this.spawnProbability = spawnProbability;
         this.minBroodSize = minBroodSize;
         this.maxBroodSize = maxBroodSize;
@@ -126,6 +127,7 @@ public final class ChickensConfigValues {
         this.incubatorEnergyMaxReceive = incubatorEnergyMaxReceive;
         this.dropCount = dropCount;
         this.scalingDrops = scalingDrops;
+        this.breedingChanceMultiplier = breedingChanceMultiplier;
     }
 
     public int getSpawnProbability() {
@@ -331,5 +333,13 @@ public final class ChickensConfigValues {
 
     public boolean isScalingDropsEnabled() {
         return scalingDrops;
+    }
+
+    /**
+     * Multiplier applied to the breeding weight of the chickens a pair unlocks.
+     * The parents keep their own weight; a value of 1.0 keeps the default odds.
+     */
+    public double getBreedingChanceMultiplier() {
+        return breedingChanceMultiplier;
     }
 }
