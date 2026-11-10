@@ -84,6 +84,7 @@ Spawn plans can override these fields:
 /chickens spawn summon_random [normal|snow|end|hell]
 /chickens custom list
 /chickens export breeding
+/chickens export breeding weights
 ```
 
 ## Integrated mods and unlockable chickens
@@ -466,6 +467,7 @@ Common settings include:
 - `general.alwaysShowStats`
 - `general.roostSpeed`
 - `general.breederSpeed`
+- `general.breedingChanceMultiplier`
 - `general.scalingDrops`
 - `general.collectorScanRange`
 - `general.liquidEggHazardsEnabled`

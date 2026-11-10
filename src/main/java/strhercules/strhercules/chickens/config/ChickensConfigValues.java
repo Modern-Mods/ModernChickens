@@ -18,6 +18,7 @@ public final class ChickensConfigValues {
     private final boolean alwaysShowStats;
     private final double roostSpeedMultiplier;
     private final double breederSpeedMultiplier;
+    private final double breedingChanceMultiplier;
     private final double roosterAuraMultiplier;
     private final int roosterAuraRange;
     /** Maximum number of roosters a single nest can hold. */
@@ -76,6 +77,7 @@ public final class ChickensConfigValues {
             float netherSpawnChanceMultiplier, float overworldSpawnChance,
             float netherSpawnChance, float endSpawnChance, boolean alwaysShowStats,
             double roostSpeedMultiplier, double breederSpeedMultiplier,
+            double breedingChanceMultiplier,
             double roosterAuraMultiplier, int roosterAuraRange,
             int nestMaxRoosters, int nestSeedDurationTicks,
             int mechanicalNestBaseEnergyPerTick, int mechanicalNestEnergyPerRoostPerTick,
@@ -110,6 +112,7 @@ public final class ChickensConfigValues {
         this.alwaysShowStats = alwaysShowStats;
         this.roostSpeedMultiplier = roostSpeedMultiplier;
         this.breederSpeedMultiplier = breederSpeedMultiplier;
+        this.breedingChanceMultiplier = breedingChanceMultiplier;
         this.roosterAuraMultiplier = roosterAuraMultiplier;
         this.roosterAuraRange = roosterAuraRange;
         this.nestMaxRoosters = nestMaxRoosters;
@@ -197,6 +200,10 @@ public final class ChickensConfigValues {
 
     public double getBreederSpeedMultiplier() {
         return breederSpeedMultiplier;
+    }
+
+    public double getBreedingChanceMultiplier() {
+        return breedingChanceMultiplier;
     }
 
     /**

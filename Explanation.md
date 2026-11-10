@@ -86,6 +86,7 @@ These are the packaged defaults. Values are validated or clamped by the runtime 
 | `alwaysShowStats` | Boolean | `false` | Always shows chicken statistics in supported Jade/WTHIT-style overlays. |
 | `roostSpeed` | Decimal | `1.0` | Global Roost production multiplier. Above 1 is faster; below 1 is slower. |
 | `breederSpeed` | Decimal | `1.0` | Global Breeder speed multiplier. Above 1 is faster. |
+| `breedingChanceMultiplier` | Decimal | `1.0` | Multiplies the weight of the chickens a breeding pair unlocks; the parents keep their own weight. Limited to 0 to 100. `0` makes a pair return only its parents. |
 | `roosterAuraMultiplier` | Decimal | `1.25` | Production multiplier supplied by an active nearby rooster aura. Set to 1 to remove the bonus. |
 | `roosterAuraRange` | Integer | `4` | Maximum block distance for a Roost to find a rooster aura. Negative values become 0. |
 | `nestMaxRoosters` | Integer | `1` | Maximum roosters in one Nest that contribute to the aura. Effective range is 1-16. |

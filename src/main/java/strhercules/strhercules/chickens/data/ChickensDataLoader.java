@@ -685,6 +685,11 @@ public final class ChickensDataLoader {
         boolean alwaysShowStats = readBoolean(props, "general.alwaysShowStats", false);
         double roostSpeed = readDouble(props, "general.roostSpeedMultiplier", 1.0D);
         double breederSpeed = readDouble(props, "general.breederSpeedMultiplier", 1.0D);
+        double breedingChanceMultiplier = readDouble(props, "general.breedingChanceMultiplier", 1.0D);
+        if (breedingChanceMultiplier < 0.0D || breedingChanceMultiplier > 100.0D) {
+            breedingChanceMultiplier = Math.max(0.0D, Math.min(100.0D, breedingChanceMultiplier));
+            props.setProperty("general.breedingChanceMultiplier", Double.toString(breedingChanceMultiplier));
+        }
         double roosterAuraMultiplier = readDouble(props, "general.roosterAuraMultiplier", 1.25D);
         int roosterAuraRange = ensureNonNegative(props, "general.roosterAuraRange",
                 readInt(props, "general.roosterAuraRange", 4));
@@ -792,7 +797,7 @@ public final class ChickensDataLoader {
         boolean scalingDrops = readBoolean(props, "general.scalingDrops", true);
         return new ChickensConfigValues(spawnProbability, minBroodSize, maxBroodSize, multiplier,
                 overworldChance, netherChance, endChance, alwaysShowStats,
-                roostSpeed, breederSpeed, roosterAuraMultiplier, roosterAuraRange,
+                roostSpeed, breederSpeed, breedingChanceMultiplier, roosterAuraMultiplier, roosterAuraRange,
                 nestMaxRoosters, nestSeedDurationTicks,
                 mechanicalNestBaseEnergyPerTick, mechanicalNestEnergyPerRoostPerTick,
                 mechanicalNestEnergyCostSpeedIncrease, mechanicalNestRange,

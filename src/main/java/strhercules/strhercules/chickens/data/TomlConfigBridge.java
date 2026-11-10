@@ -46,8 +46,8 @@ public final class TomlConfigBridge {
             "dropItemAmount", "dropItemMeta", "liquidDousingCost", "id");
     private static final Set<String> DECIMAL_KEYS = Set.of(
             "netherSpawnChanceMultiplier", "overworldSpawnChance", "netherSpawnChance",
-            "endSpawnChance", "roostSpeed", "breederSpeed", "roosterAuraMultiplier",
-            "fluxEggCapacityMultiplier", "mechanicalNestEnergyCostSpeedIncrease",
+            "endSpawnChance", "roostSpeed", "breederSpeed", "breedingChanceMultiplier",
+            "roosterAuraMultiplier", "fluxEggCapacityMultiplier", "mechanicalNestEnergyCostSpeedIncrease",
             "mechanicalRoostEnergyCostSpeedIncrease", "roostGeneratorBaseOutputRatio",
             "roostGeneratorExciterGenerationBonus", "roostGeneratorExciterFluctuation",
             "roostGeneratorEfficiencyBonus", "roostGeneratorOutputBonus",

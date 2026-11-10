@@ -52,7 +52,9 @@ public final class ChickensCommands {
                 .requires(source -> source.hasPermission(4))
                 .then(Commands.literal("export")
                         .then(Commands.literal("breeding")
-                                .executes(ctx -> exportBreedingGraph(ctx.getSource()))))
+                                .executes(ctx -> exportBreedingGraph(ctx.getSource(), false))
+                                .then(Commands.literal("weights")
+                                        .executes(ctx -> exportBreedingGraph(ctx.getSource(), true)))))
                 .then(Commands.literal("kill")
                         .executes(ctx -> killAllChickens(ctx.getSource())))
                 .then(Commands.literal("custom")
@@ -163,11 +165,14 @@ public final class ChickensCommands {
     // existing handlers (unchanged)
     // ---------------------------------------------------------------------------
 
-    private static int exportBreedingGraph(CommandSourceStack source) {
-        Optional<Path> result = BreedingGraphExporter.export(ChickensRegistry.getItems());
+    private static int exportBreedingGraph(CommandSourceStack source, boolean includeWeights) {
+        Optional<Path> result = BreedingGraphExporter.export(ChickensRegistry.getItems(), includeWeights);
         if (result.isPresent()) {
             Path path = result.get();
-            source.sendSuccess(() -> Component.translatable("commands.chickens.export.success", path.toString()), true);
+            String messageKey = includeWeights
+                    ? "commands.chickens.export.success_weights"
+                    : "commands.chickens.export.success";
+            source.sendSuccess(() -> Component.translatable(messageKey, path.toString()), true);
             return 1;
         }
         source.sendFailure(Component.translatable("commands.chickens.export.failure"));

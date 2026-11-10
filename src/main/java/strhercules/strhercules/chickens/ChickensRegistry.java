@@ -4,6 +4,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.biome.Biome;
 import net.neoforged.neoforge.common.Tags;
+import strhercules.chickens.config.ChickensConfigHolder;
 
 import javax.annotation.Nullable;
 import java.util.*;
@@ -137,10 +138,17 @@ public final class ChickensRegistry {
         if (child.getTier() <= 1) {
             return 0;
         }
-        List<ChickensRegistryItem> possibleChildren = getChildren(child.getParent1(), child.getParent2());
+        ChickensRegistryItem parent1 = child.getParent1();
+        ChickensRegistryItem parent2 = child.getParent2();
+        List<ChickensRegistryItem> possibleChildren = getChildren(parent1, parent2);
         int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        return ((maxChance - child.getTier()) * 100.0f) / maxDiceValue;
+        double unlockMultiplier = ChickensConfigHolder.get().getBreedingChanceMultiplier();
+        double totalWeight = getTotalWeight(possibleChildren, parent1, parent2, maxChance, unlockMultiplier);
+        if (totalWeight <= 0.0D) {
+            return 0;
+        }
+        double childWeight = getWeight(child, parent1, parent2, maxChance, unlockMultiplier);
+        return (float) (childWeight * 100.0D / totalWeight);
     }
 
     @Nullable
@@ -150,29 +158,51 @@ public final class ChickensRegistry {
             return null;
         }
         int maxChance = getMaxChance(possibleChildren);
-        int maxDiceValue = getMaxDiceValue(possibleChildren, maxChance);
-        int diceValue = RAND.nextInt(maxDiceValue);
-        return getChickenToBeBorn(possibleChildren, maxChance, diceValue);
+        double unlockMultiplier = ChickensConfigHolder.get().getBreedingChanceMultiplier();
+        double totalWeight = getTotalWeight(possibleChildren, parent1, parent2, maxChance, unlockMultiplier);
+        if (totalWeight <= 0.0D) {
+            return null;
+        }
+        double diceValue = RAND.nextDouble() * totalWeight;
+        return getChickenToBeBorn(possibleChildren, parent1, parent2, maxChance, unlockMultiplier, diceValue);
     }
 
     @Nullable
-    private static ChickensRegistryItem getChickenToBeBorn(List<ChickensRegistryItem> possibleChildren, int maxChance, int diceValue) {
-        int currentValue = 0;
+    private static ChickensRegistryItem getChickenToBeBorn(List<ChickensRegistryItem> possibleChildren,
+            ChickensRegistryItem parent1, ChickensRegistryItem parent2, int maxChance, double unlockMultiplier,
+            double diceValue) {
+        double currentValue = 0.0D;
+        ChickensRegistryItem lastWeighted = null;
         for (ChickensRegistryItem child : possibleChildren) {
-            currentValue += maxChance - child.getTier();
+            double weight = getWeight(child, parent1, parent2, maxChance, unlockMultiplier);
+            if (weight <= 0.0D) {
+                continue;
+            }
+            currentValue += weight;
+            lastWeighted = child;
             if (diceValue < currentValue) {
                 return child;
             }
         }
-        return null;
+        return lastWeighted;
     }
 
-    private static int getMaxDiceValue(List<ChickensRegistryItem> possibleChildren, int maxChance) {
-        int maxDiceValue = 0;
+    private static double getTotalWeight(List<ChickensRegistryItem> possibleChildren, ChickensRegistryItem parent1,
+            ChickensRegistryItem parent2, int maxChance, double unlockMultiplier) {
+        double totalWeight = 0.0D;
         for (ChickensRegistryItem child : possibleChildren) {
-            maxDiceValue += maxChance - child.getTier();
+            totalWeight += getWeight(child, parent1, parent2, maxChance, unlockMultiplier);
         }
-        return maxDiceValue;
+        return totalWeight;
+    }
+
+    private static double getWeight(ChickensRegistryItem chicken, ChickensRegistryItem parent1,
+            ChickensRegistryItem parent2, int maxChance, double unlockMultiplier) {
+        double weight = maxChance - chicken.getTier();
+        if (chicken == parent1 || chicken == parent2) {
+            return weight;
+        }
+        return weight * unlockMultiplier;
     }
 
     private static int getMaxChance(List<ChickensRegistryItem> possibleChildren) {
