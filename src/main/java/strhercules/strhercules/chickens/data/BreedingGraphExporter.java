@@ -102,7 +102,7 @@ public final class BreedingGraphExporter {
         if (chicken.getParent1() == null || chicken.getParent2() == null) {
             return "0";
         }
-        return String.format(Locale.ROOT, "%.2f", ChickensRegistry.getChildChance(chicken));
+        return String.format(Locale.ROOT, "%.4f", ChickensRegistry.getChildChance(chicken));
     }
 
     private static boolean requiresVisitingNether(ChickensRegistryItem chicken) {
