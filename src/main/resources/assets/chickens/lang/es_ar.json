@@ -394,6 +394,7 @@
   "entity.ChickensChicken.strength": "Fuerza: %s",
   "entity.chickens.rooster": "Gallo",
   "commands.chickens.export.success": "Gráfico de cría exportado a %s",
+  "commands.chickens.export.success_weights": "Gráfico de cría con probabilidades exportado a %s",
   "commands.chickens.export.failure": "Error al exportar el gráfico de cría. Revisa los registros del servidor.",
   "config.jade.plugin_chickens.chickens_chicken": "Pollo",
   "config.jade.plugin_chickens.hud_overlay": "Overlay HUD de Pollos",
