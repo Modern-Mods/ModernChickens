@@ -1,0 +1,19 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "ingredients": [
+    {
+      "item": "minecraft:book"
+    },
+    {
+      "item": "minecraft:egg"
+    }
+  ],
+  "result": {
+    "item": "patchouli:guide_book",
+    "count": 1,
+    "nbt": {
+      "patchouli:book": "chickens:guide"
+    }
+  }
+}
