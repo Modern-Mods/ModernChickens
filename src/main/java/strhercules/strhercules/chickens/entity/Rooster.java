@@ -388,7 +388,7 @@ public class Rooster extends Chicken implements Container, MenuProvider {
      * attack so they feel a little more assertive when protecting flocks.
      */
     public static AttributeSupplier.Builder createAttributes() {
-        return Animal.createMobAttributes()
+        return Animal.createAnimalAttributes()
                 .add(Attributes.MAX_HEALTH, 4.0D)
                 .add(Attributes.MOVEMENT_SPEED, 0.25D)
                 .add(Attributes.ATTACK_DAMAGE, 1.0D)

@@ -1,4 +1,10 @@
 **CHANGELOG**
+# [2.0.15] - 13/11/2026
+
+## Fixed
+
+- **The server crashed a few seconds after a Rooster appeared.** The Rooster had no tempt range, which the game now needs to check whether a player is holding food, so ticking it crashed the world (issue #5).
+
 # [2.0.14] - 10/11/2026
 
 ## New
