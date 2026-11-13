@@ -16,6 +16,9 @@ final class JadeOverlaySanitiser implements JadeTooltipCollectedCallback {
 
     @Override
     public void onTooltipCollected(BoxElement rootElement, snownee.jade.api.Accessor<?> accessor) {
+        if (HudData.read(accessor.getServerData()).isEmpty()) {
+            return;
+        }
         // Remove universal FE/energy lines
         purge(rootElement, JadeIds.UNIVERSAL_ENERGY_STORAGE);
         purge(rootElement, JadeIds.UNIVERSAL_ENERGY_STORAGE_DEFAULT);

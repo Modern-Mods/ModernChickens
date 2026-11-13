@@ -1,4 +1,14 @@
 **CHANGELOG**
+# [2.0.16] - 13/11/2026
+
+## New
+
+- **You can craft the guide book.** Put a Book and an Egg in the crafting grid to get the Modern Chickens guide (issue #4).
+
+## Fixed
+
+- **Jade no longer hides the fluid and energy bars of other mods.** Modern Chickens removed Jade's own fluid and energy lines on every block, so tanks, crucibles and barrels from other mods (Ex Deorum, EnderIO and more) lost their bar. It now only does that on Modern Chickens blocks (issue #4).
+
 # [2.0.15] - 13/11/2026
 
 ## Fixed
